@@ -3,7 +3,15 @@
 <dom-module id="lynleser-fulltext">
   <template>
     <style>
-      :host { display: block; }
+      :host {
+        display: block;
+        background: white;
+      }
+      #appendable {
+        display: block;
+        height: 60vh;
+        overflow-y: scroll;
+      }
     </style>
 
     <div id="appendable"></div>
@@ -27,8 +35,15 @@
         };
       }
       
-      loadContent(document) {
-        this.$.appendable.appendChild(document.body);
+      loadContent(doc) {
+        let start = new Date().getTime();
+        // for(let i = 0; i < doc.body.children.length; i++) {
+        //   let child = doc.body.children[i];
+        //   this.$.appendable.appendChild(child);
+        // }
+        this.$.appendable.appendChild(doc.body);
+        let end = new Date().getTime();
+        console.log(end - start);
       }
     }
     customElements.define(LynleserFulltext.is, LynleserFulltext);
