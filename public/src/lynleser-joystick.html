@@ -1,0 +1,47 @@
+<link rel="import" href="joystick-button.html">
+
+<dom-module id="lynleser-joystick">
+  <template>
+    <style>
+      :host { display: block; }
+    </style>
+
+    <joystick-button></joystick-button>
+
+  </template>
+  <script>
+    class LynleserJoystick extends Polymer.Element {
+      static get is() {
+        return "lynleser-joystick";
+      }
+
+
+      static get config() {
+        return {
+          properties: {
+            myProp: {
+              type: Array,
+              observer: "myObserver"
+            }
+          },
+          //observers: []
+        };
+      }
+
+      connectedCallback() {
+
+      }
+
+//      constructor() {
+//        super();
+//      }
+//      disconnectedCallback() {
+//        super.disconnectedCallback();
+//      }
+//      attributeChangedCallback() {
+//        super.attributeChangedCallback();
+//      }
+    }
+    customElements.define(LynleserJoystick.is, LynleserJoystick);
+  </script>
+</dom-module>

@@ -5,6 +5,7 @@
 <link rel="import" href="lynleser-booklist.html">
 <link rel="import" href="lynleser-fulltext.html">
 <link rel="import" href="lynleser-settings.html">
+<link rel="import" href="lynleser-joystick.html">
 
 <dom-module id="my-app">
   <template>
@@ -35,6 +36,11 @@
                        on-settings-changed="_userSetNewSettings"></lynleser-settings>
 
     <lynleser-fulltext id="fullText"></lynleser-fulltext>
+
+    <lynleser-joystick id="joystick"
+                       on-speedChange="_speedChange"
+                       on-wordWidthChange="_wordWidthChange"
+                       on-toggleStart="_toggleStart"></lynleser-joystick>
   </template>
 
   <script>
@@ -72,6 +78,18 @@
 
       _systemError(e) {
         console.log("Error");
+        console.log(e);
+      }
+
+      _wordWidthChange(e){
+        console.log(e);
+      }
+
+      _speedChange(e){
+        console.log(e);
+      }
+
+      _toggleStart(e){
         console.log(e);
       }
 

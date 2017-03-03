@@ -1,0 +1,96 @@
+<dom-module id="joystick-button">
+  <template>
+    <style>
+      :host { display: block; }
+      #circle{
+        display: block;
+        position: absolute;
+        bottom: 40px;
+        right: 40px;
+        width: 60px;
+        height: 60px;
+        border-radius: 30px;
+        background-color: red;
+      }
+    </style>
+
+    <div id="circle"></div>
+
+  </template>
+  <script>
+    class JoystickButton extends Polymer.Element {
+      static get is() {
+        return "joystick-button";
+      }
+
+
+      static get config() {
+        return {
+          properties: {
+            startEvent: Event,
+            moveEvent: Event,
+            frequency: {
+              type: Number,
+              value: 0
+            },
+            sensitivity: {
+              type: Number,
+              value: 5
+            }
+          },
+          //observers: []
+        };
+      }
+
+      connectedCallback() {
+        this.addEventListener("pointerdown", this._pointerdown.bind(this));
+        this.addEventListener("click", this._click.bind(this));
+        this.pointermove = this._pointermove.bind(this);
+        this.pointerup = this._pointerup.bind(this);
+      }
+
+//      _click(e){
+//        this._fire("")
+//      }
+
+      _pointerdown(e){
+        this.addEventListener("pointermove", this.pointermove);
+        this.addEventListener("pointerup", this.pointerup);
+        this.set("startEvent", e);
+        this.set("moveEvent", e);
+        this.frequencyInterval = setInterval(this.calcAndFire.bind(this), this.frequency);
+      }
+
+      _pointermove(e){
+        this.set("moveEvent", e);
+      }
+
+      _pointerup(e){
+        this.removeEventListener("pointermove", this.pointermove);
+        this.removeEventListener("pointerup", this.pointerup);
+        clearInterval(this.frequencyInterval);
+      }
+
+      calcAndFire(){
+        let xMove = startEvent.x-moveEvent.x;
+        let yMove = startEvent.y-moveEvent.y;
+        let xAbs = Math.abs(xMove);
+        let yAbs = Math.abs(yMove);
+        if (xAbs > yAbs){
+          if (xAbs < this.sensitivity)
+            return;
+          this._fire("pull-x", xMove);
+        } else {
+          if (yAbs < this.sensitivity)
+            return;
+          this._fire("pull-y", yMove);
+        }
+      }
+
+      _fire(name, value){
+        this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: value}));
+      }
+    }
+    customElements.define(JoystickButton.is, JoystickButton);
+  </script>
+</dom-module>
