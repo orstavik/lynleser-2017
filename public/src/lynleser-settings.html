@@ -45,10 +45,7 @@
       static get config() {
         return {
           properties: {
-            settings: {
-              type: Object,
-              observer: "_settingsChangedFromOutside"
-            },
+            settings: Object,
             defaultSettings: {
               type: Object,
               value: function () {
@@ -95,8 +92,7 @@
       }
 
       _prefixChange(e) {
-        let prefixes = e.target.value.split(",");
-        prefixes = prefixes.map(str => str.trim());
+        let prefixes = e.target.value.split(",").map(str => str.trim());
         this._changeSettings("prefixes", prefixes);
       }
 
