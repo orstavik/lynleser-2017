@@ -8,7 +8,7 @@
     </style>
 
     <template is="dom-repeat" items="[[systemBooks]]">
-      <div class="systemBook">[[item.key]], [[item.value.name]]</div>
+      <div class="systemBook" data-filename$="[[item.value.filename]]" on-click="_clickSystemBook">[[item.key]], [[item.value.name]]</div>
     </template>
     <template is="dom-repeat" items="[[userBooks]]">
       <div class="userBook">[[item.key]], [[item.value.position]]</div>
@@ -32,8 +32,8 @@
         };
       }
 
-      connectedCallback() {
-
+      _clickSystemBook(e) {
+        this.dispatchEvent(new CustomEvent("select-book", {composed: true, bubbles: true, detail: e.target.dataset.filename}));
       }
     }
     customElements.define(LynleserBooklist.is, LynleserBooklist);

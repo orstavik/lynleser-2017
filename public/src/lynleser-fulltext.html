@@ -1,0 +1,36 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="lynleser-fulltext">
+  <template>
+    <style>
+      :host { display: block; }
+    </style>
+
+    <div id="appendable"></div>
+  </template>
+  <script>
+    class LynleserFulltext extends Polymer.Element {
+      static get is() {
+        return "lynleser-fulltext";
+      }
+
+
+      static get config() {
+        return {
+          properties: {
+            href: {
+              type: String,
+              observer: "_hrefChanged"
+            }
+          },
+          //observers: []
+        };
+      }
+      
+      loadContent(document) {
+        this.$.appendable.appendChild(document.body);
+      }
+    }
+    customElements.define(LynleserFulltext.is, LynleserFulltext);
+  </script>
+</dom-module>

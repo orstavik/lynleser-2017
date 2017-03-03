@@ -3,6 +3,7 @@
 <link rel="import" href="lynleser-auth.html">
 <link rel="import" href="lynleser-firebase.html">
 <link rel="import" href="lynleser-booklist.html">
+<link rel="import" href="lynleser-fulltext.html">
 
 <dom-module id="my-app">
   <template>
@@ -13,17 +14,30 @@
         height: 100vh;
         background-color: #00acc1;
       }
+      lynleser-fulltext {
+        width: 80vw;
+        margin-left: 20vw;
+        background-color: white;
+      }
     </style>
 
 
     <lynleser-firebase id="firebase"
                        system-books="{{systemBooks}}"
                        server-user="{{serverUser}}"
-                       user-data="{{userData}}"></lynleser-firebase>
+                       user-data="{{userData}}"
+
+                       on-system-error="_systemError"
+                       on-loaded-book="_loadedBook"></lynleser-firebase>
 
     <lynleser-auth user="[[serverUser]]" on-sign-in="_signIn" on-sign-out="_signOut"></lynleser-auth>
-    <lynleser-booklist system-books="[[systemBooks]]" user-books="[[userData.books]]"></lynleser-booklist>
 
+    <lynleser-booklist system-books="[[systemBooks]]"
+                       user-books="[[userData.books]]"
+
+                       on-select-book="_selectBook"></lynleser-booklist>
+
+    <lynleser-fulltext id="fullText"></lynleser-fulltext>
   </template>
 
   <script>
@@ -49,6 +63,19 @@
 
       _signOut(e) {
         this.$.firebase.signOut();
+      }
+
+      _selectBook(e) {
+        this.$.firebase.getBook(e.detail);
+      }
+
+      _loadedBook(e){
+        this.$.fullText.loadContent(e.detail);
+      }
+
+      _systemError(e){
+        console.log("Error");
+        console.log(e);
       }
     }
     customElements.define(MyApp.is, MyApp);

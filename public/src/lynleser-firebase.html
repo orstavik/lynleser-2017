@@ -1,25 +1,4 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-
-<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
-<link rel="import" href="../bower_components/polymerfire/firebase-query.html">
-<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
-
 <dom-module id="lynleser-firebase">
-  <template>
-    <style>
-      :host { display: block; }
-    </style>
-
-    <firebase-app
-        name="lynleser"
-        api-key="AIzaSyCsaCy5xQKr7-H23fvHZX9vbZklxo4mKks"
-        auth-domain="lynleser-2017.firebaseapp.com"
-        database-url="https://lynleser-2017.firebaseio.com/"
-    ></firebase-app>
-
-    <firebase-auth id="auth" app-name="lynleser" user="{{serverUser}}" provider="google"></firebase-auth>
-
-  </template>
   <script>
 
     class UserDataObject {
@@ -34,7 +13,6 @@
       static get is() {
         return "lynleser-firebase";
       }
-
 
       static get config() {
         return {
@@ -56,9 +34,35 @@
               notify: true,
               computed: "_makeUserData(_serverUserData)"
             }
-          },
-          //observers: []
+          }
         };
+      }
+
+      connectedCallback() {
+        firebase.initializeApp({
+          apiKey: "AIzaSyCsaCy5xQKr7-H23fvHZX9vbZklxo4mKks",
+          authDomain: "lynleser-2017.firebaseapp.com",
+          databaseURL: "https://lynleser-2017.firebaseio.com",
+          storageBucket: "lynleser-2017.appspot.com",
+          messagingSenderId: "740631213903"
+        });
+        this._db = firebase.database();
+        this.systemBooksListener = this._db.ref("/system/books/");
+        this.systemBooksListener.on("value", this._updateSystemBooks.bind(this));
+      }
+
+      getBook(fileName) {
+        let fileRef = firebase.storage().ref('books/' + fileName);
+        fileRef.getDownloadURL().then(function (url) {
+          // This can be downloaded directly:
+          let xhr = new XMLHttpRequest();
+          xhr.responseType = 'document';
+          xhr.onload = function (event) {
+            this.dispatchEvent(new CustomEvent("loaded-book", {composed: true, bubbles: true, detail: xhr.response}));
+          }.bind(this);
+          xhr.open('GET', url);
+          xhr.send();
+        }.bind(this)).catch(this._systemError.bind(this));
       }
 
       _makeUserData(obj) {
@@ -69,22 +73,12 @@
         return LynleserFirebase._firebaseArrayToJSArray(obj);
       }
 
-      connectedCallback() {
-        this._db = firebase.app("lynleser").database();
-        this.systemBooksListener = this._db.ref("/system/books/");
-        this.systemBooksListener.on("value", this._updateSystemBooks.bind(this));
-      }
-
       _updateSystemBooks(snap) {
         this.set("_serverSystemBooks", snap.val());
-//        console.log("got a system book list");
-//        console.log(this.systemBooks);
       }
 
       _updateUserData(snap) {
         this.set("_serverUserData", snap.val());
-//        console.log("got user data");
-//        console.log(this.userData);
       }
 
       _serverUserChanged(user) {
@@ -99,11 +93,22 @@
       }
 
       signIn(e) {
-        this.$.auth.signInWithPopup();
+        let provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider).then(function (result) {
+          // This gives you a Google Access Token. You can use it to access the Google API.
+          // let token = result.credential.accessToken;
+          this.set("serverUser", result.user);
+        }.bind(this)).catch(this._systemError.bind(this));
       }
 
       signOut(e) {
-        this.$.auth.signOut();
+        firebase.auth().signOut().then(function () {
+          this.set("serverUser", null);
+        }.bind(this)).catch(this._systemError.bind(this));
+      }
+
+      _systemError(error){
+        this.dispatchEvent(new CustomEvent("system-error", {composed: true, bubbles: true, detail: error}));
       }
 
       static _firebaseArrayToJSArray(obj) {
