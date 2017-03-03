@@ -1,14 +1,6 @@
 <dom-module id="lynleser-firebase">
   <script>
 
-    class UserDataObject {
-      constructor(rawData) {
-        this._raw = rawData;
-        this.settings = rawData.settings;
-        this.books = LynleserFirebase._firebaseArrayToJSArray(rawData.books);
-      }
-    }
-
     class LynleserFirebase extends Polymer.Element {
       static get is() {
         return "lynleser-firebase";
@@ -22,17 +14,13 @@
               observer: "_serverUserChanged",
               notify: true
             },
-            _serverSystemBooks: Object,
             systemBooks: {
               type: Array,
-              notify: true,
-              computed: "_makeSystemBooks(_serverSystemBooks)"
+              notify: true
             },
-            _serverUserData: Object,
             userData: {
-              type: UserDataObject,
-              notify: true,
-              computed: "_makeUserData(_serverUserData)"
+              type: Object,
+              notify: true
             }
           }
         };
@@ -65,22 +53,12 @@
         }.bind(this)).catch(this._systemError.bind(this));
       }
 
-      _makeUserData(obj) {
-        return obj;
-//        return obj ? new UserDataObject(obj) : null;
-      }
-
-      _makeSystemBooks(obj) {
-        return obj;
-//        return LynleserFirebase._firebaseArrayToJSArray(obj);
-      }
-
       _updateSystemBooks(snap) {
-        this.set("_serverSystemBooks", snap.val());
+        this.set("systemBooks", snap.val());
       }
 
       _updateUserData(snap) {
-        this.set("_serverUserData", snap.val());
+        this.set("userData", snap.val());
       }
 
       _serverUserChanged(user) {
@@ -111,14 +89,6 @@
 
       _systemError(error){
         this.dispatchEvent(new CustomEvent("system-error", {composed: true, bubbles: true, detail: error}));
-      }
-
-      static _firebaseArrayToJSArray(obj) {
-        if (!obj)
-          return null;
-        return Object.keys(obj).map(function (key) {
-          return {key: key, value: obj[key]};
-        });
       }
     }
     customElements.define(LynleserFirebase.is, LynleserFirebase);

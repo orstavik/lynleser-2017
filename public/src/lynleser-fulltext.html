@@ -37,10 +37,8 @@
       
       loadContent(doc) {
         let start = new Date().getTime();
-        // for(let i = 0; i < doc.body.children.length; i++) {
-        //   let child = doc.body.children[i];
+        // for(let child og doc.body.children)
         //   this.$.appendable.appendChild(child);
-        // }
         this.$.appendable.appendChild(doc.body);
         let end = new Date().getTime();
         console.log(end - start);
