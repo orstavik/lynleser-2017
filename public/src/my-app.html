@@ -4,6 +4,7 @@
 <link rel="import" href="lynleser-firebase.html">
 <link rel="import" href="lynleser-booklist.html">
 <link rel="import" href="lynleser-fulltext.html">
+<link rel="import" href="lynleser-settings.html">
 
 <dom-module id="my-app">
   <template>
@@ -28,6 +29,10 @@
                        user-books="[[userData.books]]"
 
                        on-select-book="_selectBook"></lynleser-booklist>
+
+    <lynleser-settings id="settings"
+                       settings="[[userData.settings]]"
+                       on-settings-changed="_userSetNewSettings"></lynleser-settings>
 
     <lynleser-fulltext id="fullText"></lynleser-fulltext>
   </template>
@@ -61,13 +66,17 @@
         this.$.firebase.getBook(e.detail);
       }
 
-      _loadedBook(e){
+      _loadedBook(e) {
         this.$.fullText.loadContent(e.detail);
       }
 
-      _systemError(e){
+      _systemError(e) {
         console.log("Error");
         console.log(e);
+      }
+
+      _userSetNewSettings(e) {
+        this.$.firebase.updateSettings(e.detail);
       }
     }
     customElements.define(MyApp.is, MyApp);

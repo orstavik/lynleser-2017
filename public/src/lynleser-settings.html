@@ -1,0 +1,110 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="lynleser-settings">
+  <template>
+    <style>
+      :host {
+        display: block;
+        background: lightgrey;
+      }
+    </style>
+
+    <h4>Speed</h4>
+    <input id="speed" type="range" min="8" max="800" value="[[computedSettings.speed]]" on-input="_speedChange">
+
+    <h4>Word width</h4>
+    <input id="wordwidth" type="range" min="5" max="50" value="[[computedSettings.wordWidth]]"
+           on-input="_wordWidthChange">
+
+    <h4>Prefixes</h4>
+    <input id="prefixes" type="text" value="[[computedSettings.prefixes]]" on-input="_prefixChange">
+
+    <h4>Font size</h4>
+    <input id="fontsize" type="range" min="8" max="80" value="[[computedSettings.fontSize]]" on-input="_fontSizeChange">
+
+    <h4>Font type</h4>
+    <select name="fonttype" id="fonttype" value="[[computedSettings.fontType]]" on-change="_fontTypeChange">
+      <option value="serif">Serif</option>
+      <option value="sans-serif">Sans serif</option>
+      <option value="comic">Comic</option>
+    </select>
+
+    <h4>Theme</h4>
+    <select name="theme" id="theme" value="[[computedSettings.theme]]" on-change="_themeChange">
+      <option value="day">Day</option>
+      <option value="night">Night</option>
+    </select>
+
+  </template>
+  <script>
+    class LynleserSettings extends Polymer.Element {
+      static get is() {
+        return "lynleser-settings";
+      }
+
+      static get config() {
+        return {
+          properties: {
+            settings: {
+              type: Object,
+              observer: "_settingsChangedFromOutside"
+            },
+            defaultSettings: {
+              type: Object,
+              value: function () {
+                return {
+                  speed: 200,
+                  wordwidth: 14,
+                  prefixes: ["the", "an", "a"],
+                  fontSize: 14,
+                  fontType: "serif",
+                  theme: "day"
+                };
+              }
+            },
+            computedSettings: {
+              type: Object,
+              computed: "_computeSettings(defaultSettings, settings)",
+            }
+          }
+        };
+      }
+
+      _computeSettings(defaultSettings, outsideSettings) {
+        return outsideSettings || defaultSettings;
+      }
+
+      _themeChange(e) {
+        this._changeSettings("theme", e.target.value);
+      }
+
+      _fontSizeChange(e) {
+        this._changeSettings("fontSize", e.target.value);
+      }
+
+      _fontTypeChange(e) {
+        this._changeSettings("fontType", e.target.value);
+      }
+
+      _speedChange(e) {
+        this._changeSettings("speed", e.target.value);
+      }
+
+      _wordWidthChange(e) {
+        this._changeSettings("wordWidth", e.target.value);
+      }
+
+      _prefixChange(e) {
+        let prefixes = e.target.value.split(",");
+        prefixes = prefixes.map(str => str.trim());
+        this._changeSettings("prefixes", prefixes);
+      }
+
+      _changeSettings(type, value) {
+        const res = {type: type, value: value};
+        this.dispatchEvent(new CustomEvent("settings-changed", {composed: true, bubbles: true, detail: res}));
+      }
+    }
+    customElements.define(LynleserSettings.is, LynleserSettings);
+  </script>
+</dom-module>

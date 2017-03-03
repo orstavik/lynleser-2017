@@ -59,6 +59,7 @@
 
       _updateUserData(snap) {
         this.set("userData", snap.val());
+        console.log(this.userData);
       }
 
       _serverUserChanged(user) {
@@ -89,6 +90,18 @@
 
       _systemError(error){
         this.dispatchEvent(new CustomEvent("system-error", {composed: true, bubbles: true, detail: error}));
+      }
+
+      updateSettings(newSettings){
+        let updates = {};
+        updates["/users/" + this.serverUser.uid + "/settings/" + newSettings.type] = newSettings.value;
+        this._db.ref().update(updates, function () {
+          this.systemMessage("updated settings: " + newSettings.type + " = " + newSettings.value);
+        }.bind(this));
+      }
+
+      systemMessage(str){
+        this.dispatchEvent(new CustomEvent("system-message", {composed: true, bubbles: true, detail: str}));
       }
     }
     customElements.define(LynleserFirebase.is, LynleserFirebase);
