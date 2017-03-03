@@ -1,0 +1,48 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="my-appy.html">
+
+<dom-module id="my-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+        --color-1: blue;
+      }
+    </style>
+    <my-appy tom="[[ivar]]"></my-appy>
+  </template>
+
+  <script>
+
+    class MyApp extends Polymer.Element {
+      static get is() {
+        return "my-app";
+      }
+
+      static get config() {
+        return {
+          properties: {
+            ivar: {
+              type: String,
+              value: "hellooo"
+            }
+          }
+        }
+      }
+
+//      constructor(){
+//        super();
+//        super.ready();
+//      }
+
+//      connectedCallback() {
+//        super.connectedCallback();
+//      }
+
+
+      debug(e){console.log(e);}
+
+    }
+    customElements.define(MyApp.is, MyApp);
+  </script>
+</dom-module>

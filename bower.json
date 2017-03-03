@@ -1,0 +1,16 @@
+{
+  "name": "lynleser 2017",
+  "authors": [
+    "ivar and tom"
+  ],
+  "private": true,
+  "dependencies": {
+    "webcomponentsjs": "^0.7.22",
+    "polymer": "polymer/Polymer#2.0-preview",
+    "polymerfire": "^0.10.0"
+  },
+  "resolutions": {
+    "webcomponentsjs": "v1",
+    "polymer": "2.0-preview"
+  }
+}
