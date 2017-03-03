@@ -1,0 +1,41 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="lynleser-booklist">
+  <template>
+    <style>
+      :host { display: block; }
+      div { margin-bottom: 20px; }
+    </style>
+
+    <template is="dom-repeat" items="[[systemBooks]]">
+      <div class="systemBook">[[item.key]], [[item.value.name]]</div>
+    </template>
+    <template is="dom-repeat" items="[[userBooks]]">
+      <div class="userBook">[[item.key]], [[item.value.position]]</div>
+    </template>
+
+  </template>
+  <script>
+    class LynleserBooklist extends Polymer.Element {
+      static get is() {
+        return "lynleser-booklist";
+      }
+
+
+      static get config() {
+        return {
+          properties: {
+            userBooks: Array,
+            systemBooks: Array,
+          },
+          //observers: []
+        };
+      }
+
+      connectedCallback() {
+
+      }
+    }
+    customElements.define(LynleserBooklist.is, LynleserBooklist);
+  </script>
+</dom-module>

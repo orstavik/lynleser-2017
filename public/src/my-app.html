@@ -1,15 +1,29 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="my-appy.html">
+
+<link rel="import" href="lynleser-auth.html">
+<link rel="import" href="lynleser-firebase.html">
+<link rel="import" href="lynleser-booklist.html">
 
 <dom-module id="my-app">
   <template>
     <style>
       :host {
         display: block;
-        --color-1: blue;
+        width: 100vw;
+        height: 100vh;
+        background-color: #00acc1;
       }
     </style>
-    <my-appy tom="[[ivar]]"></my-appy>
+
+
+    <lynleser-firebase id="firebase"
+                       system-books="{{systemBooks}}"
+                       server-user="{{serverUser}}"
+                       user-data="{{userData}}"></lynleser-firebase>
+
+    <lynleser-auth user="[[serverUser]]" on-sign-in="_signIn" on-sign-out="_signOut"></lynleser-auth>
+    <lynleser-booklist system-books="[[systemBooks]]" user-books="[[userData.books]]"></lynleser-booklist>
+
   </template>
 
   <script>
@@ -22,26 +36,20 @@
       static get config() {
         return {
           properties: {
-            ivar: {
-              type: String,
-              value: "hellooo"
-            }
+            serverUser: Object,
+            systemBooks: Array,
+            userData: Object,
           }
         }
       }
 
-//      constructor(){
-//        super();
-//        super.ready();
-//      }
+      _signIn(e) {
+        this.$.firebase.signIn();
+      }
 
-//      connectedCallback() {
-//        super.connectedCallback();
-//      }
-
-
-      debug(e){console.log(e);}
-
+      _signOut(e) {
+        this.$.firebase.signOut();
+      }
     }
     customElements.define(MyApp.is, MyApp);
   </script>
