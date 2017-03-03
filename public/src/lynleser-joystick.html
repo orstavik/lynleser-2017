@@ -6,7 +6,12 @@
       :host { display: block; }
     </style>
 
-    <joystick-button></joystick-button>
+    <joystick-button id="joystick"
+                     frequency-ms="50"
+                     sensitivity="10"
+                     
+                     on-pull="_joystickPull"
+                     on-tap="_joystickTap"></joystick-button>
 
   </template>
   <script>
@@ -15,7 +20,6 @@
         return "lynleser-joystick";
       }
 
-
       static get config() {
         return {
           properties: {
@@ -23,24 +27,26 @@
               type: Array,
               observer: "myObserver"
             }
-          },
-          //observers: []
+          }
         };
       }
 
-      connectedCallback() {
-
+      _joystickPull(e) {
+        e.stopPropagation();
+        if (e.detail.direction == "n" || e.detail.direction == "s")
+          this._fire("speed-change", e.detail.y);
+        else if (e.detail.direction == "e"|| e.detail.direction == "w")
+          this._fire("word-wider", e.detail.x);
       }
 
-//      constructor() {
-//        super();
-//      }
-//      disconnectedCallback() {
-//        super.disconnectedCallback();
-//      }
-//      attributeChangedCallback() {
-//        super.attributeChangedCallback();
-//      }
+      _joystickTap(e) {
+        e.stopPropagation();
+        this._fire("start-stop", null);
+      }
+
+      _fire(name, value){
+        this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: value}));
+      }
     }
     customElements.define(LynleserJoystick.is, LynleserJoystick);
   </script>

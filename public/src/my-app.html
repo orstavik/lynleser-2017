@@ -38,9 +38,9 @@
     <lynleser-fulltext id="fullText"></lynleser-fulltext>
 
     <lynleser-joystick id="joystick"
-                       on-speedChange="_speedChange"
-                       on-wordWidthChange="_wordWidthChange"
-                       on-toggleStart="_toggleStart"></lynleser-joystick>
+                       on-speed-change="_speedChange"
+                       on-word-wider="_wordWider"
+                       on-start-stop="_startStop"></lynleser-joystick>
   </template>
 
   <script>
@@ -81,7 +81,7 @@
         console.log(e);
       }
 
-      _wordWidthChange(e){
+      _wordWider(e){
         console.log(e);
       }
 
@@ -89,7 +89,7 @@
         console.log(e);
       }
 
-      _toggleStart(e){
+      _startStop(e){
         console.log(e);
       }
 
