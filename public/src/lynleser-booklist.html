@@ -7,15 +7,31 @@
       div { margin-bottom: 20px; }
     </style>
 
-    <template is="dom-repeat" items="[[systemBooks]]">
-      <div class="systemBook" data-filename$="[[item.value.filename]]" on-click="_clickSystemBook">[[item.key]], [[item.value.name]]</div>
+    <h2>User books</h2>
+    <template is="dom-repeat" items="[[organizedBooks.userBooks]]">
+      <div class="systemBook" data-filename$="[[item.value.filename]]" on-click="_clickSystemBook">
+        [[item.key]], [[item.name]], [[item.filename]], [[item.position]]
+      </div>
     </template>
-    <template is="dom-repeat" items="[[userBooks]]">
-      <div class="userBook">[[item.key]], [[item.value.position]]</div>
+    <h2>All books</h2>
+    <template is="dom-repeat" items="[[organizedBooks.systemBooks]]">
+      <div class="systemBook" data-filename$="[[item.value.filename]]" on-click="_clickSystemBook">
+        [[item.key]], [[item.name]], [[item.filename]], [[item.position]]
+      </div>
     </template>
 
   </template>
   <script>
+    class OrganizedBooklist {
+      constructor(systemBooks, userBooks){
+        let userBookKeys = Object.keys(userBooks);
+        this.userBooks = userBookKeys.map(key => Object.assign({key: key}, systemBooks[key], userBooks[key]));
+        let systemBookKeys = Object.keys(systemBooks);
+        let filteredSystemBookKeys = systemBookKeys.filter(systemKey => userBookKeys.indexOf(systemKey));
+        this.systemBooks = filteredSystemBookKeys.map(key => Object.assign({key: key}, systemBooks[key]));
+      }
+    }
+
     class LynleserBooklist extends Polymer.Element {
       static get is() {
         return "lynleser-booklist";
@@ -27,9 +43,17 @@
           properties: {
             userBooks: Array,
             systemBooks: Array,
+            organizedBooks: {
+              type: OrganizedBooklist,
+              computed: "_makeOrganizedBookList(systemBooks, userBooks)"
+            }
           },
           //observers: []
         };
+      }
+
+      _makeOrganizedBookList(systemBooks, userBooks){
+        return new OrganizedBooklist(systemBooks || [], userBooks || []);
       }
 
       _clickSystemBook(e) {

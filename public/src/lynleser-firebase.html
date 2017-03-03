@@ -66,11 +66,13 @@
       }
 
       _makeUserData(obj) {
-        return obj ? new UserDataObject(obj) : null;
+        return obj;
+//        return obj ? new UserDataObject(obj) : null;
       }
 
       _makeSystemBooks(obj) {
-        return LynleserFirebase._firebaseArrayToJSArray(obj);
+        return obj;
+//        return LynleserFirebase._firebaseArrayToJSArray(obj);
       }
 
       _updateSystemBooks(snap) {
