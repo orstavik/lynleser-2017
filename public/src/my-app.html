@@ -94,7 +94,8 @@
       }
 
       _userSetNewSettings(e) {
-        this.$.firebase.updateSettings(e.detail);
+        if (this.serverUser)
+          this.$.firebase.updateSettings(e.detail);
       }
     }
     customElements.define(MyApp.is, MyApp);
