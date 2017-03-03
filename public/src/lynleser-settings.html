@@ -67,8 +67,8 @@
         };
       }
 
-      _computeSettings(defaultSettings, outsideSettings) {
-        return outsideSettings || defaultSettings;
+      _computeSettings(inSett, exSett) {
+        return Object.assign({}, inSett, exSett);
       }
 
       _themeChange(e) {

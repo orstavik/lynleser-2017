@@ -79,7 +79,20 @@
           // This gives you a Google Access Token. You can use it to access the Google API.
           // let token = result.credential.accessToken;
           this.set("serverUser", result.user);
+          this.checkIfFirstTimeUser(this.serverUser);
         }.bind(this)).catch(this._systemError.bind(this));
+      }
+
+
+      checkIfFirstTimeUser(user) {
+        const userDataInDB = this._db.ref("/users/" + user.uid);
+        userDataInDB.once("value",
+          function (success) {
+            if (!success.exists()) {                //user not registered before
+              userDataInDB.set({registered: firebase.database.ServerValue.TIMESTAMP});
+              this.systemMessage("Welcome new user!");
+            }
+          }.bind(this), this._systemError.bind(this));
       }
 
       signOut(e) {
@@ -88,11 +101,11 @@
         }.bind(this)).catch(this._systemError.bind(this));
       }
 
-      _systemError(error){
+      _systemError(error) {
         this.dispatchEvent(new CustomEvent("system-error", {composed: true, bubbles: true, detail: error}));
       }
 
-      updateSettings(newSettings){
+      updateSettings(newSettings) {
         let updates = {};
         updates["/users/" + this.serverUser.uid + "/settings/" + newSettings.type] = newSettings.value;
         this._db.ref().update(updates, function () {
@@ -100,7 +113,7 @@
         }.bind(this));
       }
 
-      systemMessage(str){
+      systemMessage(str) {
         this.dispatchEvent(new CustomEvent("system-message", {composed: true, bubbles: true, detail: str}));
       }
     }
