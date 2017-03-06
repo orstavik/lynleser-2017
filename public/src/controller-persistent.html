@@ -36,10 +36,9 @@
       this.systemBooks = filteredSystemBookKeys.map(key => Object.assign({key: key}, systemBooks[key]));
     }
   }
-
 </script>
 
-<dom-module id="my-app">
+<dom-module id="controller-persistent">
   <template>
     <style>
       :host {
@@ -65,9 +64,9 @@
 
   <script>
 
-    class MyApp extends Polymer.Element {
+    class ControllerPersistent extends Polymer.Element {
       static get is() {
-        return "my-app";
+        return "controller-persistent";
       }
 
       static get properties() {
@@ -88,9 +87,9 @@
         this._makeUserData(this.serverUserData, this.systemBooks); //this.serverUserData == undefined && this.serverUserData == undefined
       }
 
+      //todo Here I can make sure that a timestamp of the change on the userData is newer on the server before I replace it.
+      //todo If it is not newer, I will try to alert the server of the newer settings on the client.
       _makeUserData(data, books) {
-        //todo Here I can make sure that a timestamp of the change on the userData is newer on the server before I replace it.
-        //todo If it is not newer, I will try to alert the server of the newer settings on the client.
         this.set("userData",new LynleserUserDataObject(data, books));
       }
 
@@ -117,10 +116,12 @@
       }
 
       _userSetNewSettings(e) {
+        //what to do when I'm not logged in?
+        //what to do when the user is logged in, but with slow network connection?
         if (this.serverUser)
           this.$.firebase.updateSettings(e.detail);
       }
     }
-    customElements.define(MyApp.is, MyApp);
+    customElements.define(ControllerPersistent.is, ControllerPersistent);
   </script>
 </dom-module>
