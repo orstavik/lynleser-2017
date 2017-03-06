@@ -8,27 +8,27 @@
     </style>
 
     <h4>Speed</h4>
-    <input id="speed" type="range" min="8" max="800" value="[[computedSettings.speed]]" on-input="_speedChange">
+    <input id="speed" type="range" min="8" max="800" value="[[settings.speed]]" on-input="_speedChange">
 
     <h4>Word width</h4>
-    <input id="wordwidth" type="range" min="5" max="50" value="[[computedSettings.wordWidth]]"
+    <input id="wordwidth" type="range" min="5" max="50" value="[[settings.wordWidth]]"
            on-input="_wordWidthChange">
 
     <h4>Prefixes</h4>
-    <input id="prefixes" type="text" value="[[computedSettings.prefixes]]" on-input="_prefixChange">
+    <input id="prefixes" type="text" value="[[settings.prefixes]]" on-input="_prefixChange">
 
     <h4>Font size</h4>
-    <input id="fontsize" type="range" min="8" max="80" value="[[computedSettings.fontSize]]" on-input="_fontSizeChange">
+    <input id="fontsize" type="range" min="8" max="80" value="[[settings.fontSize]]" on-input="_fontSizeChange">
 
     <h4>Font type</h4>
-    <select name="fonttype" id="fonttype" value="[[computedSettings.fontType]]" on-change="_fontTypeChange">
+    <select name="fonttype" id="fonttype" value="[[settings.fontType]]" on-change="_fontTypeChange">
       <option value="serif">Serif</option>
       <option value="sans-serif">Sans serif</option>
       <option value="comic">Comic</option>
     </select>
 
     <h4>Theme</h4>
-    <select name="theme" id="theme" value="[[computedSettings.theme]]" on-change="_themeChange">
+    <select name="theme" id="theme" value="[[settings.theme]]" on-change="_themeChange">
       <option value="day">Day</option>
       <option value="night">Night</option>
     </select>
@@ -42,29 +42,8 @@
 
       static get properties() {
         return {
-            settings: Object,
-            defaultSettings: {
-              type: Object,
-              value: function () {
-                return {
-                  speed: 200,
-                  wordwidth: 14,
-                  prefixes: ["the", "an", "a"],
-                  fontSize: 14,
-                  fontType: "serif",
-                  theme: "day"
-                };
-              }
-            },
-            computedSettings: {
-              type: Object,
-              computed: "_computeSettings(defaultSettings, settings)",
-            }
+          settings: Object
         };
-      }
-
-      _computeSettings(inSett, exSett) {
-        return Object.assign({}, inSett, exSett);
       }
 
       _themeChange(e) {

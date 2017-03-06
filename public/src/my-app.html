@@ -1,8 +1,36 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-
 <link rel="import" href="controller-transient.html">
 <link rel="import" href="lynleser-auth.html">
 <link rel="import" href="lynleser-firebase.html">
+
+<script>
+  class LynleserUserDataObject {
+    constructor(incoming) {
+      if (incoming) {
+        this.books = incoming.books;
+        this.settings = new LynleserSettingsObject(incoming.settings);
+      } else {
+        this.books = null;
+        this.settings = new LynleserSettingsObject(null);
+      }
+      console.log(incoming);
+      console.log(this);
+    }
+  }
+
+  class LynleserSettingsObject {
+    constructor(incoming) {
+      this.speed = 200;
+      this.wordwidth = 14;
+      this.prefixes = ["the", "an", "a"];
+      this.fontSize = 14;
+      this.fontType = "serif";
+      this.theme = "day";
+      if (incoming)
+        Object.assign(this, incoming);
+    }
+  }
+
+</script>
 
 <dom-module id="my-app">
   <template>
@@ -15,7 +43,7 @@
     <lynleser-firebase id="firebase"
                        system-books="{{systemBooks}}"
                        server-user="{{serverUser}}"
-                       user-data="{{userData}}"
+                       user-data="{{serverUserData}}"
 
                        on-system-error="_systemError"
                        on-loaded-book="_loadedBook"></lynleser-firebase>
@@ -40,8 +68,23 @@
         return {
           serverUser: Object,
           systemBooks: Array,
-          userData: Object
+          serverUserData: {
+            type: Object,
+            observer: "_makeUserData"
+          },
+          userData: Object,
         };
+      }
+
+      connectedCallback(){
+        super.connectedCallback();
+        this._makeUserData(this.serverUserData); //this.serverUserData == null
+      }
+
+      _makeUserData() {
+        //todo Here I can make sure that a timestamp of the change on the userData is newer on the server before I replace it.
+        //todo If it is not newer, I will try to alert the server of the newer settings on the client.
+        this.set("userData",new LynleserUserDataObject(this.serverUserData));
       }
 
       _signIn(e) {
@@ -49,6 +92,7 @@
       }
 
       _signOut(e) {
+        //reset UserData
         this.$.firebase.signOut();
       }
 
