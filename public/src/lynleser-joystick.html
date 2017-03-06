@@ -7,7 +7,7 @@
     </style>
 
     <joystick-button id="joystick"
-                     frequency-ms="50"
+                     frequency-ms="500"
                      sensitivity="10"
                      
                      on-pull="_joystickPull"
@@ -31,10 +31,8 @@
 
       _joystickPull(e) {
         e.stopPropagation();
-        if (e.detail.direction == "n" || e.detail.direction == "s")
-          this._fire("speed-change", e.detail.y);
-        else if (e.detail.direction == "e"|| e.detail.direction == "w")
-          this._fire("word-wider", e.detail.x);
+        let cmd = e.detail.direction == "y" ? "speed-change" : "word-wider";
+        this._fire(cmd, e.detail.force);
       }
 
       _joystickTap(e) {

@@ -1,3 +1,38 @@
+<script>
+  class PullEvent {
+    constructor(start) {
+      this.start = start;
+      this.moves = [];
+    }
+
+    push(e) {
+      this.moves.push(e);
+    }
+
+    poll() {
+      this.x = 0;
+      this.y = 0;
+      for (let e of this.moves) {
+        this.x += e.x - this.start.x;
+        this.y += e.y - this.start.y;
+      }
+      if (this.moves.length > 0) {
+        this.x /= this.moves.length;
+        this.y /= this.moves.length;
+      }
+      this.moves = this.moves.slice(-1);
+      console.log(this.moves);
+      if (Math.abs(this.y) > Math.abs(this.x))
+        return {direction: "y", force: this.y};
+      return {direction: "x", force: this.x};
+    }
+
+    getStartTime() {
+      return this.start.timeStamp;
+    }
+  }
+</script>
+
 <dom-module id="joystick-button">
   <template>
     <style>
@@ -18,49 +53,6 @@
 
   </template>
   <script>
-    class PullEvent {
-      constructor(start) {
-        this.start = start;
-        this.moves = [];
-      }
-
-      getNextPullEvent(){
-        const e = new PullEvent(this.start);
-        e.push(this.moves[this.moves.length-1]);
-        return e;
-      }
-
-      push(e) {
-        this.moves.push(e);
-      }
-
-      end() {
-        this.x = 0;
-        this.y = 0;
-        for (let e of this.moves) {
-          this.x += e.x - this.start.x;
-          this.y += e.y - this.start.y;
-        }
-        if (this.moves.length > 0) {
-          this.x /= this.moves.length;
-          this.y /= this.moves.length;
-        }
-        this.xAbs = Math.abs(this.x);
-        this.yAbs = Math.abs(this.y);
-        if (this.yAbs > this.xAbs) {
-          this.direction = this.y < 0 ? "n" : "s";
-          this.force = this.yAbs;
-        } else if (this.xAbs > this.yAbs) {
-          this.direction = this.x < 0 ? "w" : "e";
-          this.force = this.xAbs;
-        }
-      }
-
-      isLessThan(sensitivity) {
-        return !this.force || this.force < sensitivity;
-      }
-    }
-
     class JoystickButton extends Polymer.Element {
       static get is() {
         return "joystick-button";
@@ -68,18 +60,19 @@
 
       static get properties() {
         return {
-            frequencyMs: {
-              type: Number,
-              value: 25
-            },
-            sensitivity: {
-              type: Number,
-              value: 5
-            }
+          frequencyMs: {
+            type: Number,
+            value: 100
+          },
+          sensitivity: {
+            type: Number,
+            value: 5
+          }
         };
       }
 
       connectedCallback() {
+        super.connectedCallback();
         this.addEventListener("pointerdown", this._pointerdown.bind(this));
         this.pointermove = this._pointermove.bind(this);
         this.pointerup = this._pointerup.bind(this);
@@ -89,40 +82,36 @@
         this.addEventListener("pointermove", this.pointermove);
         this.addEventListener("pointerup", this.pointerup);
         this.setPointerCapture(e.pointerId);
-        this._frequencyInterval = this.frequencyMs > 0 ?
-          setInterval(this.calcAndFire.bind(this), this.frequencyMs) :
-          undefined;
-        this._nowPulling = new PullEvent(e);
-        this._canClick = true;
+        this._pull = new PullEvent(e);
+        this._frequencyInterval = setInterval(this.calcAndFire.bind(this), this.frequencyMs);
       }
 
       _pointermove(e) {
-        this._nowPulling.push(e);
+        this._pull.push(e);
       }
 
       _pointerup(e) {
-        this._nowPulling.end();
-        if (this._canClick && this._nowPulling.isLessThan(this.sensitivity))
+        if (JoystickButton.isClickable(this._pull.getStartTime(), e.timeStamp, 300))
           this._fire("tap", null);
         this.removeEventListener("pointermove", this.pointermove);
         this.removeEventListener("pointerup", this.pointerup);
         this.releasePointerCapture(e.pointerId);
-        if (this._frequencyInterval)
-          clearInterval(this._frequencyInterval);
-        this._nowPulling = this._prevPull = null; //just to make sure
+        clearInterval(this._frequencyInterval);
+        this._pull = null;
       }
 
       calcAndFire() {
-        this._nowPulling.end();
-        if (this._nowPulling.isLessThan(this.sensitivity))
-          return;
-        this._fire("pull", this._nowPulling);
-        this._nowPulling = this._nowPulling.getNextPullEvent();
-        this._canClick = false;
+        let res = this._pull.poll();
+        if (Math.abs(res.force) > this.sensitivity)
+          this._fire("pull", res);
       }
 
       _fire(name, value) {
         this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: value}));
+      }
+
+      static isClickable(start, stop, threshold) {
+        return (stop - start) < threshold;
       }
     }
     customElements.define(JoystickButton.is, JoystickButton);
