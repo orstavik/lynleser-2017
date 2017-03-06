@@ -4,16 +4,11 @@
 
 <script>
   class LynleserUserDataObject {
-    constructor(incoming) {
-      if (incoming) {
-        this.books = incoming.books;
-        this.settings = new LynleserSettingsObject(incoming.settings);
-      } else {
-        this.books = null;
-        this.settings = new LynleserSettingsObject(null);
-      }
-      console.log(incoming);
-      console.log(this);
+    constructor(userData, systemBooks) {
+      const settings = userData ? userData.settings : null;
+      const userBooks = userData ? userData.books : null;
+      this.books = new OrganizedBooklist(systemBooks, userBooks);
+      this.settings = new LynleserSettingsObject(settings);
     }
   }
 
@@ -27,6 +22,18 @@
       this.theme = "day";
       if (incoming)
         Object.assign(this, incoming);
+    }
+  }
+
+  class OrganizedBooklist {
+    constructor(systemBooks, userBooks){
+      userBooks = userBooks || {};
+      systemBooks = systemBooks || {};
+      let userBookKeys = Object.keys(userBooks);
+      this.userBooks = userBookKeys.map(key => Object.assign({key: key}, systemBooks[key], userBooks[key]));
+      let systemBookKeys = Object.keys(systemBooks);
+      let filteredSystemBookKeys = systemBookKeys.filter(systemKey => userBookKeys.indexOf(systemKey));
+      this.systemBooks = filteredSystemBookKeys.map(key => Object.assign({key: key}, systemBooks[key]));
     }
   }
 
@@ -51,7 +58,6 @@
     <lynleser-auth user="[[serverUser]]" on-sign-in="_signIn" on-sign-out="_signOut"></lynleser-auth>
 
     <controller-transient id="ui"
-                          system-books="[[systemBooks]]"
                           user-data="[[userData]]"
                           on-select-book="_selectBook"
                           on-settings-changed="_userSetNewSettings"></controller-transient>
@@ -68,23 +74,24 @@
         return {
           serverUser: Object,
           systemBooks: Array,
-          serverUserData: {
-            type: Object,
-            observer: "_makeUserData"
-          },
+          serverUserData: Object,
           userData: Object,
         };
       }
 
-      connectedCallback(){
-        super.connectedCallback();
-        this._makeUserData(this.serverUserData); //this.serverUserData == null
+      static get observers() {
+        return ["_makeUserData(serverUserData, systemBooks)"];
       }
 
-      _makeUserData() {
+      connectedCallback(){
+        super.connectedCallback();
+        this._makeUserData(this.serverUserData, this.systemBooks); //this.serverUserData == undefined && this.serverUserData == undefined
+      }
+
+      _makeUserData(data, books) {
         //todo Here I can make sure that a timestamp of the change on the userData is newer on the server before I replace it.
         //todo If it is not newer, I will try to alert the server of the newer settings on the client.
-        this.set("userData",new LynleserUserDataObject(this.serverUserData));
+        this.set("userData",new LynleserUserDataObject(data, books));
       }
 
       _signIn(e) {

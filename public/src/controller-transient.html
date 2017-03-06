@@ -9,11 +9,8 @@
       :host { display: block; }
     </style>
 
-    <lynleser-booklist system-books="[[systemBooks]]"
-                       user-books="[[userData.books]]"></lynleser-booklist>
-
-    <lynleser-settings id="settings"
-                       settings="[[userData.settings]]"></lynleser-settings>
+    <lynleser-booklist books="[[userData.books]]"></lynleser-booklist>
+    <lynleser-settings id="settings" settings="[[userData.settings]]"></lynleser-settings>
 
     <lynleser-fulltext id="fullText"></lynleser-fulltext>
 
@@ -31,20 +28,9 @@
 
       static get properties() {
         return {
-          systemBooks: Array,
           userData: Object,
           book: Object
         };
-      }
-
-//      static get observers() { return []; }
-//      constructor() { super(); }
-//      disconnectedCallback() { super.disconnectedCallback(); }
-//      attributeChangedCallback() { super.attributeChangedCallback(); }
-
-      connectedCallback() {
-        super.connectedCallback();
-
       }
 
       _wordWider(e){
