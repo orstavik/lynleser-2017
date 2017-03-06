@@ -3,10 +3,6 @@
 <link rel="import" href="controller-transient.html">
 <link rel="import" href="lynleser-auth.html">
 <link rel="import" href="lynleser-firebase.html">
-<link rel="import" href="lynleser-booklist.html">
-<link rel="import" href="lynleser-fulltext.html">
-<link rel="import" href="lynleser-settings.html">
-<link rel="import" href="lynleser-joystick.html">
 
 <dom-module id="my-app">
   <template>
@@ -26,23 +22,11 @@
 
     <lynleser-auth user="[[serverUser]]" on-sign-in="_signIn" on-sign-out="_signOut"></lynleser-auth>
 
-    <lynleser-booklist system-books="[[systemBooks]]"
-                       user-books="[[userData.books]]"
-
-                       on-select-book="_selectBook"></lynleser-booklist>
-
-    <lynleser-settings id="settings"
-                       settings="[[userData.settings]]"
-                       on-settings-changed="_userSetNewSettings"></lynleser-settings>
-
-    <lynleser-fulltext id="fullText"></lynleser-fulltext>
-
-    <lynleser-joystick id="joystick"
-                       on-speed-change="_speedChange"
-                       on-word-wider="_wordWider"
-                       on-start-stop="_startStop"></lynleser-joystick>
-
-    <controller-transient prop1="[[test]]"></controller-transient>
+    <controller-transient id="ui"
+                          system-books="[[systemBooks]]"
+                          user-data="[[userData]]"
+                          on-select-book="_selectBook"
+                          on-settings-changed="_userSetNewSettings"></controller-transient>
   </template>
 
   <script>
@@ -56,11 +40,7 @@
         return {
           serverUser: Object,
           systemBooks: Array,
-          userData: Object,
-          test: {
-            type: String,
-            value: "yooyo tirsdag"
-          }
+          userData: Object
         };
       }
 
@@ -77,23 +57,11 @@
       }
 
       _loadedBook(e) {
-        this.$.fullText.loadContent(e.detail);
+        this.$.ui.loadContent(e.detail);
       }
 
       _systemError(e) {
         console.log("Error");
-        console.log(e);
-      }
-
-      _wordWider(e){
-        console.log(e);
-      }
-
-      _speedChange(e){
-        console.log(e);
-      }
-
-      _startStop(e){
         console.log(e);
       }
 

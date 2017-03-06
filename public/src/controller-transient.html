@@ -1,11 +1,26 @@
+<link rel="import" href="lynleser-booklist.html">
+<link rel="import" href="lynleser-fulltext.html">
+<link rel="import" href="lynleser-settings.html">
+<link rel="import" href="lynleser-joystick.html">
+
 <dom-module id="controller-transient">
   <template>
     <style>
       :host { display: block; }
-      h1 { background: purple; }
     </style>
 
-    <h1>hei [[prop1]]</h1>
+    <lynleser-booklist system-books="[[systemBooks]]"
+                       user-books="[[userData.books]]"></lynleser-booklist>
+
+    <lynleser-settings id="settings"
+                       settings="[[userData.settings]]"></lynleser-settings>
+
+    <lynleser-fulltext id="fullText"></lynleser-fulltext>
+
+    <lynleser-joystick id="joystick"
+                       on-speed-change="_speedChange"
+                       on-word-wider="_wordWider"
+                       on-start-stop="_startStop"></lynleser-joystick>
   </template>
   <script>
     class ControllerTransient extends Polymer.Element {
@@ -16,11 +31,9 @@
 
       static get properties() {
         return {
-          prop1: String,
-          myProp: {
-            type: Array,
-            observer: "myObserver"
-          }
+          systemBooks: Array,
+          userData: Object,
+          book: Object
         };
       }
 
@@ -34,6 +47,21 @@
 
       }
 
+      _wordWider(e){
+        console.log(e);
+      }
+
+      _speedChange(e){
+        console.log(e);
+      }
+
+      _startStop(e){
+        console.log(e);
+      }
+
+      loadContent(doc) {
+        this.$.fullText.loadContent(doc);
+      }
     }
     customElements.define(ControllerTransient.is, ControllerTransient);
   </script>
