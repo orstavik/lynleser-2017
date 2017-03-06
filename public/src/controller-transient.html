@@ -1,0 +1,40 @@
+<dom-module id="controller-transient">
+  <template>
+    <style>
+      :host { display: block; }
+      h1 { background: purple; }
+    </style>
+
+    <h1>hei [[prop1]]</h1>
+  </template>
+  <script>
+    class ControllerTransient extends Polymer.Element {
+
+      static get is() {
+        return "controller-transient";
+      }
+
+      static get properties() {
+        return {
+          prop1: String,
+          myProp: {
+            type: Array,
+            observer: "myObserver"
+          }
+        };
+      }
+
+//      static get observers() { return []; }
+//      constructor() { super(); }
+//      disconnectedCallback() { super.disconnectedCallback(); }
+//      attributeChangedCallback() { super.attributeChangedCallback(); }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+      }
+
+    }
+    customElements.define(ControllerTransient.is, ControllerTransient);
+  </script>
+</dom-module>

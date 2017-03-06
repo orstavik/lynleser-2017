@@ -1,5 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
+<link rel="import" href="controller-transient.html">
 <link rel="import" href="lynleser-auth.html">
 <link rel="import" href="lynleser-firebase.html">
 <link rel="import" href="lynleser-booklist.html">
@@ -14,7 +15,6 @@
         display: block;
       }
     </style>
-
 
     <lynleser-firebase id="firebase"
                        system-books="{{systemBooks}}"
@@ -41,6 +41,8 @@
                        on-speed-change="_speedChange"
                        on-word-wider="_wordWider"
                        on-start-stop="_startStop"></lynleser-joystick>
+
+    <controller-transient prop1="[[test]]"></controller-transient>
   </template>
 
   <script>
@@ -50,14 +52,16 @@
         return "my-app";
       }
 
-      static get config() {
+      static get properties() {
         return {
-          properties: {
-            serverUser: Object,
-            systemBooks: Array,
-            userData: Object,
+          serverUser: Object,
+          systemBooks: Array,
+          userData: Object,
+          test: {
+            type: String,
+            value: "yooyo tirsdag"
           }
-        }
+        };
       }
 
       _signIn(e) {

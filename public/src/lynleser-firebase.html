@@ -6,9 +6,8 @@
         return "lynleser-firebase";
       }
 
-      static get config() {
+      static get properties() {
         return {
-          properties: {
             serverUser: {
               type: Object,
               observer: "_serverUserChanged",
@@ -22,11 +21,11 @@
               type: Object,
               notify: true
             }
-          }
         };
       }
 
       connectedCallback() {
+        super.connectedCallback();
         firebase.initializeApp({
           apiKey: "AIzaSyCsaCy5xQKr7-H23fvHZX9vbZklxo4mKks",
           authDomain: "lynleser-2017.firebaseapp.com",

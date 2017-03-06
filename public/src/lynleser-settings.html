@@ -1,5 +1,3 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-
 <dom-module id="lynleser-settings">
   <template>
     <style>
@@ -42,9 +40,8 @@
         return "lynleser-settings";
       }
 
-      static get config() {
+      static get properties() {
         return {
-          properties: {
             settings: Object,
             defaultSettings: {
               type: Object,
@@ -63,7 +60,6 @@
               type: Object,
               computed: "_computeSettings(defaultSettings, settings)",
             }
-          }
         };
       }
 

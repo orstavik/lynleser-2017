@@ -66,10 +66,8 @@
         return "joystick-button";
       }
 
-
-      static get config() {
+      static get properties() {
         return {
-          properties: {
             frequencyMs: {
               type: Number,
               value: 25
@@ -78,7 +76,6 @@
               type: Number,
               value: 5
             }
-          }
         };
       }
 

@@ -20,14 +20,12 @@
         return "lynleser-joystick";
       }
 
-      static get config() {
+      static get properties() {
         return {
-          properties: {
             myProp: {
               type: Array,
               observer: "myObserver"
             }
-          }
         };
       }
 

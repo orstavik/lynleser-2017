@@ -1,5 +1,3 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-
 <dom-module id="lynleser-booklist">
   <template>
     <style>
@@ -38,17 +36,14 @@
       }
 
 
-      static get config() {
+      static get properties() {
         return {
-          properties: {
             userBooks: Array,
             systemBooks: Array,
             organizedBooks: {
               type: OrganizedBooklist,
               computed: "_makeOrganizedBookList(systemBooks, userBooks)"
             }
-          },
-          //observers: []
         };
       }
 
