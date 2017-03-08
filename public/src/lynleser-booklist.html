@@ -6,15 +6,9 @@
     </style>
 
     <h2>Books</h2>
-    <template is="dom-repeat" items="[[data.openedBooks]]">
+    <template is="dom-repeat" items="[[booksArray]]">
       <div class="systemBook" data-filename$="[[item.filename]]" data-key$="[[item.key]]" on-click="_clickBook">
         [[item.name]] (([[item.position]])) => [[item.filename]]
-      </div>
-    </template>
-    <hr>
-    <template is="dom-repeat" items="[[data.closedBooks]]">
-      <div class="systemBook" data-filename$="[[item.filename]]" data-key$="[[item.key]]" on-click="_clickBook">
-        [[item.name]] => [[item.filename]]
       </div>
     </template>
 
@@ -25,11 +19,24 @@
         return "lynleser-booklist";
       }
 
-
       static get properties() {
         return {
-          data: Object
+          books: Object,
+          booksArray: {
+            type: Array,
+            computed: "_makeBooksArray(books)"
+          }
         };
+      }
+
+      _makeBooksArray(books){
+        const res = [];
+        for (let key of Object.keys(books)) {
+          let book = books[key];
+          book.key = key;
+          res.push(book);
+        }
+        return res;
       }
 
       _clickBook(e) {

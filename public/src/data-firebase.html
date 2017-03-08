@@ -17,10 +17,6 @@
               type: Array,
               notify: true
             },
-            serverBook: {
-              type: Object,
-              notify: true
-            },
             userData: {
               type: Object,
               notify: true
@@ -30,13 +26,6 @@
 
       connectedCallback() {
         super.connectedCallback();
-        firebase.initializeApp({
-          apiKey: "AIzaSyCsaCy5xQKr7-H23fvHZX9vbZklxo4mKks",
-          authDomain: "lynleser-2017.firebaseapp.com",
-          databaseURL: "https://lynleser-2017.firebaseio.com",
-          storageBucket: "lynleser-2017.appspot.com",
-          messagingSenderId: "740631213903"
-        });
         this._db = firebase.database();
         this.systemBooksListener = this._db.ref("/system/books/");
         this.systemBooksListener.on("value", this._updateSystemBooks.bind(this));
@@ -51,7 +40,8 @@
           let xhr = new XMLHttpRequest();
           xhr.responseType = 'document';
           xhr.onload = function (event) {
-            this.set("serverBook", {key: key, fileName: fileName, body: xhr.response});
+            const value = {key: key, fileName: fileName, body: xhr.response};
+            this.dispatchEvent(new CustomEvent("book-loaded", {bubbles: true, composed: true, detail: value}));
           }.bind(this);
           xhr.open('GET', url);
           xhr.send();
@@ -59,6 +49,7 @@
       }
 
       _updateSystemBooks(snap) {
+        console.log("systemBooks gotten");
         this.set("systemBooks", snap.val());
       }
 

@@ -10,17 +10,17 @@
     </style>
 
     <data-firebase id="firebase"
-                   system-books="{{systemBooks}}"
+                   system-books="{{serverSystemBooks}}"
                    server-user="{{serverUser}}"
                    user-data="{{serverUserData}}"
-                   server-book="{{serverBook}}"
 
+                   on-book-loaded="_bookLoaded"
                    on-system-error="_systemError"></data-firebase>
 
 
     <controller-transient id="ui"
                           user="[[serverUser]]"
-                          user-data="[[userData]]"
+                          user-data="[[state]]"
                           on-select-book="_selectBook"
                           on-settings-changed="_userSetNewSettings"
                           on-sign-in="_signIn"
@@ -34,23 +34,35 @@
         return "controller-persistent";
       }
 
+      //important.
+      //1. The structure of the merged serverData and uiData should be identical.
+      //2. The structure of the merged serverData should make it as easy as possible to make update calls to the database.
+      //   Try to keep the structure of the merged serverData identical to the structure that the update calls conform to
+      //   (i.e. identical to the structure on the server).
       static get properties() {
         return {
           serverUser: Object,
-          systemBooks: Array,
-          serverUserData: Object,
-          serverBook: Object,
-          changes: {
-            type: DataChanges,
-            value: function () {
-              return new DataChanges();
-            }
-          },
-          userData: {
-            type: Object,
-            computed: "_makeUserData(serverUserData, systemBooks, changes, serverBook)" //one argument to computed must be set to invoke at startup
-          },
+          serverSystemBooks: Array,            //data source: firebase database -> change create new object
+          serverUserData: Object,              //data source: firebase database -> change create new object
+          serverBooks: Object,                 //data source: firebase buckets  -> changes are added to the same object
+          serverData: Object,                  //1. process. All data from server are merged
+          uiData: LynleserUIData,              //data source: UI
+          state: Object                         //2. process. Data from server and UI are merged
         };
+      }
+
+      //todo bug in notifyPath and/or computed function.. observers are working
+      static get observers() {
+        return [
+          "_mergeServerData(serverUserData, serverSystemBooks, serverBooks)",
+          "_mergeData(serverData, uiData)"
+        ];
+      }
+
+      constructor() {
+        super();
+        this.serverBooks = {};
+        this.uiData = new LynleserUIData();
       }
 
       connectedCallback() {
@@ -58,12 +70,24 @@
         this.__debounceChanges = setInterval(this._tryToPersistChanges.bind(this), 5000);
       }
 
-      _makeUserData(data, books, changes, book) {
-        return new LynleserData(data, books, changes, book);
+      _bookLoaded(e) {
+        this.serverBooks[e.detail.key] = e.detail.body;
+        this.notifyBug("serverBooks");
+      }
+
+      _mergeServerData(serverUserData, serverSystemBooks, serverBooks) {
+        const res = LynleserServerData.make(serverUserData, serverSystemBooks, serverBooks);
+        this.set("serverData", res);
+      }
+
+      _mergeData(serverData, uiData) {
+        const res = new LynleserData(serverData, uiData);
+        console.log(res);
+        this.set("state", res);
       }
 
       _signIn(e) {
-        this.changes = new DataChanges();
+        this.uiData = new LynleserUIData();
         this.$.firebase.signIn();
       }
 
@@ -80,22 +104,28 @@
         console.log(e);
       }
 
+      //todo annoying notifyPath-bug
+      //should only use this: this.notifyPath("uiData");
+      notifyBug(prop) {
+        if (prop == "serverBooks")
+          this._mergeServerData(this.serverUserData, this.serverSystemBooks, this.serverBooks);
+        if (prop == "uiData")
+          this._mergeData(this.serverData, this.uiData);
+      }
+
       _userSetNewSettings(e) {
-        this.changes.addSetting(e.detail);
-        //some kind of bug in the notification system, because I have to set the changes to null before it triggers the computed method for the userData
-        let c = this.changes;
-        this.set("changes", null);
-        this.notifyPath("changes", c);
+        this.uiData.addSetting(e.detail);
+        this.notifyBug("uiData");
       }
 
       _tryToPersistChanges() {
         console.log("persisting");
         if (!this.serverUser)
           return;
-        const empty = this.changes.clearRedundant(this.serverUserData);
+        const empty = this.uiData.clearRedundant(this.serverUserData);
         if (empty)
           return;
-        this.$.firebase.updateChanges(this.changes);
+        this.$.firebase.updateChanges(this.uiData);
       }
     }
     customElements.define(ControllerPersistent.is, ControllerPersistent);

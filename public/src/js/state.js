@@ -1,18 +1,8 @@
-class LynleserData {
-  constructor(userData, systemBooks, uiChanges, book) {
-    const settings = userData ? userData.settings : {};
-    const userBooks = userData ? userData.books : {};
-    uiChanges = uiChanges || {};
-    this.allBooks = systemBooks || {};
-    const organized = LynleserData.organizeBooks(this.allBooks, userBooks);
-    this.openedBooks = organized.openedBooks;
-    this.closedBooks = organized.closedBooks;
-    this.settings = Object.assign(LynleserData.defaultSettings(), settings, uiChanges.settings);
-    this.book = book;
-  }
+class LynleserServerData {
 
-  static defaultSettings() {
-    return {
+  constructor() {
+    this.books = {};
+    this.settings = {
       speed: 200,
       wordWidth: 14,
       prefixes: ["the", "an", "a"],
@@ -22,19 +12,43 @@ class LynleserData {
     };
   }
 
-  static organizeBooks(systemBooks, userBooks) {
-    const userBookKeys = Object.keys(userBooks);
-    const systemBookKeys = Object.keys(systemBooks);
-    const filteredSystemBookKeys = systemBookKeys.filter(systemKey => userBookKeys.indexOf(systemKey));
-    return {
-      openedBooks: userBookKeys.map(key => Object.assign({key: key}, systemBooks[key], userBooks[key])),
-      closedBooks: filteredSystemBookKeys.map(key => Object.assign({key: key}, systemBooks[key]))
-    };
+  static make(userData, systemBooks, bookData) {
+    let res = new LynleserServerData();
+    if (userData){
+      res.settings = Object.assign(res.settings, userData.settings);
+      res.books = Object.assign(res.books, userData.books);
+      if (userData.books.prefixes)
+        res.books.prefixes = userData.books.prefixes.slice();
+    }
+    if (systemBooks){
+      for (let key of Object.keys(systemBooks)){
+        res.books[key] = Object.assign({}, res.books[key], systemBooks[key]);
+        if (bookData && bookData[key])
+          res.books[key].body = bookData[key].body;
+      }
+    }
+    return res;
   }
 }
 
-class DataChanges {
+class LynleserData {
+  constructor(serverData, uiChanges) {
+    this.settings = serverData.settings;
+    this.books = serverData.books;
+    if (!uiChanges)
+      return;
+    if (uiChanges.books) {
+      for (let key of Object.keys(uiChanges.books))
+        this.books[key] = Object.assign({}, this.books[key], uiChanges.books[key]);
+    }
+    if (uiChanges.settings)
+      this.settings = Object.assign({}, this.settings, uiChanges.settings);
+  }
+}
+
+class LynleserUIData {
   constructor() {
+    this.books = {};
     this.settings = {};
   }
 
