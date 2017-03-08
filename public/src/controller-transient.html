@@ -35,7 +35,7 @@
     <lynleser-settings id="settings" settings="[[userData.settings]]"></lynleser-settings>
 
     <lynleser-fulltext id="fullText"
-                       book="[[userData.book]]"></lynleser-fulltext>
+                       book="[[book]]"></lynleser-fulltext>
 
     <lynleser-joystick id="joystick"
                        on-speed-change="_speedChange"
@@ -53,8 +53,15 @@
         return {
           user: Object,
           userData: Object,
-          book: Object
+          book: {
+            type: Object,
+            computed: "_getSelectedBook(userData)"
+          }
         };
+      }
+
+      _getSelectedBook(userData){
+        return userData.getActiveBook();
       }
 
       _startStop(e) {

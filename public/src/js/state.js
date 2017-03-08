@@ -14,14 +14,14 @@ class LynleserServerData {
 
   static make(userData, systemBooks, bookData) {
     let res = new LynleserServerData();
-    if (userData){
+    if (userData) {
       res.settings = Object.assign(res.settings, userData.settings);
       res.books = Object.assign(res.books, userData.books);
       if (userData.books.prefixes)
         res.books.prefixes = userData.books.prefixes.slice();
     }
-    if (systemBooks){
-      for (let key of Object.keys(systemBooks)){
+    if (systemBooks) {
+      for (let key of Object.keys(systemBooks)) {
         res.books[key] = Object.assign({}, res.books[key], systemBooks[key]);
         if (bookData && bookData[key])
           res.books[key].body = bookData[key].body;
@@ -43,6 +43,12 @@ class LynleserData {
     }
     if (uiChanges.settings)
       this.settings = Object.assign({}, this.settings, uiChanges.settings);
+  }
+
+  getActiveBook() {
+    if (!this.settings || !this.settings.activeBook)
+      return null;
+    return this.books[this.settings.activeBook];
   }
 }
 

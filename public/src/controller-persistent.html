@@ -70,11 +70,6 @@
         this.__debounceChanges = setInterval(this._tryToPersistChanges.bind(this), 5000);
       }
 
-      _bookLoaded(e) {
-        this.serverBooks[e.detail.key] = e.detail.body;
-        this.notifyBug("serverBooks");
-      }
-
       _mergeServerData(serverUserData, serverSystemBooks, serverBooks) {
         const res = LynleserServerData.make(serverUserData, serverSystemBooks, serverBooks);
         this.set("serverData", res);
@@ -111,6 +106,12 @@
           this._mergeServerData(this.serverUserData, this.serverSystemBooks, this.serverBooks);
         if (prop == "uiData")
           this._mergeData(this.serverData, this.uiData);
+      }
+
+      _bookLoaded(e) {
+        this.serverBooks[e.detail.key] = e.detail.body;
+        this.uiData.addSetting({key: "activeBook", value: e.detail.key});
+        this.notifyBug("serverBooks");
       }
 
       _userSetNewSettings(e) {
