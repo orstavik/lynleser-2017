@@ -84,6 +84,7 @@
       _signIn(e) {
         this.uiData = new LynleserUIData();
         this.$.firebase.signIn();
+        this.notifyBug("uiData");
       }
 
       _signOut(e) {
