@@ -81,6 +81,7 @@
           // This gives you a Google Access Token. You can use it to access the Google API.
           // let token = result.credential.accessToken;
           this.set("serverUser", result.user);
+          //todo load the serverBook and serverUserData
           this.checkIfFirstTimeUser(this.serverUser);
         }.bind(this)).catch(this._systemError.bind(this));
       }
@@ -99,6 +100,8 @@
 
       signOut(e) {
         firebase.auth().signOut().then(function () {
+          this.set("serverUserData", null);
+          this.set("serverBook", null);
           this.set("serverUser", null);
         }.bind(this)).catch(this._systemError.bind(this));
       }
