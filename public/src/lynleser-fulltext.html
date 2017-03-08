@@ -23,9 +23,9 @@
 
       static get properties() {
         return {
-            href: {
-              type: String,
-              observer: "_hrefChanged"
+            book: {
+              type: Object,
+              observer: "loadContent"
             }
         };
       }
@@ -36,10 +36,11 @@
       //load the two nodes after position
 
       loadContent(doc) {
+        let body = doc.body;
         let start = new Date().getTime();
         // for(let child og doc.body.children)
         //   this.$.appendable.appendChild(child);
-        this.$.appendable.appendChild(doc.body);
+        this.$.appendable.appendChild(body.body);
         let end = new Date().getTime();
         console.log(end - start);
       }

@@ -16,7 +16,7 @@
         width: 100px;
         height: 60px;
       }
-      #settings:hover, #login:hover, #books:hover  {
+      #settings:hover, #login:hover, #books:hover {
         width: auto;
         height: auto;
         z-index: 2;
@@ -24,18 +24,18 @@
       #login { top: 0; }
       #books { top: 60px; }
       #settings { top: 120px; }
-
       #fullText {
         margin-left: 100px;
         height: 100vh;
       }
     </style>
 
-    <lynleser-auth     id="login" user="[[user]]"></lynleser-auth>
+    <lynleser-auth id="login" user="[[user]]"></lynleser-auth>
     <lynleser-booklist id="books" data="[[userData]]"></lynleser-booklist>
     <lynleser-settings id="settings" settings="[[userData.settings]]"></lynleser-settings>
 
-    <lynleser-fulltext id="fullText"></lynleser-fulltext>
+    <lynleser-fulltext id="fullText"
+                       book="[[userData.book]]"></lynleser-fulltext>
 
     <lynleser-joystick id="joystick"
                        on-speed-change="_speedChange"
@@ -57,25 +57,21 @@
         };
       }
 
-      _startStop(e){
+      _startStop(e) {
         console.log(e);
       }
 
-      _wordWider(e){
+      _wordWider(e) {
         const val = this.userData.settings["wordWidth"] + e.detail;
         this._fire("settings-changed", {key: "wordWidth", value: val});
       }
 
-      _speedChange(e){
-        let value = this.userData.settings["speed"] * (1 + (e.detail/100));
+      _speedChange(e) {
+        let value = this.userData.settings["speed"] * (1 + (e.detail / 100));
         this._fire("settings-changed", {key: "speed", value: value});
       }
 
-      loadContent(doc) {
-        this.$.fullText.loadContent(doc);
-      }
-
-      _fire(name, detail){
+      _fire(name, detail) {
         this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: detail}));
       }
     }

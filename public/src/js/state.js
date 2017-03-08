@@ -1,5 +1,5 @@
 class LynleserData {
-  constructor(userData, systemBooks, uiChanges) {
+  constructor(userData, systemBooks, uiChanges, book) {
     const settings = userData ? userData.settings : {};
     const userBooks = userData ? userData.books : {};
     uiChanges = uiChanges || {};
@@ -8,6 +8,7 @@ class LynleserData {
     this.openedBooks = organized.openedBooks;
     this.closedBooks = organized.closedBooks;
     this.settings = Object.assign(LynleserData.defaultSettings(), settings, uiChanges.settings);
+    this.book = book;
   }
 
   static defaultSettings() {

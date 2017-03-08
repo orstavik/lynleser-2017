@@ -39,10 +39,7 @@
           serverUser: Object,
           systemBooks: Array,
           serverUserData: Object,
-          serverBook: {
-            type: Object,
-            observer:"_loadedBook"
-          },
+          serverBook: Object,
           changes: {
             type: DataChanges,
             value: function () {
@@ -51,7 +48,7 @@
           },
           userData: {
             type: Object,
-            computed: "_makeUserData(serverUserData, systemBooks, changes)" //one argument to computed must be set to invoke at startup
+            computed: "_makeUserData(serverUserData, systemBooks, changes, serverBook)" //one argument to computed must be set to invoke at startup
           },
         };
       }
@@ -61,9 +58,8 @@
         this.__debounceChanges = setInterval(this._tryToPersistChanges.bind(this), 5000);
       }
 
-      _makeUserData(data, books, changes) {
-        console.log(changes);
-        return new LynleserData(data, books, changes);
+      _makeUserData(data, books, changes, book) {
+        return new LynleserData(data, books, changes, book);
       }
 
       _signIn(e) {
@@ -78,10 +74,6 @@
 
       _selectBook(e) {
         this.$.firebase.getBook(e.detail);
-      }
-
-      _loadedBook(book) {
-        this.$.ui.loadContent(book.body);
       }
 
       _systemError(e) {
