@@ -2,11 +2,11 @@ class LynleserData {
   constructor(userData, systemBooks, uiChanges) {
     const settings = userData ? userData.settings : {};
     const userBooks = userData ? userData.books : {};
-    systemBooks = systemBooks || {};
     uiChanges = uiChanges || {};
-    const organized = LynleserData.organizeBooks(systemBooks, userBooks);
-    this.userBooks = organized.userBooks;
-    this.systemBooks = organized.systemBooks;
+    this.allBooks = systemBooks || {};
+    const organized = LynleserData.organizeBooks(this.allBooks, userBooks);
+    this.openedBooks = organized.openedBooks;
+    this.closedBooks = organized.closedBooks;
     this.settings = Object.assign(LynleserData.defaultSettings(), settings, uiChanges.settings);
   }
 
@@ -26,8 +26,8 @@ class LynleserData {
     const systemBookKeys = Object.keys(systemBooks);
     const filteredSystemBookKeys = systemBookKeys.filter(systemKey => userBookKeys.indexOf(systemKey));
     return {
-      userBooks: userBookKeys.map(key => Object.assign({key: key}, systemBooks[key], userBooks[key])),
-      systemBooks: filteredSystemBookKeys.map(key => Object.assign({key: key}, systemBooks[key]))
+      openedBooks: userBookKeys.map(key => Object.assign({key: key}, systemBooks[key], userBooks[key])),
+      closedBooks: filteredSystemBookKeys.map(key => Object.assign({key: key}, systemBooks[key]))
     };
   }
 }

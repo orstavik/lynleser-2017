@@ -9,6 +9,7 @@
         display: block;
         min-height: 60vh;
         overflow-y: scroll;
+        overflow: hidden;
       }
     </style>
 
@@ -28,7 +29,12 @@
             }
         };
       }
-      
+
+      //iterate to the position
+      //load the two nodes before that position,
+      //load the position
+      //load the two nodes after position
+
       loadContent(doc) {
         let start = new Date().getTime();
         // for(let child og doc.body.children)

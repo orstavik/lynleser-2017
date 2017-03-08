@@ -6,13 +6,13 @@
     </style>
 
     <h2>Books</h2>
-    <template is="dom-repeat" items="[[data.userBooks]]">
+    <template is="dom-repeat" items="[[data.openedBooks]]">
       <div class="systemBook" data-filename$="[[item.filename]]" on-click="_clickSystemBook">
         [[item.key]], [[item.name]], [[item.filename]], [[item.position]]
       </div>
     </template>
     <hr>
-    <template is="dom-repeat" items="[[data.systemBooks]]">
+    <template is="dom-repeat" items="[[data.closedBooks]]">
       <div class="systemBook" data-filename$="[[item.filename]]" on-click="_clickSystemBook">
         [[item.key]], [[item.name]], [[item.filename]], [[item.position]]
       </div>
