@@ -2,6 +2,7 @@
 <link rel="import" href="lynleser-fulltext.html">
 <link rel="import" href="lynleser-settings.html">
 <link rel="import" href="lynleser-joystick.html">
+<link rel="import" href="lynleser-auth.html">
 
 <dom-module id="controller-transient">
   <template>
@@ -9,7 +10,8 @@
       :host { display: block; }
     </style>
 
-    <lynleser-booklist books="[[userData.books]]"></lynleser-booklist>
+    <lynleser-auth user="[[user]]"></lynleser-auth>
+    <lynleser-booklist data="[[userData]]"></lynleser-booklist>
     <lynleser-settings id="settings" settings="[[userData.settings]]"></lynleser-settings>
 
     <lynleser-fulltext id="fullText"></lynleser-fulltext>
@@ -28,6 +30,7 @@
 
       static get properties() {
         return {
+          user: Object,
           userData: Object,
           book: Object
         };

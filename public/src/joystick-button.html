@@ -67,6 +67,10 @@
           sensitivity: {
             type: Number,
             value: 5
+          },
+          autoSleep: {
+            type: Number,
+            value: 10
           }
         };
       }
@@ -84,9 +88,11 @@
         this.setPointerCapture(e.pointerId);
         this._pull = new PullEvent(e);
         this._frequencyInterval = setInterval(this.calcAndFire.bind(this), this.frequencyMs);
+        this._sleeper = this.autoSleep;
       }
 
       _pointermove(e) {
+        this._sleeper = this.autoSleep;
         this._pull.push(e);
       }
 
@@ -101,6 +107,9 @@
       }
 
       calcAndFire() {
+        this._sleeper--;
+        if (this._sleeper < 0)
+          clearInterval(this._frequencyInterval);
         let res = this._pull.poll();
         if (Math.abs(res.force) > this.sensitivity)
           this._fire("pull", res);

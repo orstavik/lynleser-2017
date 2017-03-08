@@ -1,9 +1,9 @@
-<dom-module id="lynleser-firebase">
+<dom-module id="data-firebase">
   <script>
 
-    class LynleserFirebase extends Polymer.Element {
+    class DataFirebase extends Polymer.Element {
       static get is() {
-        return "lynleser-firebase";
+        return "data-firebase";
       }
 
       static get properties() {
@@ -111,10 +111,19 @@
         }.bind(this));
       }
 
+      updateChanges(changes) {
+        const updates = {};
+        for (let s of Object.keys(changes.settings))
+          updates["/users/" + this.serverUser.uid + "/settings/" + s] = changes.settings[s];
+        this._db.ref().update(updates, function () {
+          this.systemMessage("updated changes: " + Object.keys(changes.settings));
+        }.bind(this));
+      }
+
       systemMessage(str) {
         this.dispatchEvent(new CustomEvent("system-message", {composed: true, bubbles: true, detail: str}));
       }
     }
-    customElements.define(LynleserFirebase.is, LynleserFirebase);
+    customElements.define(DataFirebase.is, DataFirebase);
   </script>
 </dom-module>

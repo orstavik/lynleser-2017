@@ -6,13 +6,13 @@
     </style>
 
     <h2>User books</h2>
-    <template is="dom-repeat" items="[[books.userBooks]]">
+    <template is="dom-repeat" items="[[data.userBooks]]">
       <div class="systemBook" data-filename$="[[item.filename]]" on-click="_clickSystemBook">
         [[item.key]], [[item.name]], [[item.filename]], [[item.position]]
       </div>
     </template>
     <h2>All books</h2>
-    <template is="dom-repeat" items="[[books.systemBooks]]">
+    <template is="dom-repeat" items="[[data.systemBooks]]">
       <div class="systemBook" data-filename$="[[item.filename]]" on-click="_clickSystemBook">
         [[item.key]], [[item.name]], [[item.filename]], [[item.position]]
       </div>
@@ -28,7 +28,7 @@
 
       static get properties() {
         return {
-          books: Object
+          data: Object
         };
       }
 

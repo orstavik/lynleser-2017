@@ -20,15 +20,6 @@
         return "lynleser-joystick";
       }
 
-      static get properties() {
-        return {
-            myProp: {
-              type: Array,
-              observer: "myObserver"
-            }
-        };
-      }
-
       _joystickPull(e) {
         e.stopPropagation();
         let cmd = e.detail.direction == "y" ? "speed-change" : "word-wider";

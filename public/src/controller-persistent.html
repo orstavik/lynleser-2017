@@ -1,42 +1,5 @@
 <link rel="import" href="controller-transient.html">
-<link rel="import" href="lynleser-auth.html">
-<link rel="import" href="lynleser-firebase.html">
-
-<script>
-  class LynleserUserDataObject {
-    constructor(userData, systemBooks) {
-      const settings = userData ? userData.settings : null;
-      const userBooks = userData ? userData.books : null;
-      this.books = new OrganizedBooklist(systemBooks, userBooks);
-      this.settings = new LynleserSettingsObject(settings);
-    }
-  }
-
-  class LynleserSettingsObject {
-    constructor(incoming) {
-      this.speed = 200;
-      this.wordWidth = 14;
-      this.prefixes = ["the", "an", "a"];
-      this.fontSize = 14;
-      this.fontType = "serif";
-      this.theme = "day";
-      if (incoming)
-        Object.assign(this, incoming);
-    }
-  }
-
-  class OrganizedBooklist {
-    constructor(systemBooks, userBooks){
-      userBooks = userBooks || {};
-      systemBooks = systemBooks || {};
-      let userBookKeys = Object.keys(userBooks);
-      this.userBooks = userBookKeys.map(key => Object.assign({key: key}, systemBooks[key], userBooks[key]));
-      let systemBookKeys = Object.keys(systemBooks);
-      let filteredSystemBookKeys = systemBookKeys.filter(systemKey => userBookKeys.indexOf(systemKey));
-      this.systemBooks = filteredSystemBookKeys.map(key => Object.assign({key: key}, systemBooks[key]));
-    }
-  }
-</script>
+<link rel="import" href="data-firebase.html">
 
 <dom-module id="controller-persistent">
   <template>
@@ -46,20 +9,23 @@
       }
     </style>
 
-    <lynleser-firebase id="firebase"
-                       system-books="{{systemBooks}}"
-                       server-user="{{serverUser}}"
-                       user-data="{{serverUserData}}"
+    <data-firebase id="firebase"
+                   system-books="{{systemBooks}}"
+                   server-user="{{serverUser}}"
+                   user-data="{{serverUserData}}"
 
-                       on-system-error="_systemError"
-                       on-loaded-book="_loadedBook"></lynleser-firebase>
+                   on-system-error="_systemError"
+                   on-loaded-book="_loadedBook"
+                   on-server-updated="_serverUpdated"></data-firebase>
 
-    <lynleser-auth user="[[serverUser]]" on-sign-in="_signIn" on-sign-out="_signOut"></lynleser-auth>
 
     <controller-transient id="ui"
+                          user="[[serverUser]]"
                           user-data="[[userData]]"
                           on-select-book="_selectBook"
-                          on-settings-changed="_userSetNewSettings"></controller-transient>
+                          on-settings-changed="_userSetNewSettings"
+                          on-sign-in="_signIn"
+                          on-sign-out="_signOut"></controller-transient>
   </template>
 
   <script>
@@ -74,26 +40,31 @@
           serverUser: Object,
           systemBooks: Array,
           serverUserData: Object,
-          userData: Object,
+          changes: {
+            type: DataChanges,
+            value: function () {
+              return new DataChanges();
+            }
+          },
+          userData: {
+            type: Object,
+            computed: "_makeUserData(serverUserData, systemBooks, changes)" //one argument to computed must be set to invoke at startup
+          },
         };
       }
 
-      static get observers() {
-        return ["_makeUserData(serverUserData, systemBooks)"];
-      }
-
-      connectedCallback(){
+      connectedCallback() {
         super.connectedCallback();
-        this._makeUserData(this.serverUserData, this.systemBooks); //this.serverUserData == undefined && this.serverUserData == undefined
+        this.__debounceChanges = setInterval(this._tryToPersistChanges.bind(this), 5000);
       }
 
-      //todo Here I can make sure that a timestamp of the change on the userData is newer on the server before I replace it.
-      //todo If it is not newer, I will try to alert the server of the newer settings on the client.
-      _makeUserData(data, books) {
-        this.set("userData",new LynleserUserDataObject(data, books));
+      _makeUserData(data, books, changes) {
+        //clear any changes that are the same coming from the server and the ui
+        return new LynleserData(data, books, changes);
       }
 
       _signIn(e) {
+        this.changes = new DataChanges();
         this.$.firebase.signIn();
       }
 
@@ -116,10 +87,18 @@
       }
 
       _userSetNewSettings(e) {
-        //what to do when I'm not logged in?
-        //what to do when the user is logged in, but with slow network connection?
-        if (this.serverUser)
-          this.$.firebase.updateSettings(e.detail);
+        this.changes.addSetting(e.detail);
+        this.notifyPath("changes");
+      }
+
+      _tryToPersistChanges() {
+        console.log("persisting");
+        if (!this.serverUser)
+          return;
+        const empty = this.changes.clearRedundant(this.serverUserData);
+        if (empty)
+          return;
+        this.$.firebase.updateChanges(this.changes);
       }
     }
     customElements.define(ControllerPersistent.is, ControllerPersistent);

@@ -70,8 +70,8 @@
         this._changeSettings("prefixes", prefixes);
       }
 
-      _changeSettings(type, value) {
-        const res = {type: type, value: value};
+      _changeSettings(key, value) {
+        const res = {key: key, value: value};
         this.dispatchEvent(new CustomEvent("settings-changed", {composed: true, bubbles: true, detail: res}));
       }
     }
