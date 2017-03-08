@@ -8,10 +8,10 @@
     </style>
 
     <h4>Speed</h4>
-    <input id="speed" type="text" value="[[settings.speed]]" on-input="_speedChange">
+    <input id="speed" type="range" min="0" max="2000" value="[[settings.speed]]" on-input="_speedChange">
 
     <h4>Word width</h4>
-    <input id="wordwidth" type="text" value="[[settings.wordWidth]]" on-input="_wordWidthChange">
+    <input id="wordwidth" type="range" min="0" max="200" value="[[settings.wordWidth]]" on-input="_wordWidthChange">
 
     <h4>Prefixes</h4>
     <input id="prefixes" type="text" value="[[settings.prefixes]]" on-input="_prefixChange">

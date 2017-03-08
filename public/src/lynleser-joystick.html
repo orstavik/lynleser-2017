@@ -20,10 +20,25 @@
         return "lynleser-joystick";
       }
 
+      static get properties() {
+        return {
+          factorWidth: {
+            type: Number,
+            value: 0.1
+          },
+          factorSpeed: {
+            type: Number,
+            value: 0.2
+          }
+        };
+      }
+
       _joystickPull(e) {
         e.stopPropagation();
-        let cmd = e.detail.direction == "y" ? "speed-change" : "word-wider";
-        this._fire(cmd, e.detail.force);
+        if (e.detail.direction == "y")
+          this._fire("speed-change", Math.floor(-e.detail.force*this.factorSpeed));
+        else
+          this._fire("word-wider", Math.floor(e.detail.force*this.factorWidth));
       }
 
       _joystickTap(e) {

@@ -59,6 +59,7 @@
       }
 
       _makeUserData(data, books, changes) {
+        console.log(changes);
         return new LynleserData(data, books, changes);
       }
 
@@ -87,7 +88,10 @@
 
       _userSetNewSettings(e) {
         this.changes.addSetting(e.detail);
-        this.notifyPath("changes");
+        //some kind of bug in the notification system, because I have to set the changes to null before it triggers the computed method for the userData
+        let c = this.changes;
+        this.set("changes", null);
+        this.notifyPath("changes", c);
       }
 
       _tryToPersistChanges() {

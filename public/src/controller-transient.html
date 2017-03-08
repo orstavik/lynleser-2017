@@ -36,20 +36,26 @@
         };
       }
 
-      _wordWider(e){
-        console.log(e);
-      }
-
-      _speedChange(e){
-        console.log(e);
-      }
-
       _startStop(e){
         console.log(e);
       }
 
+      _wordWider(e){
+        const val = this.userData.settings["wordWidth"] + e.detail;
+        this._fire("settings-changed", {key: "wordWidth", value: val});
+      }
+
+      _speedChange(e){
+        let value = this.userData.settings["speed"] * (1 + (e.detail/100));
+        this._fire("settings-changed", {key: "speed", value: value});
+      }
+
       loadContent(doc) {
         this.$.fullText.loadContent(doc);
+      }
+
+      _fire(name, detail){
+        this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: detail}));
       }
     }
     customElements.define(ControllerTransient.is, ControllerTransient);

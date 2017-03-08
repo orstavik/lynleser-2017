@@ -21,7 +21,6 @@
         this.y /= this.moves.length;
       }
       this.moves = this.moves.slice(-1);
-      console.log(this.moves);
       if (Math.abs(this.y) > Math.abs(this.x))
         return {direction: "y", force: this.y};
       return {direction: "x", force: this.x};
