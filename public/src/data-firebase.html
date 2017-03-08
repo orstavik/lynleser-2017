@@ -17,6 +17,10 @@
               type: Array,
               notify: true
             },
+            serverBook: {
+              type: Object,
+              notify: true
+            },
             userData: {
               type: Object,
               notify: true
@@ -45,7 +49,7 @@
           let xhr = new XMLHttpRequest();
           xhr.responseType = 'document';
           xhr.onload = function (event) {
-            this.dispatchEvent(new CustomEvent("loaded-book", {composed: true, bubbles: true, detail: xhr.response}));
+            this.set("serverBook", {fileName: fileName, body: xhr.response});
           }.bind(this);
           xhr.open('GET', url);
           xhr.send();

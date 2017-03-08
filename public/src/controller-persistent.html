@@ -13,10 +13,9 @@
                    system-books="{{systemBooks}}"
                    server-user="{{serverUser}}"
                    user-data="{{serverUserData}}"
+                   server-book="{{serverBook}}"
 
-                   on-system-error="_systemError"
-                   on-loaded-book="_loadedBook"
-                   on-server-updated="_serverUpdated"></data-firebase>
+                   on-system-error="_systemError"></data-firebase>
 
 
     <controller-transient id="ui"
@@ -40,6 +39,10 @@
           serverUser: Object,
           systemBooks: Array,
           serverUserData: Object,
+          serverBook: {
+            type: Object,
+            observer:"_loadedBook"
+          },
           changes: {
             type: DataChanges,
             value: function () {
@@ -77,8 +80,8 @@
         this.$.firebase.getBook(e.detail);
       }
 
-      _loadedBook(e) {
-        this.$.ui.loadContent(e.detail);
+      _loadedBook(book) {
+        this.$.ui.loadContent(book.body);
       }
 
       _systemError(e) {
