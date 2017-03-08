@@ -83,6 +83,7 @@
       }
 
       _pointerdown(e) {
+        JoystickButton.stopPropDefault(e);
         this.addEventListener("pointermove", this.pointermove);
         this.addEventListener("pointerup", this.pointerup);
         this.setPointerCapture(e.pointerId);
@@ -92,11 +93,13 @@
       }
 
       _pointermove(e) {
+        JoystickButton.stopPropDefault(e);
         this._sleeper = this.autoSleep;
         this._pull.push(e);
       }
 
       _pointerup(e) {
+        JoystickButton.stopPropDefault(e);
         if (JoystickButton.isClickable(this._pull.getStartTime(), e.timeStamp, 300))
           this._fire("tap", null);
         this.removeEventListener("pointermove", this.pointermove);
@@ -121,6 +124,11 @@
 
       static isClickable(start, stop, threshold) {
         return (stop - start) < threshold;
+      }
+
+      static stopPropDefault(e) {
+        e.preventDefault();
+        e.stopPropagation();
       }
     }
     customElements.define(JoystickButton.is, JoystickButton);
