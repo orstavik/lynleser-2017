@@ -42,14 +42,16 @@
         this.systemBooksListener.on("value", this._updateSystemBooks.bind(this));
       }
 
-      getBook(fileName) {
+      getBook(book) {
+        const fileName = book.fileName;
+        const key = book.key;
         let fileRef = firebase.storage().ref('books/' + fileName);
         fileRef.getDownloadURL().then(function (url) {
           // This can be downloaded directly:
           let xhr = new XMLHttpRequest();
           xhr.responseType = 'document';
           xhr.onload = function (event) {
-            this.set("serverBook", {fileName: fileName, body: xhr.response});
+            this.set("serverBook", {key: key, fileName: fileName, body: xhr.response});
           }.bind(this);
           xhr.open('GET', url);
           xhr.send();

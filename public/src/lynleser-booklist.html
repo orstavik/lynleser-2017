@@ -7,14 +7,14 @@
 
     <h2>Books</h2>
     <template is="dom-repeat" items="[[data.openedBooks]]">
-      <div class="systemBook" data-filename$="[[item.filename]]" on-click="_clickSystemBook">
-        [[item.key]], [[item.name]], [[item.filename]], [[item.position]]
+      <div class="systemBook" data-filename$="[[item.filename]]" data-key$="[[item.key]]" on-click="_clickBook">
+        [[item.name]] (([[item.position]])) => [[item.filename]]
       </div>
     </template>
     <hr>
     <template is="dom-repeat" items="[[data.closedBooks]]">
-      <div class="systemBook" data-filename$="[[item.filename]]" on-click="_clickSystemBook">
-        [[item.key]], [[item.name]], [[item.filename]], [[item.position]]
+      <div class="systemBook" data-filename$="[[item.filename]]" data-key$="[[item.key]]" on-click="_clickBook">
+        [[item.name]] => [[item.filename]]
       </div>
     </template>
 
@@ -32,8 +32,8 @@
         };
       }
 
-      _clickSystemBook(e) {
-        let detail = e.target.dataset.filename;
+      _clickBook(e) {
+        let detail = {key: e.target.dataset.key, fileName: e.target.dataset.filename};
         this.dispatchEvent(new CustomEvent("select-book", {composed: true, bubbles: true, detail: detail}));
       }
     }
