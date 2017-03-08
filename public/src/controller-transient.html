@@ -8,10 +8,31 @@
   <template>
     <style>
       :host { display: block; }
+      #settings, #login, #books {
+        position: absolute;
+        overflow: hidden;
+        background: grey;
+        left: 0;
+        width: 100px;
+        height: 60px;
+      }
+      #settings:hover, #login:hover, #books:hover  {
+        width: auto;
+        height: auto;
+        z-index: 2;
+      }
+      #login { top: 0; }
+      #books { top: 60px; }
+      #settings { top: 120px; }
+
+      #fullText {
+        margin-left: 100px;
+        height: 100vh;
+      }
     </style>
 
-    <lynleser-auth user="[[user]]"></lynleser-auth>
-    <lynleser-booklist data="[[userData]]"></lynleser-booklist>
+    <lynleser-auth     id="login" user="[[user]]"></lynleser-auth>
+    <lynleser-booklist id="books" data="[[userData]]"></lynleser-booklist>
     <lynleser-settings id="settings" settings="[[userData.settings]]"></lynleser-settings>
 
     <lynleser-fulltext id="fullText"></lynleser-fulltext>
