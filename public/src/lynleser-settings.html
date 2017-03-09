@@ -51,7 +51,7 @@
       }
 
       _fontSizeChange(e) {
-        this._changeSettings("fontSize", e.target.value);
+        this._changeSettings("fontSize", Number(e.target.value));
       }
 
       _fontTypeChange(e) {
@@ -59,11 +59,11 @@
       }
 
       _speedChange(e) {
-        this._changeSettings("speed", e.target.value);
+        this._changeSettings("speed", Number(e.target.value));
       }
 
       _wordWidthChange(e) {
-        this._changeSettings("wordWidth", e.target.value);
+        this._changeSettings("wordWidth", Number(e.target.value));
       }
 
       _prefixChange(e) {
