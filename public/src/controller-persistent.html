@@ -10,7 +10,7 @@
     </style>
 
     <data-firebase id="firebase"
-                   system-books="{{serverSystemBooks}}"
+                   system-books="{{serverBookList}}"
                    server-user="{{serverUser}}"
                    user-data="{{serverUserData}}"
 
@@ -44,60 +44,73 @@
       static get properties() {
         return {
           serverUser: Object,
-          defaultSettings: DefaultSettings,     //             DEFAULT
-          serverSystemBooks: Object,            //             DB firebase
-          systemUser: SystemUser,               //1. merge
-          serverUserData: Object,               //             DB firebase
-          userData: UserData,                   //2. merge
-          uiDataRaw: RawUIData,                 //             UI changes raw
-          uiData: UIData,                       //3. purge
-          partialState: PartialState,           //4. merge
-          serverBooks: ServerBooks,             //             BUCKETS firebase
-          fullState: FullState,                 //5.merge
+          defaultSettings: {                                    //             a. DEFAULT
+            type: DefaultSettings,
+            value: function(){
+              return new DefaultSettings();
+            }
+          },
+          serverBookList: Object,                               //             b. DB firebase
+          systemUser: {                                         //             1. merge
+            type: SystemUser,
+            computed: "_mergeSystemUser(defaultSettings, serverBookList)"
+          },
+          serverUserData: Object,                               //             c. DB firebase
+          userData: {                                           //             2. merge
+            type: UserData,
+            computed:"_mergeUserData(systemUser, serverUserData)"
+          },
+          uiDataRaw: {
+            type: RawUIData,
+            value: function(){
+              return new RawUIData();
+            }
+          },                                                    //             d. UI changes raw
+          uiData: {
+            type: UIData,
+            computed: "_purgeUIDataRaw(uiDataRaw, userData)",
+            observer: "_persistChanges"
+          },                                                    //             3. purge
+          partialState: {
+            type: PartialState,
+            computed:  "_mergeUIData(userData, uiData)"
+          },                                                    //             4. merge
+          serverBooks: {                                        //             e. BUCKETS firebase
+            type: ServerBooks,
+            value: function(){
+              return new ServerBooks();
+            }
+          },
+          fullState: {                                          //             5.merge
+            type: FullState,
+            computed: "_mergeState(partialState, serverBooks)"
+          },
         };
       }
 
-      static get observers() {
-        return [
-          "_mergeSystemUser(defaultSettings, serverSystemBooks)", //->systemUser
-          "_mergeUserData(systemUser, serverUserData)",           //->userData
-          "_purgeUIDataRaw(uiDataRaw, userData)",                 //->uiData
-          "_mergeUIData(userData, uiData)",                       //->partialState
-          "_mergeState(partialState, serverBooks)",               //->fullState
-          "_persistChanges(uiData)"                               //              pass changes to DB
-        ];
-      }
-
-      constructor() {
-        super();
-        this.defaultSettings = new DefaultSettings();
-        this.serverBooks = new ServerBooks();
-        this.uiDataRaw = new RawUIData();
-      }
-
-      _mergeSystemUser(defaultSettings, serverSystemBooks) {
+      _mergeSystemUser(defaultSettings, serverBookList) {
         console.log(1);
-        this.set("systemUser", new SystemUser(defaultSettings, serverSystemBooks));
+        return new SystemUser(defaultSettings, serverBookList);
       }
 
-      _mergeUserData(systemUserRaw, serverUserData) {
+      _mergeUserData(systemUser, serverUserData) {
+        console.log(2);
+        return new UserData(systemUser, serverUserData);
+      }
+
+      _purgeUIDataRaw(RawUIData, userData) {
         console.log(3);
-        this.set("userData", new UserData(systemUserRaw, serverUserData));
-      }
-
-      _purgeUIDataRaw(uiDataRaw, userData) {
-        console.log(4);
-        this.set("uiData", new UIData(uiDataRaw, userData));
+        return new UIData(RawUIData, userData);
       }
 
       _mergeUIData(userData, uiData) {
-        console.log(5);
-        this.set("partialState", new PartialState(userData, uiData));
+        console.log(4);
+        return new PartialState(userData, uiData);
       }
 
-      _mergeState(partialState, serverBooks) {
-        console.log(6);
-        this.set("fullState", new FullState(partialState, serverBooks));
+      _mergeState(partialState, bookData) {
+        console.log(5);
+        return new FullState(partialState, bookData);
       }
 
       _signIn(e) {

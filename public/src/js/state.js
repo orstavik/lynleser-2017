@@ -42,13 +42,14 @@ class PartialState {
 
 class FullState {
   constructor(state, serverBooks) {
+    if (!state)
+      return;
     this.books = state.books;
     this.settings = state.settings;
-    this.bookData = serverBooks;
     //1. merge activeBook
     let active = this.settings.activeBook ? this.settings.activeBook.key : undefined;
     if (active)
-      this.settings.activeBook = Object.assign({}, this.books[active], this.bookData[active]);
+      this.settings.activeBook = Object.assign({}, this.books[active], serverBooks[active]);
   }
 }
 
