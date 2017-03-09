@@ -89,27 +89,27 @@
       }
 
       _mergeSystemUser(defaultSettings, serverBookList) {
-        console.log(1);
+        console.log(1 + " " + new Date().getTime());
         return new SystemUser(defaultSettings, serverBookList);
       }
 
       _mergeUserData(systemUser, serverUserData) {
-        console.log(2);
+        console.log(2 + " " + new Date().getTime());
         return new UserData(systemUser, serverUserData);
       }
 
       _purgeUIDataRaw(RawUIData, userData) {
-        console.log(3);
+        console.log(3 + " " + new Date().getTime());
         return new UIData(RawUIData, userData);
       }
 
       _mergeUIData(userData, uiData) {
-        console.log(4);
+        console.log(4 + " " + new Date().getTime());
         return new PartialState(userData, uiData);
       }
 
       _mergeState(partialState, bookData) {
-        console.log(5);
+        console.log(5 + " " + new Date().getTime());
         return new FullState(partialState, bookData);
       }
 
