@@ -20,7 +20,7 @@
 
     <controller-transient id="ui"
                           user="[[serverUser]]"
-                          user-data="[[state]]"
+                          user-data="[[fullState]]"
                           on-select-book="_selectBook"
                           on-settings-changed="_userSetNewSettings"
                           on-sign-in="_signIn"
@@ -35,56 +35,74 @@
       }
 
       //important.
-      //1. The structure of the merged serverData and uiData should be identical.
-      //2. The structure of the merged serverData should make it as easy as possible to make update calls to the database.
-      //   Try to keep the structure of the merged serverData identical to the structure that the update calls conform to
-      //   (i.e. identical to the structure on the server).
+      //1. The structure of the merged serverData and uiData should be as similar as possible,
+      //   to make update calls to the DB as simple as possible.
+      //3. The order of merging: least updated data source of a branch that are merging are put first.
+      //   Branches are merged as late as possible. This produces the fewest updates.
+      //4. Immutable. All partial states must be immutable to enable dirty checking.
+
       static get properties() {
         return {
           serverUser: Object,
-          serverSystemBooks: Array,            //data source: firebase database -> change create new object
-          serverUserData: Object,              //data source: firebase database -> change create new object
-          serverBooks: Object,                 //data source: firebase buckets  -> changes are added to the same object
-          serverData: Object,                  //1. process. All data from server are merged
-          uiData: LynleserUIData,              //data source: UI
-          state: Object                         //2. process. Data from server and UI are merged
+          defaultSettings: DefaultSettings,     //             DEFAULT
+          serverSystemBooks: Object,            //             DB firebase
+          systemUser: SystemUser,               //1. merge
+          serverUserData: Object,               //             DB firebase
+          userData: UserData,                   //2. merge
+          uiDataRaw: RawUIData,                 //             UI changes raw
+          uiData: UIData,                       //3. purge
+          partialState: PartialState,           //4. merge
+          serverBooks: ServerBooks,             //             BUCKETS firebase
+          fullState: FullState,                 //5.merge
         };
       }
 
-      //todo bug in notifyPath and/or computed function.. observers are working
       static get observers() {
         return [
-          "_mergeServerData(serverUserData, serverSystemBooks, serverBooks)",
-          "_mergeData(serverData, uiData)"
+          "_mergeSystemUser(defaultSettings, serverSystemBooks)", //->systemUser
+          "_mergeUserData(systemUser, serverUserData)",           //->userData
+          "_purgeUIDataRaw(uiDataRaw, userData)",                 //->uiData
+          "_mergeUIData(userData, uiData)",                       //->partialState
+          "_mergeState(partialState, serverBooks)",               //->fullState
+          "_persistChanges(uiData)"                               //              pass changes to DB
         ];
       }
 
       constructor() {
         super();
-        this.serverBooks = {};
-        this.uiData = new LynleserUIData();
+        this.defaultSettings = new DefaultSettings();
+        this.serverBooks = new ServerBooks();
+        this.uiDataRaw = new RawUIData();
       }
 
-      connectedCallback() {
-        super.connectedCallback();
-        this.__debounceChanges = setInterval(this._tryToPersistChanges.bind(this), 5000);
+      _mergeSystemUser(defaultSettings, serverSystemBooks) {
+        console.log(1);
+        this.set("systemUser", new SystemUser(defaultSettings, serverSystemBooks));
       }
 
-      _mergeServerData(serverUserData, serverSystemBooks, serverBooks) {
-        const res = LynleserServerData.make(serverUserData, serverSystemBooks, serverBooks);
-        this.set("serverData", res);
+      _mergeUserData(systemUserRaw, serverUserData) {
+        console.log(3);
+        this.set("userData", new UserData(systemUserRaw, serverUserData));
       }
 
-      _mergeData(serverData, uiData) {
-        const res = new LynleserData(serverData, uiData);
-        console.log(res);
-        this.set("state", res);
+      _purgeUIDataRaw(uiDataRaw, userData) {
+        console.log(4);
+        this.set("uiData", new UIData(uiDataRaw, userData));
+      }
+
+      _mergeUIData(userData, uiData) {
+        console.log(5);
+        this.set("partialState", new PartialState(userData, uiData));
+      }
+
+      _mergeState(partialState, serverBooks) {
+        console.log(6);
+        this.set("fullState", new FullState(partialState, serverBooks));
       }
 
       _signIn(e) {
-        this.uiData = new LynleserUIData();
+        this.uiDataRaw = new RawUIData();
         this.$.firebase.signIn();
-        this.notifyBug("uiData");
       }
 
       _signOut(e) {
@@ -92,6 +110,7 @@
       }
 
       _selectBook(e) {
+        this.uiDataRaw = this.uiDataRaw.addSetting({key: "activeBook", value: e.detail});
         this.$.firebase.getBook(e.detail);
       }
 
@@ -100,34 +119,28 @@
         console.log(e);
       }
 
-      //todo annoying notifyPath-bug
-      //should only use this: this.notifyPath("uiData");
-      notifyBug(prop) {
-        if (prop == "serverBooks")
-          this._mergeServerData(this.serverUserData, this.serverSystemBooks, this.serverBooks);
-        if (prop == "uiData")
-          this._mergeData(this.serverData, this.uiData);
-      }
-
       _bookLoaded(e) {
-        this.serverBooks[e.detail.key] = e.detail.body;
-        this.uiData.addSetting({key: "activeBook", value: e.detail.key});
-        this.notifyBug("serverBooks");
+        this.serverBooks = this.serverBooks.set(e.detail);
       }
 
       _userSetNewSettings(e) {
-        this.uiData.addSetting(e.detail);
-        this.notifyBug("uiData");
+        this.uiDataRaw = this.uiDataRaw.addSetting(e.detail);
       }
 
-      _tryToPersistChanges() {
-        console.log("persisting");
-        if (!this.serverUser)
+      _persistChanges(uiData) {
+        if (!this.serverUser || !this.uiData || this.uiData.empty)
           return;
-        const empty = this.uiData.clearRedundant(this.serverUserData);
-        if (empty)
-          return;
-        this.$.firebase.updateChanges(this.uiData);
+        console.log("debounce");
+        this.debounce(function () {
+          console.log("persisting");
+          this.$.firebase.updateChanges(this.uiData);
+        }.bind(this), 5000);
+      }
+
+      debounce(fn, time) {
+        if (this.__bounce)
+          clearTimeout(this.__bounce);
+        this._bounce = setTimeout(fn, time);
       }
     }
     customElements.define(ControllerPersistent.is, ControllerPersistent);

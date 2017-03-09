@@ -41,7 +41,8 @@
         let start = new Date().getTime();
         // for(let child og doc.body.children)
         //   this.$.appendable.appendChild(child);
-        this.$.appendable.appendChild(doc.body);
+        if (doc.body)
+          this.$.appendable.appendChild(doc.body);
         let end = new Date().getTime();
         console.log(end - start);
       }

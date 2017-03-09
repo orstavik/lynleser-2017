@@ -61,7 +61,8 @@
       }
 
       _getSelectedBook(userData){
-        return userData.getActiveBook();
+        console.log(userData);
+        return userData.settings.activeBook;
       }
 
       _startStop(e) {
