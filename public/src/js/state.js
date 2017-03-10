@@ -36,19 +36,6 @@ class State {
   }
 }
 
-class FullState {
-  constructor(state, serverBooks) {
-    if (!state)
-      return;
-    this.books = state.books;
-    this.settings = state.settings;
-    //1. merge activeBook
-    let active = this.settings.activeBook ? this.settings.activeBook.key : undefined;
-    if (active && !this.settings.activeBook.body)
-      this.settings.activeBook = Object.assign({}, this.books[active], serverBooks[active]);
-  }
-}
-
 class RawUIData {
   constructor() {
     this.books = {};

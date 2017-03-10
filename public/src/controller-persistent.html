@@ -45,26 +45,32 @@
         return {
           serverUser: Object,
           defaultState: {                                       //             a. DEFAULT
-            type: Object,
-            value: function(){
+            type: State,
+            value: function () {
               return new State();
             }
           },
           serverGenericState: Object,                           //             b. DB firebase
-          genericUserState: {                                   //             1. merge
-            type: Object,
-            computed: "_mergeStates(defaultState, serverGenericState)"
-          },
-          serverUserState: Object,                               //             c. DB firebase
-          specificUser: {                                       //             2. merge
-            type: Object,
-            computed:"_mergeStates(genericUserState, serverUserState)"
+          serverUserState: Object,                              //             c. DB firebase
+          serverBooks: {                                        //             e. BUCKETS firebase
+            type: ServerBooks,
+            value: function () {
+              return new ServerBooks();
+            }
           },
           uiDataRaw: {                                          //             d. UI changes raw
             type: RawUIData,
-            value: function(){
+            value: function () {
               return new RawUIData();
             }
+          },
+          genericUserState: {                                   //             1. merge
+            type: State,
+            computed: "_mergeStates(defaultState, serverGenericState)"
+          },
+          specificUser: {                                       //             2. merge
+            type: State,
+            computed: "_mergeStates(genericUserState, serverUserState)"
           },
           uiData: {                                             //             3. purge
             type: UIData,
@@ -72,35 +78,33 @@
             observer: "_persistChanges"
           },
           partialState: {                                       //             4. merge
-            type: Object,
-            computed:  "_mergeStates(specificUser, uiData)"
-          },                                                    
-          serverBooks: {                                        //             e. BUCKETS firebase
-            type: ServerBooks,
-            value: function(){
-              return new ServerBooks();
-            }
+            type: State,
+            computed: "_mergeStates(specificUser, uiData)"
           },
           fullState: {                                          //             5.merge
-            type: FullState,
-            computed: "_mergeState(partialState, serverBooks)"
+            type: State,
+            computed: "_mergeBookData(partialState, serverBooks)"
           },
         };
       }
 
       _mergeStates(defaultSettings, serverGenericState) {
-        console.log(1 + " " + new Date().getTime());
         return State.merge(defaultSettings, serverGenericState);
       }
 
       _purgeUIDataRaw(RawUIData, specificUser) {
-        console.log(3 + " " + new Date().getTime());
         return new UIData(RawUIData, specificUser);
       }
 
-      _mergeState(partialState, bookData) {
-        console.log(5 + " " + new Date().getTime());
-        return new FullState(partialState, bookData);
+      _mergeBookData(state, bookData) {
+        if (!bookData || !state || !state.settings.activeBook || !state.settings.activeBook.key)    //not enough data
+          return state;
+        if (state.settings.activeBook.body)                                                  //already have active book
+          return state;
+        const active = state.settings.activeBook.key;
+        if (!bookData[active])                                                               //no activeBook in bookData
+          return state;
+        return State.merge(state, {settings: {activeBook: bookData[active]}});
       }
 
       _signIn(e) {
