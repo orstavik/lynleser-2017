@@ -59,9 +59,9 @@
           serverGenericState: Object,                           //             b. DB firebase
           serverUserState: Object,                              //             c. DB firebase
           serverBooks: {                                        //             e. BUCKETS firebase
-            type: ServerBooks,
+            type: Object,
             value: function () {
-              return new ServerBooks();
+              return {};
             }
           },
           fluidState: {                                         //             d. UI changes raw
@@ -85,7 +85,7 @@
           },
           state: {                                                  //             4.merge
             type: State,
-            computed: "_mergeBookData(mergedFluidState, serverBooks)"
+            computed: "_mergeBookData(mergedFluidState, serverBooks.*)"
           },
         };
       }
@@ -99,6 +99,7 @@
       }
 
       _mergeBookData(state, bookData) {
+        bookData = bookData.base;
         if (!bookData || !state || !state.settings.activeBook || !state.settings.activeBook.key)    //not enough data
           return state;
         if (state.settings.activeBook.body)                                                  //already have active book
@@ -106,7 +107,8 @@
         const active = state.settings.activeBook.key;
         if (!bookData[active])                                                               //no activeBook in bookData
           return state;
-        const finalState = State.merge(state, {settings: {activeBook: bookData[active]}});
+        const stateWithBookData = {settings: {activeBook: bookData[active]}};
+        const finalState = State.merge(state, stateWithBookData);
         this.timeMachine.push(finalState);
         return finalState;
       }
@@ -131,7 +133,7 @@
       }
 
       _bookLoaded(e) {
-        this.serverBooks = this.serverBooks.set(e.detail);
+        this.set("serverBooks." + e.detail.key, e.detail);
       }
 
       _userSetNewSettings(e) {

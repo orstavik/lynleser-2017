@@ -56,16 +56,4 @@ class MutableState {
   isEmpty() {
     return Object.keys(this.settings).length == 0 && Object.keys(this.books).length == 0;
   }
-
-  addSetting(key, value){
-    this.settings[key] = value;
-  }
-}
-
-class ServerBooks {
-  set(book) {
-    const res = Object.assign(new ServerBooks(), this);
-    res[book.key] = book;
-    return res;
-  }
 }
