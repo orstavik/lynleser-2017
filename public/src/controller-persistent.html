@@ -35,11 +35,11 @@
       }
 
       //important.
-      //1. The structure of the merged serverData and uiData should be as similar as possible,
-      //   to make update calls to the DB as simple as possible.
+      //1. The structure of States must be overlapping, as similar as possible.
+      //   This makes merging simpler and update calls to the DB simpler.
       //3. The order of merging: least updated data source of a branch that are merging are put first.
-      //   Branches are merged as late as possible. This produces the fewest updates.
-      //4. Immutable. All partial states must be immutable to enable dirty checking.
+      //   Branches are merged as late as possible. This produces the fewest new Objects and thus updates.
+      //4. Immutable. States are immutable by default, only but we can use Mutable States and wildcard observers.
 
       static get properties() {
         return {
@@ -64,18 +64,18 @@
               return new ServerBooks();
             }
           },
-          fluidState: {                                          //             d. UI changes raw
+          fluidState: {                                         //             d. UI changes raw
             type: MutableState,
             value: function () {
               return new MutableState();
             },
             observer: "_persistChanges"
           },
-          genericUserState: {                                   //             1. merge
+          genericUserState: {                                       //             1. merge
             type: State,
             computed: "_mergeStates(defaultState, serverGenericState)"
           },
-          specificUserState: {                                       //             2. merge
+          specificUserState: {                                      //             2. merge
             type: State,
             computed: "_mergeStates(genericUserState, serverUserState)"
           },
@@ -83,7 +83,7 @@
             type: State,
             computed: "_mergeFluidState(specificUserState, fluidState.*)"
           },
-          state: {                                          //             4.merge
+          state: {                                                  //             4.merge
             type: State,
             computed: "_mergeBookData(mergedFluidState, serverBooks)"
           },
