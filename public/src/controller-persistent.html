@@ -20,7 +20,7 @@
 
     <controller-transient id="ui"
                           user="[[serverUser]]"
-                          user-data="[[fullState]]"
+                          user-data="[[state]]"
                           on-select-book="_selectBook"
                           on-settings-changed="_userSetNewSettings"
                           on-sign-in="_signIn"
@@ -43,6 +43,12 @@
 
       static get properties() {
         return {
+          timeMachine: {
+            type: Array,
+            value: function(){
+              return [];
+            }
+          },
           serverUser: Object,
           defaultState: {                                       //             a. DEFAULT
             type: State,
@@ -58,7 +64,7 @@
               return new ServerBooks();
             }
           },
-          uiDataRaw: {                                          //             d. UI changes raw
+          fluidState: {                                          //             d. UI changes raw
             type: MutableState,
             value: function () {
               return new MutableState();
@@ -69,25 +75,27 @@
             type: State,
             computed: "_mergeStates(defaultState, serverGenericState)"
           },
-          specificUser: {                                       //             2. merge
+          specificUserState: {                                       //             2. merge
             type: State,
             computed: "_mergeStates(genericUserState, serverUserState)"
           },
-          partialState: {                                       //             3. merge
+          mergedFluidState: {                                       //             3. merge
             type: State,
-            computed: "_mergeStates(specificUser, uiDataRaw)"
+            computed: "_mergeFluidState(specificUserState, fluidState.*)"
           },
-          fullState: {                                          //             4.merge
+          state: {                                          //             4.merge
             type: State,
-            computed: "_mergeBookData(partialState, serverBooks)"
+            computed: "_mergeBookData(mergedFluidState, serverBooks)"
           },
         };
       }
 
       _mergeStates(A, B) {
-        console.log(A);
-        console.log(B);
         return State.merge(A, B);
+      }
+
+      _mergeFluidState(A, B) {
+        return State.merge(A, B.base);
       }
 
       _mergeBookData(state, bookData) {
@@ -98,11 +106,13 @@
         const active = state.settings.activeBook.key;
         if (!bookData[active])                                                               //no activeBook in bookData
           return state;
-        return State.merge(state, {settings: {activeBook: bookData[active]}});
+        const finalState = State.merge(state, {settings: {activeBook: bookData[active]}});
+        this.timeMachine.push(finalState);
+        return finalState;
       }
 
       _signIn(e) {
-        this.uiDataRaw = new MutableState();
+        this.fluidState = new MutableState();
         this.$.firebase.signIn();
       }
 
@@ -111,10 +121,7 @@
       }
 
       _selectBook(e) {
-        debugger;
-        this.set("uiDataRaw.settings.activeBook", e.detail);
-//        this.uiDataRaw.addSetting("activeBook", e.detail);
-//        this.notifyPath("uiDataRaw.settings.activeBook");
+        this.set("fluidState.settings.activeBook", e.detail);
         this.$.firebase.getBook(e.detail);
       }
 
@@ -128,16 +135,14 @@
       }
 
       _userSetNewSettings(e) {
-        debugger;
-        this.set("uiDataRaw.settings."+ e.detail.key, e.detail.value);
-//        this.uiDataRaw = this.uiDataRaw.addSetting(e.detail);
+        this.set("fluidState.settings."+ e.detail.key, e.detail.value);
       }
 
       _persistChanges(uiData) {
         if (!this.serverUser || !uiData || uiData.isEmpty())
           return;
         this.debounce(function () {
-          uiData.reduceOverlapping(this.specificUser);
+          uiData.reduceOverlapping(this.specificUserState);
           this.$.firebase.updateChanges(uiData);
         }.bind(this), 5000);
       }
