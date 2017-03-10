@@ -1,4 +1,4 @@
-class DefaultState {
+class State {
   constructor() {
     this.books = {};
     this.settings = {
@@ -15,8 +15,8 @@ class DefaultState {
     if (!A && !B) return;
     if (!B) return A;
     return {
-      settings: DefaultState.merge1(A.settings, B.settings),
-      books: DefaultState.merge2(A.books, B.books)
+      settings: State.merge1(A.settings, B.settings),
+      books: State.merge2(A.books, B.books)
     };
   }
 
@@ -31,7 +31,7 @@ class DefaultState {
     if (!A || Object.keys(A).length == 0) return B;
     const C = Object.assign({}, A);
     for (let key of Object.keys(B))
-      C[key] = DefaultState.merge1(A[key], B[key]);
+      C[key] = State.merge1(A[key], B[key]);
     return C;
   }
 }

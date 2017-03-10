@@ -10,8 +10,8 @@
     </style>
 
     <data-firebase id="firebase"
-                   generic-state="{{serverGenericState}}"
                    server-user="{{serverUser}}"
+                   generic-state="{{serverGenericState}}"
                    user-state="{{serverUserState}}"
 
                    on-book-loaded="_bookLoaded"
@@ -47,18 +47,18 @@
           defaultState: {                                       //             a. DEFAULT
             type: Object,
             value: function(){
-              return new DefaultState();
+              return new State();
             }
           },
           serverGenericState: Object,                           //             b. DB firebase
           genericUserState: {                                   //             1. merge
             type: Object,
-            computed: "_mergeSystemUser(defaultState, serverGenericState)"
+            computed: "_mergeStates(defaultState, serverGenericState)"
           },
           serverUserState: Object,                               //             c. DB firebase
           specificUser: {                                       //             2. merge
             type: Object,
-            computed:"_mergeUserData(genericUserState, serverUserState)"
+            computed:"_mergeStates(genericUserState, serverUserState)"
           },
           uiDataRaw: {                                          //             d. UI changes raw
             type: RawUIData,
@@ -73,7 +73,7 @@
           },
           partialState: {                                       //             4. merge
             type: Object,
-            computed:  "_mergeUIData(specificUser, uiData)"
+            computed:  "_mergeStates(specificUser, uiData)"
           },                                                    
           serverBooks: {                                        //             e. BUCKETS firebase
             type: ServerBooks,
@@ -88,24 +88,14 @@
         };
       }
 
-      _mergeSystemUser(defaultSettings, serverGenericState) {
+      _mergeStates(defaultSettings, serverGenericState) {
         console.log(1 + " " + new Date().getTime());
-        return DefaultState.merge(defaultSettings, serverGenericState);
-      }
-
-      _mergeUserData(genericUserState, serverUserState) {
-        console.log(2 + " " + new Date().getTime());
-        return DefaultState.merge(genericUserState, serverUserState);
+        return State.merge(defaultSettings, serverGenericState);
       }
 
       _purgeUIDataRaw(RawUIData, specificUser) {
         console.log(3 + " " + new Date().getTime());
         return new UIData(RawUIData, specificUser);
-      }
-
-      _mergeUIData(specificUser, uiData) {
-        console.log(4 + " " + new Date().getTime());
-        return DefaultState.merge(specificUser, uiData);
       }
 
       _mergeState(partialState, bookData) {
