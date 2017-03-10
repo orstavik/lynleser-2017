@@ -12,8 +12,8 @@ class State {
   }
 
   static merge(A, B) {
-    if (!A && !B) return;
     if (!B) return A;
+    if (!A) return B;
     return {
       settings: State.merge1(A.settings, B.settings),
       books: State.merge2(A.books, B.books)
@@ -36,40 +36,29 @@ class State {
   }
 }
 
-class RawUIData {
+class MutableState {
   constructor() {
     this.books = {};
     this.settings = {};
   }
 
-  addSetting(change) {
-    let res = new RawUIData();
-    res.books = this.books;
-    res.settings = Object.assign({}, this.settings);
-    res.settings[change.key] = change.value;
-    return res;
+  reduceOverlapping(A) {
+    for (let s of Object.keys(this.settings)) {
+      if (JSON.stringify(A[s]) == JSON.stringify(this.settings[s]))
+        delete this.settings[s];
+    }
+    for (let b of Object.keys(this.books)) {
+      if (JSON.stringify(A[b]) == JSON.stringify(this.books[b]))
+        delete this.books[b];
+    }
   }
-}
 
-class UIData {
-  constructor(uiDataRaw, serverData) {
-    this.books = {};
-    this.settings = {};
-    this.empty = true;
-    //1. add only settings that differ from those in the server data
-    for (let s of Object.keys(uiDataRaw.settings)) {
-      if (uiDataRaw.settings[s] != serverData.settings[s]) {
-        this.settings[s] = uiDataRaw.settings[s];
-        this.empty = false;
-      }
-    }
-    //2. add only book data that differ from those in the server data
-    for (let b of Object.keys(uiDataRaw.books)) {
-      if (uiDataRaw.books[b] == serverData.books[b]) {
-        this.books[b] = Object.assign({}, uiDataRaw[b]);
-        this.empty = false;
-      }
-    }
+  isEmpty() {
+    return Object.keys(this.settings).length == 0 && Object.keys(this.books).length == 0;
+  }
+
+  addSetting(key, value){
+    this.settings[key] = value;
   }
 }
 

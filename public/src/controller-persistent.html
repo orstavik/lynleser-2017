@@ -59,10 +59,11 @@
             }
           },
           uiDataRaw: {                                          //             d. UI changes raw
-            type: RawUIData,
+            type: MutableState,
             value: function () {
-              return new RawUIData();
-            }
+              return new MutableState();
+            },
+            observer: "_persistChanges"
           },
           genericUserState: {                                   //             1. merge
             type: State,
@@ -72,28 +73,21 @@
             type: State,
             computed: "_mergeStates(genericUserState, serverUserState)"
           },
-          uiData: {                                             //             3. purge
-            type: UIData,
-            computed: "_purgeUIDataRaw(uiDataRaw, specificUser)",
-            observer: "_persistChanges"
-          },
-          partialState: {                                       //             4. merge
+          partialState: {                                       //             3. merge
             type: State,
-            computed: "_mergeStates(specificUser, uiData)"
+            computed: "_mergeStates(specificUser, uiDataRaw)"
           },
-          fullState: {                                          //             5.merge
+          fullState: {                                          //             4.merge
             type: State,
             computed: "_mergeBookData(partialState, serverBooks)"
           },
         };
       }
 
-      _mergeStates(defaultSettings, serverGenericState) {
-        return State.merge(defaultSettings, serverGenericState);
-      }
-
-      _purgeUIDataRaw(RawUIData, specificUser) {
-        return new UIData(RawUIData, specificUser);
+      _mergeStates(A, B) {
+        console.log(A);
+        console.log(B);
+        return State.merge(A, B);
       }
 
       _mergeBookData(state, bookData) {
@@ -108,7 +102,7 @@
       }
 
       _signIn(e) {
-        this.uiDataRaw = new RawUIData();
+        this.uiDataRaw = new MutableState();
         this.$.firebase.signIn();
       }
 
@@ -117,7 +111,10 @@
       }
 
       _selectBook(e) {
-        this.uiDataRaw = this.uiDataRaw.addSetting({key: "activeBook", value: e.detail});
+        debugger;
+        this.set("uiDataRaw.settings.activeBook", e.detail);
+//        this.uiDataRaw.addSetting("activeBook", e.detail);
+//        this.notifyPath("uiDataRaw.settings.activeBook");
         this.$.firebase.getBook(e.detail);
       }
 
@@ -131,23 +128,24 @@
       }
 
       _userSetNewSettings(e) {
-        this.uiDataRaw = this.uiDataRaw.addSetting(e.detail);
+        debugger;
+        this.set("uiDataRaw.settings."+ e.detail.key, e.detail.value);
+//        this.uiDataRaw = this.uiDataRaw.addSetting(e.detail);
       }
 
       _persistChanges(uiData) {
-        if (!this.serverUser || !this.uiData || this.uiData.empty)
+        if (!this.serverUser || !uiData || uiData.isEmpty())
           return;
-        console.log("debounce");
         this.debounce(function () {
-          console.log("persisting");
-          this.$.firebase.updateChanges(this.uiData);
+          uiData.reduceOverlapping(this.specificUser);
+          this.$.firebase.updateChanges(uiData);
         }.bind(this), 5000);
       }
 
       debounce(fn, time) {
         if (this.__bounce)
           clearTimeout(this.__bounce);
-        this._bounce = setTimeout(fn, time);
+        this.__bounce = setTimeout(fn, time);
       }
     }
     customElements.define(ControllerPersistent.is, ControllerPersistent);
