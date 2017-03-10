@@ -1,18 +1,21 @@
-class DefaultSettings {
+class DefaultState {
   constructor() {
-    this.speed = 200;
-    this.wordWidth = 14;
-    this.prefixes = ["the", "an", "a"];
-    this.fontSize = 14;
-    this.fontType = "serif";
-    this.theme = "day";
+    this.books = {};
+    this.settings = {
+      speed: 200,
+      wordWidth: 14,
+      prefixes: ["the", "an", "a"],
+      fontSize: 14,
+      fontType: "serif",
+      theme: "day"
+    };
   }
 }
 
-class GenericUser {
-  constructor(defaultSettings, serverSystemBooks) {
-    this.settings = defaultSettings;
-    this.books = serverSystemBooks || {};
+class GenericUserState {
+  constructor(defaultState, serverSystemBooks) {
+    this.settings = defaultState.settings;
+    this.books = serverSystemBooks || defaultState.books;
   }
 }
 
@@ -32,8 +35,15 @@ class SpecificUser {
 class PartialState {
   constructor(specific, ui) {
     //1. merge settings
-    this.settings = Object.assign({}, specific.settings, ui.settings);
+    if (ui.settings.length == 0)
+      this.settings = specific.settings;
+    else
+      this.settings = Object.assign({}, specific.settings, ui.settings);
     //2. merge bookList
+    if (Object.keys(ui.books) == 0) {
+      this.books = specific.books;
+      return;
+    }
     this.books = Object.assign({}, specific.books);                   //ATT!! immutable problem in many layers
     for (let key of Object.keys(ui.books))
       this.books[key] = Object.assign({}, specific.books[key], ui.books[key]);
@@ -91,7 +101,7 @@ class UIData {
 }
 
 class ServerBooks {
-  set(book){
+  set(book) {
     const res = Object.assign(new ServerBooks(), this);
     res[book.key] = book;
     return res;
