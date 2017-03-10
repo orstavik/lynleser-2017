@@ -70,12 +70,12 @@
       }
 
       _wordWider(e) {
-        const val = this.userData.settings["wordWidth"] + e.detail;
+        const val = this.specificUser.settings["wordWidth"] + e.detail;
         this._fire("settings-changed", {key: "wordWidth", value: val});
       }
 
       _speedChange(e) {
-        let value = this.userData.settings["speed"] * (1 + (e.detail / 100));
+        let value = this.specificUser.settings["speed"] * (1 + (e.detail / 100));
         this._fire("settings-changed", {key: "speed", value: value});
       }
 

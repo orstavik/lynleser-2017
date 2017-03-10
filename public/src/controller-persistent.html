@@ -51,30 +51,30 @@
             }
           },
           serverBookList: Object,                               //             b. DB firebase
-          systemUser: {                                         //             1. merge
-            type: SystemUser,
+          genericUser: {                                        //             1. merge
+            type: GenericUser,
             computed: "_mergeSystemUser(defaultSettings, serverBookList)"
           },
           serverUserData: Object,                               //             c. DB firebase
-          userData: {                                           //             2. merge
-            type: UserData,
-            computed:"_mergeUserData(systemUser, serverUserData)"
+          specificUser: {                                       //             2. merge
+            type: SpecificUser,
+            computed:"_mergeUserData(genericUser, serverUserData)"
           },
-          uiDataRaw: {
+          uiDataRaw: {                                          //             d. UI changes raw
             type: RawUIData,
             value: function(){
               return new RawUIData();
             }
-          },                                                    //             d. UI changes raw
-          uiData: {
+          },
+          uiData: {                                             //             3. purge
             type: UIData,
-            computed: "_purgeUIDataRaw(uiDataRaw, userData)",
+            computed: "_purgeUIDataRaw(uiDataRaw, specificUser)",
             observer: "_persistChanges"
-          },                                                    //             3. purge
-          partialState: {
+          },
+          partialState: {                                       //             4. merge
             type: PartialState,
-            computed:  "_mergeUIData(userData, uiData)"
-          },                                                    //             4. merge
+            computed:  "_mergeUIData(specificUser, uiData)"
+          },                                                    
           serverBooks: {                                        //             e. BUCKETS firebase
             type: ServerBooks,
             value: function(){
@@ -90,22 +90,22 @@
 
       _mergeSystemUser(defaultSettings, serverBookList) {
         console.log(1 + " " + new Date().getTime());
-        return new SystemUser(defaultSettings, serverBookList);
+        return new GenericUser(defaultSettings, serverBookList);
       }
 
-      _mergeUserData(systemUser, serverUserData) {
+      _mergeUserData(genericUser, serverUserData) {
         console.log(2 + " " + new Date().getTime());
-        return new UserData(systemUser, serverUserData);
+        return new SpecificUser(genericUser, serverUserData);
       }
 
-      _purgeUIDataRaw(RawUIData, userData) {
+      _purgeUIDataRaw(RawUIData, specificUser) {
         console.log(3 + " " + new Date().getTime());
-        return new UIData(RawUIData, userData);
+        return new UIData(RawUIData, specificUser);
       }
 
-      _mergeUIData(userData, uiData) {
+      _mergeUIData(specificUser, uiData) {
         console.log(4 + " " + new Date().getTime());
-        return new PartialState(userData, uiData);
+        return new PartialState(specificUser, uiData);
       }
 
       _mergeState(partialState, bookData) {

@@ -9,34 +9,34 @@ class DefaultSettings {
   }
 }
 
-class SystemUser {
+class GenericUser {
   constructor(defaultSettings, serverSystemBooks) {
     this.settings = defaultSettings;
     this.books = serverSystemBooks || {};
   }
 }
 
-class UserData {
-  constructor(systemUser, user) {
+class SpecificUser {
+  constructor(generic, specific) {
     //1. merge booklists
-    let userBooks = (user && user.books) ? user.books : {};
+    let userBooks = (specific && specific.books) ? specific.books : {};
     this.books = {};
-    for (let key of Object.keys(systemUser.books))
-      this.books[key] = Object.assign({}, systemUser.books[key], userBooks[key]);
+    for (let key of Object.keys(generic.books))
+      this.books[key] = Object.assign({}, generic.books[key], userBooks[key]);
     //2. merge settings
-    let userSettings = (user && user.settings) ? user.settings : {};
-    this.settings = Object.assign({}, systemUser.settings, userSettings);
+    let userSettings = (specific && specific.settings) ? specific.settings : {};
+    this.settings = Object.assign({}, generic.settings, userSettings);
   }
 }
 
 class PartialState {
-  constructor(server, ui) {
+  constructor(specific, ui) {
     //1. merge settings
-    this.settings = Object.assign({}, server.settings, ui.settings);
+    this.settings = Object.assign({}, specific.settings, ui.settings);
     //2. merge bookList
-    this.books = Object.assign({}, server.books);                   //ATT!! immutable problem in many layers
+    this.books = Object.assign({}, specific.books);                   //ATT!! immutable problem in many layers
     for (let key of Object.keys(ui.books))
-      this.books[key] = Object.assign({}, server.books[key], ui.books[key]);
+      this.books[key] = Object.assign({}, specific.books[key], ui.books[key]);
   }
 }
 
