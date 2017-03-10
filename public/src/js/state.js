@@ -1,16 +1,4 @@
 class State {
-  constructor() {
-    this.books = {};
-    this.settings = {
-      speed: 200,
-      wordWidth: 14,
-      prefixes: ["the", "an", "a"],
-      fontSize: 14,
-      fontType: "serif",
-      theme: "day"
-    };
-  }
-
   static merge(A, B) {
     if (!B) return A;
     if (!A) return B;
@@ -55,5 +43,19 @@ class MutableState {
 
   isEmpty() {
     return Object.keys(this.settings).length == 0 && Object.keys(this.books).length == 0;
+  }
+}
+
+class DefaultState {
+  constructor() {
+    this.books = {};
+    this.settings = {
+      speed: 200,
+      wordWidth: 14,
+      prefixes: ["the", "an", "a"],
+      fontSize: 14,
+      fontType: "serif",
+      theme: "day"
+    };
   }
 }

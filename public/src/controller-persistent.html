@@ -43,51 +43,44 @@
 
       static get properties() {
         return {
-          timeMachine: {
-            type: Array,
-            value: function(){
-              return [];
-            }
-          },
+          timeMachine: Array,
           serverUser: Object,
-          defaultState: {                                       //             a. DEFAULT
-            type: State,
-            value: function () {
-              return new State();
-            }
-          },
-          serverGenericState: Object,                           //             b. DB firebase
-          serverUserState: Object,                              //             c. DB firebase
-          serverBooks: {                                        //             e. BUCKETS firebase
-            type: Object,
-            value: function () {
-              return {};
-            }
-          },
-          fluidState: {                                         //             d. UI changes raw
-            type: MutableState,
-            value: function () {
-              return new MutableState();
-            },
-            observer: "_persistChanges"
-          },
-          genericUserState: {                                       //             1. merge
+          defaultState: State,              //             a. DEFAULT
+          serverGenericState: Object,       //             b. DB firebase
+          serverUserState: Object,          //             c. DB firebase
+          serverBooks: Object,              //             e. BUCKETS firebase
+          fluidState: MutableState,         //             d. FLUID changes from the UI
+          genericUserState: {
             type: State,
             computed: "_mergeStates(defaultState, serverGenericState)"
           },
-          specificUserState: {                                      //             2. merge
+          specificUserState: {
             type: State,
             computed: "_mergeStates(genericUserState, serverUserState)"
           },
-          mergedFluidState: {                                       //             3. merge
+          mergedFluidState: {
             type: State,
             computed: "_mergeFluidState(specificUserState, fluidState.*)"
           },
-          state: {                                                  //             4.merge
+          state: {
             type: State,
             computed: "_mergeBookData(mergedFluidState, serverBooks.*)"
           },
         };
+      }
+
+      static get observers(){
+        return ["_persistChanges(fluidState.*)"];
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        this.setProperties({
+          fluidState: new MutableState(),
+          serverBooks: {},
+          defaultState: new DefaultState(),
+          timeMachine: []
+        });
       }
 
       _mergeStates(A, B) {
@@ -137,10 +130,11 @@
       }
 
       _userSetNewSettings(e) {
-        this.set("fluidState.settings."+ e.detail.key, e.detail.value);
+        this.set("fluidState.settings." + e.detail.key, e.detail.value);
       }
 
       _persistChanges(uiData) {
+        uiData = uiData.base;
         if (!this.serverUser || !uiData || uiData.isEmpty())
           return;
         this.debounce(function () {
