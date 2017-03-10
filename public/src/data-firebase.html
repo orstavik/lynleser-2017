@@ -13,11 +13,11 @@
               observer: "_serverUserChanged",
               notify: true
             },
-            systemBooks: {
+            genericState: {
               type: Array,
               notify: true
             },
-            userData: {
+            userState: {
               type: Object,
               notify: true
             }
@@ -27,8 +27,9 @@
       connectedCallback() {
         super.connectedCallback();
         this._db = firebase.database();
-        this.systemBooksListener = this._db.ref("/system/books/");
-        this.systemBooksListener.on("value", this._updateSystemBooks.bind(this));
+        this._db.ref("/system/books/").once("value", function(snap){
+          this.set("genericState", {books: snap.val()});
+        }.bind(this));
       }
 
       getBook(book) {
@@ -48,23 +49,18 @@
         }.bind(this)).catch(this._systemError.bind(this));
       }
 
-      _updateSystemBooks(snap) {
-        console.log("systemBooks gotten");
-        this.set("systemBooks", snap.val());
-      }
-
       _updateUserData(snap) {
-        this.set("userData", snap.val());
+        this.set("userState", snap.val());
       }
 
       _serverUserChanged(user) {
         if (!user) {
-          this.set("_serverUserData", null);
-          if (this.userDataListener)
-            this.userDataListener.off();
+//          this.set("_serverUserData", null);
+          if (this.userStateListener)
+            this.userStateListener.off();
         } else {
-          this.userDataListener = this._db.ref("/users/" + user.uid);
-          this.userDataListener.on("value", this._updateUserData.bind(this));
+          this.userStateListener = this._db.ref("/users/" + user.uid);
+          this.userStateListener.on("value", this._updateUserData.bind(this));
         }
       }
 
@@ -93,8 +89,7 @@
 
       signOut(e) {
         firebase.auth().signOut().then(function () {
-          this.set("serverUserData", null);
-          this.set("serverBook", null);
+          this.set("serverUserState", null);
           this.set("serverUser", null);
         }.bind(this)).catch(this._systemError.bind(this));
       }

@@ -10,43 +10,29 @@ class DefaultState {
       theme: "day"
     };
   }
-}
 
-class GenericUserState {
-  constructor(defaultState, serverSystemBooks) {
-    this.settings = defaultState.settings;
-    this.books = serverSystemBooks || defaultState.books;
+  static merge(A, B) {
+    if (!A && !B) return;
+    if (!B) return A;
+    return {
+      settings: DefaultState.merge1(A.settings, B.settings),
+      books: DefaultState.merge2(A.books, B.books)
+    };
   }
-}
 
-class SpecificUser {
-  constructor(generic, specific) {
-    //1. merge booklists
-    let userBooks = (specific && specific.books) ? specific.books : {};
-    this.books = {};
-    for (let key of Object.keys(generic.books))
-      this.books[key] = Object.assign({}, generic.books[key], userBooks[key]);
-    //2. merge settings
-    let userSettings = (specific && specific.settings) ? specific.settings : {};
-    this.settings = Object.assign({}, generic.settings, userSettings);
+  static merge1(A, B) {
+    if (!B) return A;
+    if (!A) return B;
+    return Object.assign({}, A, B);
   }
-}
 
-class PartialState {
-  constructor(specific, ui) {
-    //1. merge settings
-    if (ui.settings.length == 0)
-      this.settings = specific.settings;
-    else
-      this.settings = Object.assign({}, specific.settings, ui.settings);
-    //2. merge bookList
-    if (Object.keys(ui.books) == 0) {
-      this.books = specific.books;
-      return;
-    }
-    this.books = Object.assign({}, specific.books);                   //ATT!! immutable problem in many layers
-    for (let key of Object.keys(ui.books))
-      this.books[key] = Object.assign({}, specific.books[key], ui.books[key]);
+  static merge2(A, B) {
+    if (!B || Object.keys(B).length == 0) return A;
+    if (!A || Object.keys(A).length == 0) return B;
+    const C = Object.assign({}, A);
+    for (let key of Object.keys(B))
+      C[key] = DefaultState.merge1(A[key], B[key]);
+    return C;
   }
 }
 
@@ -58,7 +44,7 @@ class FullState {
     this.settings = state.settings;
     //1. merge activeBook
     let active = this.settings.activeBook ? this.settings.activeBook.key : undefined;
-    if (active)
+    if (active && !this.settings.activeBook.body)
       this.settings.activeBook = Object.assign({}, this.books[active], serverBooks[active]);
   }
 }
