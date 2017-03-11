@@ -69,7 +69,7 @@
           },
           mergedFluidState: {
             type: State,
-            computed: "_mergeFluidState(specificUserState, fluidState.*)"
+            computed: "_mergeStates(specificUserState, fluidState)"
           },
           state: {
             type: State,
@@ -93,10 +93,6 @@
 
       _mergeStates(A, B) {
         return State.merge(A, B);
-      }
-
-      _mergeFluidState(A, B) {
-        return State.merge(A, B.base);
       }
 
       _mergeBookData(state, bookData) {
@@ -123,7 +119,12 @@
       }
 
       _selectBook(e) {
-        this.set("fluidState.settings.activeBook", e.detail);
+        const clone = {};
+        clone.books = this.fluidState.books;
+        clone.settings = Object.assign({}, this.fluidState.settings);
+        clone.settings["activeBook"] = e.detail;
+        this.set("fluidState", clone);
+//        this.set("fluidState.settings.activeBook", e.detail);
         this.$.firebase.getBook(e.detail);
       }
 
@@ -133,17 +134,22 @@
       }
 
       _userSetNewSettings(e) {
-        this.set("fluidState.settings." + e.detail.key, e.detail.value);
+        const clone = {};
+        clone.books = this.fluidState.books;
+        clone.settings = Object.assign({}, this.fluidState.settings);
+        clone.settings[e.detail.key] = e.detail.value;
+        this.set("fluidState", clone);
+//        this.set("fluidState.settings." + e.detail.key, e.detail.value);
       }
 
       _persistChanges(uiData) {
         uiData = uiData.base;
-        if (!this.serverUser || !uiData || uiData.isEmpty())
+        if (!this.serverUser || !uiData || MutableState.isEmpty(uiData))
           return;
         this.debounce(function () {
-          uiData.reduceOverlapping(this.specificUserState);
+          MutableState.reduceOverlapping(uiData, this.specificUserState);
           this.$.firebase.updateChanges(uiData);
-        }.bind(this), 5000);
+        }.bind(this), 10000);
       }
 
       debounce(fn, time) {

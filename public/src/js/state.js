@@ -30,19 +30,19 @@ class MutableState {
     this.settings = {};
   }
 
-  reduceOverlapping(A) {
-    for (let s of Object.keys(this.settings)) {
-      if (JSON.stringify(A[s]) == JSON.stringify(this.settings[s]))
-        delete this.settings[s];
+  static reduceOverlapping(thiz, A) {
+    for (let s of Object.keys(thiz.settings)) {
+      if (JSON.stringify(A[s]) == JSON.stringify(thiz.settings[s]))
+        delete thiz.settings[s];
     }
-    for (let b of Object.keys(this.books)) {
-      if (JSON.stringify(A[b]) == JSON.stringify(this.books[b]))
-        delete this.books[b];
+    for (let b of Object.keys(thiz.books)) {
+      if (JSON.stringify(A[b]) == JSON.stringify(thiz.books[b]))
+        delete thiz.books[b];
     }
   }
 
-  isEmpty() {
-    return Object.keys(this.settings).length == 0 && Object.keys(this.books).length == 0;
+  static isEmpty(thiz) {
+    return Object.keys(thiz.settings).length == 0 && Object.keys(thiz.books).length == 0;
   }
 }
 
