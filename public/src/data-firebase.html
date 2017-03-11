@@ -14,7 +14,11 @@
               notify: true
             },
             genericState: {
-              type: Array,
+              type: Object,
+              notify: true
+            },
+            serverBooks: {
+              type: Object,
               notify: true
             },
             userState: {
@@ -26,6 +30,7 @@
 
       connectedCallback() {
         super.connectedCallback();
+        this.set("serverBooks", {});
         this._db = firebase.database();
         this._db.ref("/system/books/").once("value", function(snap){
           this.set("genericState", {books: snap.val()});
@@ -41,8 +46,9 @@
           let xhr = new XMLHttpRequest();
           xhr.responseType = 'document';
           xhr.onload = function (event) {
-            const value = {key: key, fileName: fileName, body: xhr.response};
-            this.dispatchEvent(new CustomEvent("book-loaded", {bubbles: true, composed: true, detail: value}));
+            const res = Object.assign({}, this.serverBooks);
+            res[key] = {key: key, fileName: fileName, body: xhr.response};
+            this.set("serverBooks", res);
           }.bind(this);
           xhr.open('GET', url);
           xhr.send();

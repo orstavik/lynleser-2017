@@ -14,8 +14,8 @@
                    server-user="{{serverUser}}"
                    generic-state="{{serverGenericState}}"
                    user-state="{{serverUserState}}"
+                   server-books="{{serverBooks}}"
 
-                   on-book-loaded="_bookLoaded"
                    on-system-error="_systemError"></data-firebase>
 
     <app-indexeddb-mirror
@@ -86,7 +86,6 @@
         super();
         this.setProperties({
           fluidState: new MutableState(),
-          serverBooks: {},
           defaultState: new DefaultState(),
           timeMachine: []
         });
@@ -131,12 +130,6 @@
       _systemError(e) {
         console.log("Error");
         console.log(e);
-      }
-
-      _bookLoaded(e) {
-        const clone = Object.assign({}, this.serverBooks);
-        clone[e.detail.key] = e.detail;
-        this.set("serverBooks", clone);
       }
 
       _userSetNewSettings(e) {
