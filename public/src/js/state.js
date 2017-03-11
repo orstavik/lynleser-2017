@@ -28,8 +28,8 @@ class State {
     return C;
   }
 
-  setSetting(key, value) {
-    const clone = new State(Object.assign({}, this.settings), this.books);
+  static newSetting(thiz, key, value) {
+    const clone = new State(Object.assign({}, thiz.settings), thiz.books);
     clone.settings[key] = value;
     return clone;
   }

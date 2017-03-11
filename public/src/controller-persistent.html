@@ -126,7 +126,7 @@
       }
 
       _selectBook(e) {
-        this.set("fluidState", this.fluidState.setSetting("activeBook", e.detail));
+        this.set("fluidState", State.newSetting(this.fluidState, "activeBook", e.detail));
         this.$.firebase.getBook(e.detail);
       }
 
@@ -136,7 +136,7 @@
       }
 
       _userSetNewSettings(e) {
-        this.set("fluidState", this.fluidState.setSetting(e.detail.key, e.detail.value));
+        this.set("fluidState", State.newSetting(this.fluidState, e.detail.key, e.detail.value));
       }
 
       _persistChanges(uiData) {
