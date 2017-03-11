@@ -1,5 +1,6 @@
 <link rel="import" href="controller-transient.html">
 <link rel="import" href="data-firebase.html">
+<link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
 
 <dom-module id="controller-persistent">
   <template>
@@ -17,6 +18,11 @@
                    on-book-loaded="_bookLoaded"
                    on-system-error="_systemError"></data-firebase>
 
+    <app-indexeddb-mirror
+        key="bookList"
+        data="{{serverGenericState}}"
+        persisted-data="{{persistedGenericState}}">
+    </app-indexeddb-mirror>
 
     <controller-transient id="ui"
                           user="[[serverUser]]"
@@ -45,14 +51,17 @@
         return {
           timeMachine: Array,
           serverUser: Object,
-          defaultState: State,              //             a. DEFAULT
-          serverGenericState: Object,       //             b. DB firebase
-          serverUserState: Object,          //             c. DB firebase
-          serverBooks: Object,              //             e. BUCKETS firebase
-          fluidState: MutableState,         //             d. FLUID changes from the UI
+
+          defaultState: State,                //a. DEFAULT
+          serverGenericState: Object,         //b. DB firebase
+          persistedGenericState: Object,      //b2. localStorage
+          serverUserState: Object,            //c. DB firebase
+          serverBooks: Object,                //e. BUCKETS firebase
+          fluidState: MutableState,           //d. FLUID changes from the UI
+
           genericUserState: {
             type: State,
-            computed: "_mergeStates(defaultState, serverGenericState)"
+            computed: "_mergeStates(defaultState, persistedGenericState)"
           },
           specificUserState: {
             type: State,
@@ -73,8 +82,8 @@
         return ["_persistChanges(fluidState.*)"];
       }
 
-      connectedCallback() {
-        super.connectedCallback();
+      constructor(){
+        super();
         this.setProperties({
           fluidState: new MutableState(),
           serverBooks: {},
@@ -93,12 +102,12 @@
 
       _mergeBookData(state, bookData) {
         bookData = bookData.base;
-        if (!bookData || !state || !state.settings.activeBook || !state.settings.activeBook.key)    //not enough data
+        if (!bookData || !state || !state.settings.activeBook || !state.settings.activeBook.key) //not enough data
           return state;
-        if (state.settings.activeBook.body)                                                  //already have active book
+        if (state.settings.activeBook.body)                                                      //already have active book
           return state;
         const active = state.settings.activeBook.key;
-        if (!bookData[active])                                                               //no activeBook in bookData
+        if (!bookData[active])                                                                   //no activeBook in bookData
           return state;
         const stateWithBookData = {settings: {activeBook: bookData[active]}};
         const finalState = State.merge(state, stateWithBookData);

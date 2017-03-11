@@ -5,6 +5,12 @@
   ],
   "private": true,
   "dependencies": {
-    "polymer": "polymer/Polymer#2.0.0-rc.2"
+    "polymer": "polymer/Polymer#2.0.0-rc.2",
+    "app-storage": "PolymerElements/app-storage#^0.9.8",
+    "polymerfire": "firebase/polymerfire#^0.10.3"
+  },
+  "resolutions": {
+    "polymer": "2.0.0-rc.2",
+    "webcomponentsjs": "v1.0.0-rc.5"
   }
 }
