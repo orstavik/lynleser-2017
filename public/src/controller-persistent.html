@@ -57,7 +57,7 @@
           persistedGenericState: Object,      //b2. localStorage
           serverUserState: Object,            //c. DB firebase
           serverBooks: Object,                //e. BUCKETS firebase
-          fluidState: MutableState,           //d. FLUID changes from the UI
+          fluidState: State,                  //d. FLUID changes from the UI
 
           genericUserState: {
             type: State,
@@ -79,15 +79,22 @@
       }
 
       static get observers(){
-        return ["_persistChanges(fluidState.*)"];
+        return ["_persistChanges(fluidState)"];
       }
 
       constructor(){
         super();
         this.setProperties({
-          fluidState: new MutableState(),
-          defaultState: new DefaultState(),
-          timeMachine: []
+          timeMachine: [],
+          fluidState: new State(),
+          defaultState: new State({
+            speed: 200,
+            wordWidth: 14,
+            prefixes: ["the", "an", "a"],
+            fontSize: 14,
+            fontType: "serif",
+            theme: "day"
+          })
         });
       }
 
@@ -110,7 +117,7 @@
       }
 
       _signIn(e) {
-        this.fluidState = new MutableState();
+        this.fluidState = new State();
         this.$.firebase.signIn();
       }
 
@@ -119,12 +126,7 @@
       }
 
       _selectBook(e) {
-        const clone = {};
-        clone.books = this.fluidState.books;
-        clone.settings = Object.assign({}, this.fluidState.settings);
-        clone.settings["activeBook"] = e.detail;
-        this.set("fluidState", clone);
-//        this.set("fluidState.settings.activeBook", e.detail);
+        this.set("fluidState", this.fluidState.setSetting("activeBook", e.detail));
         this.$.firebase.getBook(e.detail);
       }
 
@@ -134,20 +136,14 @@
       }
 
       _userSetNewSettings(e) {
-        const clone = {};
-        clone.books = this.fluidState.books;
-        clone.settings = Object.assign({}, this.fluidState.settings);
-        clone.settings[e.detail.key] = e.detail.value;
-        this.set("fluidState", clone);
-//        this.set("fluidState.settings." + e.detail.key, e.detail.value);
+        this.set("fluidState", this.fluidState.setSetting(e.detail.key, e.detail.value));
       }
 
       _persistChanges(uiData) {
-        uiData = uiData.base;
-        if (!this.serverUser || !uiData || MutableState.isEmpty(uiData))
+        if (!this.serverUser || !uiData || State.isEmpty(uiData))
           return;
         this.debounce(function () {
-          MutableState.reduceOverlapping(uiData, this.specificUserState);
+          State.reduceOverlapping(uiData, this.specificUserState);
           this.$.firebase.updateChanges(uiData);
         }.bind(this), 10000);
       }

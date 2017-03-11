@@ -1,4 +1,9 @@
 class State {
+  constructor(settings, books) {
+    this.books = books || {};
+    this.settings = settings || {};
+  }
+
   static merge(A, B) {
     if (!B) return A;
     if (!A) return B;
@@ -22,12 +27,11 @@ class State {
       C[key] = State.merge1(A[key], B[key]);
     return C;
   }
-}
 
-class MutableState {
-  constructor() {
-    this.books = {};
-    this.settings = {};
+  setSetting(key, value) {
+    const clone = new State(Object.assign({}, this.settings), this.books);
+    clone.settings[key] = value;
+    return clone;
   }
 
   static reduceOverlapping(thiz, A) {
@@ -43,19 +47,5 @@ class MutableState {
 
   static isEmpty(thiz) {
     return Object.keys(thiz.settings).length == 0 && Object.keys(thiz.books).length == 0;
-  }
-}
-
-class DefaultState {
-  constructor() {
-    this.books = {};
-    this.settings = {
-      speed: 200,
-      wordWidth: 14,
-      prefixes: ["the", "an", "a"],
-      fontSize: 14,
-      fontType: "serif",
-      theme: "day"
-    };
   }
 }
