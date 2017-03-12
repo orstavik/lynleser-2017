@@ -95,7 +95,7 @@
         return State.merge(A, B);
       }
 
-      _stateChanged(A){
+      _stateChanged(A) {
         this.push("timeMachine", A);
       }
 
@@ -131,13 +131,15 @@
         this.set("fluidState", State.newSetting(this.fluidState, e.detail.key, e.detail.value));
       }
 
+      _updateDB() {
+        State.removeIdenticalPropertiesFromA(this.fluidState, this.specificUserState);
+        if (State.isEmpty(this.fluidState))
+          return;
+        this.$.firebase.updateChanges(this.fluidState);
+      }
+
       _persistChanges() {
-        this.debounce(function () {
-          if (State.isEmpty(this.fluidState))
-            return;
-          State.removeIdenticalPropertiesFromA(this.fluidState, this.specificUserState);
-          this.$.firebase.updateChanges(this.fluidState);
-        }.bind(this), 10000);
+        this.debounce(this._updateDB.bind(this), 10000);
       }
 
       debounce(fn, time) {
