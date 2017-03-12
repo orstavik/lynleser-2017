@@ -45,6 +45,10 @@ class State {
     }
   }
 
+  static getActiveBook(state){
+    return state && state.settings && state.settings.activeBook ? state.settings.activeBook : undefined;
+  }
+
   static isEmpty(thiz) {
     return Object.keys(thiz.settings).length == 0 && Object.keys(thiz.books).length == 0;
   }

@@ -1,4 +1,18 @@
+<link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
+
 <dom-module id="data-firebase">
+  <template>
+    <style>
+      :host {
+        display: none;
+      }
+    </style>
+    <app-indexeddb-mirror
+        key="bookList"
+        data="{{fbGenericState}}"
+        persisted-data="{{genericState}}">
+    </app-indexeddb-mirror>
+  </template>
   <script>
 
     class DataFirebase extends Polymer.Element {
@@ -8,23 +22,24 @@
 
       static get properties() {
         return {
-            serverUser: {
-              type: Object,
-              observer: "_serverUserChanged",
-              notify: true
-            },
-            genericState: {
-              type: Object,
-              notify: true
-            },
-            serverBooks: {
-              type: Object,
-              notify: true
-            },
-            userState: {
-              type: Object,
-              notify: true
-            }
+          serverUser: {
+            type: Object,
+            observer: "_serverUserChanged",
+            notify: true
+          },
+          genericState: {
+            type: Object,
+            notify: true
+          },
+          fbGenericState: Object,
+          serverBooks: {
+            type: Object,
+            notify: true
+          },
+          userState: {
+            type: Object,
+            notify: true
+          }
         };
       }
 
@@ -32,14 +47,19 @@
         super.connectedCallback();
         this.set("serverBooks", {});
         this._db = firebase.database();
-        this._db.ref("/system/books/").once("value", function(snap){
-          this.set("genericState", {books: snap.val()});
+        this._db.ref("/system/books/").once("value", function (snap) {
+          this.set("fbGenericState", {books: snap.val()});
         }.bind(this));
       }
 
       getBook(book) {
+        console.log("getBook first");
+        if (this.serverBooks[book.key])
+          return;
+        console.log("getBook for real");
         const fileName = book.fileName;
         const key = book.key;
+        //todo try to get serverBooks from indexeddb
         let fileRef = firebase.storage().ref('books/' + fileName);
         fileRef.getDownloadURL().then(function (url) {
           // This can be downloaded directly:
@@ -48,6 +68,7 @@
           xhr.onload = function (event) {
             const res = Object.assign({}, this.serverBooks);
             res[key] = {key: key, fileName: fileName, body: xhr.response};
+            //todo add xhr.response to indexeddb
             this.set("serverBooks", res);
           }.bind(this);
           xhr.open('GET', url);
