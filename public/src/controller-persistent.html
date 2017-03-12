@@ -65,14 +65,16 @@
           },
           state: {
             type: State,
-            computed: "_mergeBookData(mergedFluidState, serverBooks)",
-            observer: "_stateChanged"
+            computed: "_mergeBookData(mergedFluidState, serverBooks)"
           },
         };
       }
 
       static get observers() {
-        return ["_debouncePersistChanges(fluidState)"];
+        return [
+          "_debouncePersistChanges(fluidState)",
+          "_stateChanged(state)"
+        ];
       }
 
       constructor() {
