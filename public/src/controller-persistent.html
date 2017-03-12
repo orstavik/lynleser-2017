@@ -72,7 +72,7 @@
       }
 
       static get observers() {
-        return ["_persistChanges(fluidState)"];
+        return ["_debouncePersistChanges(fluidState)"];
       }
 
       constructor() {
@@ -89,6 +89,7 @@
             theme: "day"
           })
         });
+        this._debouncePersistChanges = _.debounce(this._updateDB.bind(this), 1000);
       }
 
       _mergeStates(A, B) {
@@ -136,16 +137,6 @@
         if (State.isEmpty(this.fluidState))
           return;
         this.$.firebase.updateChanges(this.fluidState);
-      }
-
-      _persistChanges() {
-        this.debounce(this._updateDB.bind(this), 10000);
-      }
-
-      debounce(fn, time) {
-        if (this.__bounce)
-          clearTimeout(this.__bounce);
-        this.__bounce = setTimeout(fn, time);
       }
     }
     customElements.define(ControllerPersistent.is, ControllerPersistent);
