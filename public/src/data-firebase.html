@@ -134,6 +134,8 @@
       }
 
       updateChanges(changes) {
+        if (!this.serverUser || !this.serverUser.uid)
+          return;
         const updates = {};
         for (let s of Object.keys(changes.settings))
           updates["/users/" + this.serverUser.uid + "/settings/" + s] = changes.settings[s];

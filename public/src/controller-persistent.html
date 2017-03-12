@@ -132,7 +132,7 @@
       }
 
       _persistChanges(uiData) {
-        if (!this.serverUser || !uiData || State.isEmpty(uiData))
+        if (!uiData || State.isEmpty(uiData))
           return;
         this.debounce(function () {
           State.removeIdenticalPropertiesFromA(uiData, this.specificUserState);
