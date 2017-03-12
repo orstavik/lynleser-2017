@@ -131,12 +131,12 @@
         this.set("fluidState", State.newSetting(this.fluidState, e.detail.key, e.detail.value));
       }
 
-      _persistChanges(uiData) {
-        if (!uiData || State.isEmpty(uiData))
-          return;
+      _persistChanges() {
         this.debounce(function () {
-          State.removeIdenticalPropertiesFromA(uiData, this.specificUserState);
-          this.$.firebase.updateChanges(uiData);
+          if (State.isEmpty(this.fluidState))
+            return;
+          State.removeIdenticalPropertiesFromA(this.fluidState, this.specificUserState);
+          this.$.firebase.updateChanges(this.fluidState);
         }.bind(this), 10000);
       }
 

@@ -50,6 +50,6 @@ class State {
   }
 
   static isEmpty(thiz) {
-    return Object.keys(thiz.settings).length == 0 && Object.keys(thiz.books).length == 0;
+    return !thiz || (Object.keys(thiz.settings).length == 0 && Object.keys(thiz.books).length == 0);
   }
 }
