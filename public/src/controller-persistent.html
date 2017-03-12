@@ -135,7 +135,7 @@
         if (!this.serverUser || !uiData || State.isEmpty(uiData))
           return;
         this.debounce(function () {
-          State.reduceOverlapping(uiData, this.specificUserState);
+          State.removeIdenticalPropertiesFromA(uiData, this.specificUserState);
           this.$.firebase.updateChanges(uiData);
         }.bind(this), 10000);
       }

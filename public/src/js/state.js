@@ -34,14 +34,14 @@ class State {
     return clone;
   }
 
-  static reduceOverlapping(thiz, A) {
-    for (let s of Object.keys(thiz.settings)) {
-      if (JSON.stringify(A[s]) == JSON.stringify(thiz.settings[s]))
-        delete thiz.settings[s];
+  static removeIdenticalPropertiesFromA(A, B) {
+    for (let s of Object.keys(A.settings)) {
+      if (JSON.stringify(B[s]) == JSON.stringify(A.settings[s]))
+        delete A.settings[s];
     }
-    for (let b of Object.keys(thiz.books)) {
-      if (JSON.stringify(A[b]) == JSON.stringify(thiz.books[b]))
-        delete thiz.books[b];
+    for (let b of Object.keys(A.books)) {
+      if (JSON.stringify(B[b]) == JSON.stringify(A.books[b]))
+        delete A.books[b];
     }
   }
 
