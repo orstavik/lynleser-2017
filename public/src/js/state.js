@@ -28,8 +28,8 @@ class State {
     return C;
   }
 
-  static newSetting(thiz, key, value) {
-    const clone = new State(Object.assign({}, thiz.settings), thiz.books);
+  static newSetting(A, key, value) {
+    const clone = new State(Object.assign({}, A.settings), A.books);
     clone.settings[key] = value;
     return clone;
   }
@@ -49,7 +49,7 @@ class State {
     return state && state.settings && state.settings.activeBook ? state.settings.activeBook : undefined;
   }
 
-  static isEmpty(thiz) {
-    return !thiz || (Object.keys(thiz.settings).length == 0 && Object.keys(thiz.books).length == 0);
+  static isEmpty(A) {
+    return !A || (Object.keys(A.settings).length == 0 && Object.keys(A.books).length == 0);
   }
 }
