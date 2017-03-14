@@ -1,0 +1,54 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="firebase-bucket">
+  <script>
+    class FirebaseBucket extends Polymer.Element {
+
+      static get is() {
+        return "firebase-bucket";
+      }
+
+      static get properties() {
+        return {
+          rootPath: {
+            type: String,
+            value: ""
+          },
+          result: {
+            type: Object,
+            notify:true,
+            value: function(){
+              return {};
+            }
+          },
+        };
+      }
+
+      loadData(key, path) {
+        if (this.result[key])
+          return;
+        let fileRef = firebase.storage().ref(this.rootPath + path);
+        fileRef.getDownloadURL().then(function (url) {
+          let xhr = new XMLHttpRequest();
+          xhr.responseType = 'document';
+          xhr.onload = function (event) {
+            this._addData(key, path, xhr.response);
+          }.bind(this);
+          xhr.open('GET', url);
+          xhr.send();
+        }.bind(this)).catch(this._fire.bind(this, "system-error"));
+      }
+
+      _addData(key, path, data) {
+        const res = Object.assign({}, this.result);
+        res[key] = {key: key, path: path, body: data};
+        this.set("result", res);
+      }
+
+      _fire(name, detail){
+        this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: detail}));
+      }
+    }
+    customElements.define(FirebaseBucket.is, FirebaseBucket);
+  </script>
+</dom-module>

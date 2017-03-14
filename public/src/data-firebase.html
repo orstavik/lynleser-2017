@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
 <link rel="import" href="firebase-on.html">
 <link rel="import" href="firebase-loginout.html">
+<link rel="import" href="firebase-bucket.html">
 
 <dom-module id="data-firebase">
   <template>
@@ -22,6 +23,7 @@
                  path="/system/books"
                  result="{{systemBooks}}"></firebase-on>
     <firebase-loginout id="auth" user="{{serverUser}}"></firebase-loginout>
+    <firebase-bucket id="bucket" root-path="books/" result="{{serverBooks}}"></firebase-bucket>
   </template>
   <script>
 
@@ -45,9 +47,6 @@
           fireGenericState: Object,
           serverBooks: {
             type: Object,
-            value: function () {
-              return {};
-            },
             notify: true
           },
           userState: {
@@ -58,20 +57,7 @@
       }
 
       getBook(book) {
-        if (this.serverBooks[book.key])
-          return;
-        let fileRef = firebase.storage().ref('books/' + book.fileName);
-        fileRef.getDownloadURL().then(function (url) {
-          let xhr = new XMLHttpRequest();
-          xhr.responseType = 'document';
-          xhr.onload = function (event) {
-            const res = Object.assign({}, this.serverBooks);
-            res[book.key] = {key: book.key, fileName: book.fileName, body: xhr.response};
-            this.set("serverBooks", res);
-          }.bind(this);
-          xhr.open('GET', url);
-          xhr.send();
-        }.bind(this)).catch(this._fire.bind(this, "system-error"));
+        this.$.bucket.loadData(book.key, book.fileName);
       }
 
       _makeGenericState(books) {
