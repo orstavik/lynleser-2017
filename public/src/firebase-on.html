@@ -1,0 +1,95 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="firebase-on">
+  <script>
+    class FirebaseOn extends Polymer.Element {
+
+      static get is() {
+        return "firebase-on";
+      }
+
+      static get properties() {
+        return {
+          active: {
+            type: Boolean,
+            value: false,
+            notify: false,
+          },
+          path: {
+            type: String,
+            notify: false,
+          },
+          result: {
+            type: Object,
+            notify: true,
+          },
+          once: {
+            type: Boolean,
+            value: false,
+            notify: false,
+          }
+        };
+      }
+
+      static get observers() {
+        return ["_activePathChanged(active, path)"];
+      }
+
+      ready() {
+        super.ready();
+        this._updateResult = function (snap) {
+          this.set("result", snap.val());
+        }.bind(this);
+        this._activePathChanged(this.active, this.path);
+      }
+
+      _activePathChanged(active, path) {
+        (active && path) ? this._connect(path) : this._disconnect();
+      }
+
+      _disconnect() {
+        if (this._ref) {
+          this._ref.off();
+          this._ref = undefined;
+        }
+        if (this.result)
+          this.set("result", undefined);
+      }
+
+      _connect(path) {
+        this._ref = firebase.database().ref(path);
+        if (this.once)
+          this._ref.once("value").then(this._updateResult);
+        else
+          this._ref.on("value", this._updateResult);
+      }
+
+      updateMerge(updates) {
+        if (!this._ref)
+          return;
+        debugger;
+        let path = this._ref.path;
+        const updates2 = FirebaseOn.flattenObjectWithPaths({}, path, updates);
+        debugger;
+        this._db.ref().update(updates2, function () {
+          this.systemMessage("updated changes: " + Object.keys(changes.settings));
+        }.bind(this));
+      }
+
+      static flattenObjectWithPaths(result, path, obj) {
+        if (obj instanceof Object) {
+          for (let childPath of Object.keys(obj))
+            FirebaseOn.flattenObjectWithPaths(result, path + "/" + childPath, obj[childPath]);
+        } else {
+          result[path] = obj;
+        }
+        return result;
+      }
+
+      systemMessage(str) {
+        this.dispatchEvent(new CustomEvent("system-message", {composed: true, bubbles: true, detail: str}));
+      }
+    }
+    customElements.define(FirebaseOn.is, FirebaseOn);
+  </script>
+</dom-module>

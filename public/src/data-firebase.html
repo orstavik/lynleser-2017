@@ -1,4 +1,6 @@
 <link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
+<link rel="import" href="firebase-on.html">
+<link rel="import" href="firebase-loginout.html">
 
 <dom-module id="data-firebase">
   <template>
@@ -7,11 +9,17 @@
         display: none;
       }
     </style>
-    <app-indexeddb-mirror
-        key="bookList"
-        data="{{fbGenericState}}"
-        persisted-data="{{genericState}}">
-    </app-indexeddb-mirror>
+    <app-indexeddb-mirror key="genericState"
+                          data="{{fbGenericState}}"
+                          persisted-data="{{genericState}}"></app-indexeddb-mirror>
+    <firebase-on active="[[serverUser]]"
+                 path="/users/[[serverUser.uid]]"
+                 result="{{userState}}"></firebase-on>
+    <firebase-on once
+                 active
+                 path="/system/books"
+                 result="{{systemBooks}}"></firebase-on>
+    <firebase-loginout id="auth" user="{{serverUser}}"></firebase-loginout>
   </template>
   <script>
 
@@ -27,11 +35,13 @@
             observer: "_serverUserChanged",
             notify: true
           },
+          systemBooks: Object,
           genericState: {
             type: Object,
+            computed: "_makeGenericState(systemBooks)",
             notify: true
           },
-          fbGenericState: Object,
+          fireGenericState: Object,
           serverBooks: {
             type: Object,
             notify: true
@@ -47,9 +57,6 @@
         super.connectedCallback();
         this.set("serverBooks", {});
         this._db = firebase.database();
-        this._db.ref("/system/books/").once("value").then(function (snap) {
-          this.set("fbGenericState", {books: snap.val()});
-        }.bind(this));
       }
 
       getBook(book) {
@@ -69,61 +76,32 @@
         }.bind(this)).catch(this._systemError.bind(this));
       }
 
-      _updateUserData(snap) {
-        this.set("userState", snap.val());
+      _makeGenericState(books) {
+        return books ? {books: books} : undefined;
       }
 
-      _serverUserChanged(user) {
-        if (!user) {
-//          this.set("_serverUserData", null);
-          if (this.userStateListener)
-            this.userStateListener.off();
-        } else {
+      _serverUserChanged(user){
+        if (user)
           this.checkIfFirstTimeUser(user);
-          this.userStateListener = this._db.ref("/users/" + user.uid);
-          this.userStateListener.on("value", this._updateUserData.bind(this));
-        }
       }
 
-      signIn(e) {
-        let provider = new firebase.auth.GoogleAuthProvider();
-        firebase.auth().signInWithPopup(provider).then(function (result) {
-          // This gives you a Google Access Token. You can use it to access the Google API.
-          // let token = result.credential.accessToken;
-          this.set("serverUser", result.user);
-          //todo load the serverBook and serverUserData
-        }.bind(this)).catch(this._systemError.bind(this));
+      signIn(){
+        this.$.auth.signIn();
       }
 
+      signOut(){
+        this.$.auth.signOut();
+      }
 
       checkIfFirstTimeUser(user) {
         const userDataInDB = this._db.ref("/users/" + user.uid);
-        userDataInDB.once("value",
+        userDataInDB.once("value").then(
           function (success) {
             if (!success.exists()) {                //user not registered before
               userDataInDB.set({registered: firebase.database.ServerValue.TIMESTAMP});
               this.systemMessage("Welcome new user!");
             }
           }.bind(this), this._systemError.bind(this));
-      }
-
-      signOut(e) {
-        firebase.auth().signOut().then(function () {
-          this.set("serverUserState", null);
-          this.set("serverUser", null);
-        }.bind(this)).catch(this._systemError.bind(this));
-      }
-
-      _systemError(error) {
-        this.dispatchEvent(new CustomEvent("system-error", {composed: true, bubbles: true, detail: error}));
-      }
-
-      updateSettings(newSettings) {
-        let updates = {};
-        updates["/users/" + this.serverUser.uid + "/settings/" + newSettings.type] = newSettings.value;
-        this._db.ref().update(updates, function () {
-          this.systemMessage("updated settings: " + newSettings.type + " = " + newSettings.value);
-        }.bind(this));
       }
 
       updateChanges(changes) {
@@ -135,6 +113,10 @@
         this._db.ref().update(updates, function () {
           this.systemMessage("updated changes: " + Object.keys(changes.settings));
         }.bind(this));
+      }
+
+      _systemError(error) {
+        this.dispatchEvent(new CustomEvent("system-error", {composed: true, bubbles: true, detail: error}));
       }
 
       systemMessage(str) {

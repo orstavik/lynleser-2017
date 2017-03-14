@@ -1,0 +1,45 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="firebase-loginout">
+  <script>
+    class FirebaseLoginout extends Polymer.Element {
+
+      static get is() {
+        return "firebase-loginout";
+      }
+
+      static get properties() {
+        return {
+          user: {
+            type: Object,
+            notify: true,
+          }
+        };
+      }
+
+      constructor() {
+        super();
+        this._systemError = function (error) {
+          this.dispatchEvent(new CustomEvent("system-error", {composed: true, bubbles: true, detail: error}));
+        }.bind(this);
+      }
+
+      signIn() {
+        let provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider).then(function (result) {
+          // This gives you a Google Access Token. You can use it to access the Google API.
+          // let token = result.credential.accessToken;
+          this.set("user", result.user);
+        }.bind(this)).catch(this._systemError);
+      }
+
+      signOut() {
+        firebase.auth().signOut().then(function () {
+          this.set("user", null);
+        }.bind(this)).catch(this._systemError);
+      }
+
+    }
+    customElements.define(FirebaseLoginout.is, FirebaseLoginout);
+  </script>
+</dom-module>
