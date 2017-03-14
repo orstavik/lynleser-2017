@@ -47,28 +47,21 @@
         super.connectedCallback();
         this.set("serverBooks", {});
         this._db = firebase.database();
-        this._db.ref("/system/books/").once("value", function (snap) {
+        this._db.ref("/system/books/").once("value").then(function (snap) {
           this.set("fbGenericState", {books: snap.val()});
         }.bind(this));
       }
 
       getBook(book) {
-        console.log("getBook first");
         if (this.serverBooks[book.key])
           return;
-        console.log("getBook for real");
-        const fileName = book.fileName;
-        const key = book.key;
-        //todo try to get serverBooks from indexeddb
-        let fileRef = firebase.storage().ref('books/' + fileName);
+        let fileRef = firebase.storage().ref('books/' + book.fileName);
         fileRef.getDownloadURL().then(function (url) {
-          // This can be downloaded directly:
           let xhr = new XMLHttpRequest();
           xhr.responseType = 'document';
           xhr.onload = function (event) {
             const res = Object.assign({}, this.serverBooks);
-            res[key] = {key: key, fileName: fileName, body: xhr.response};
-            //todo add xhr.response to indexeddb
+            res[book.key] = {key: book.key, fileName: book.fileName, body: xhr.response};
             this.set("serverBooks", res);
           }.bind(this);
           xhr.open('GET', url);
