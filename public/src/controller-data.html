@@ -3,7 +3,7 @@
 <link rel="import" href="firebase-loginout.html">
 <link rel="import" href="firebase-bucket.html">
 
-<dom-module id="data-firebase">
+<dom-module id="controller-data">
   <template>
     <style>
       :host {
@@ -27,9 +27,9 @@
   </template>
   <script>
 
-    class DataFirebase extends Polymer.Element {
+    class ControllerData extends Polymer.Element {
       static get is() {
-        return "data-firebase";
+        return "controller-data";
       }
 
       static get properties() {
@@ -73,7 +73,6 @@
       }
 
       _newUser(e) {
-        debugger;
         this.$.serverUserState.updateOverwrite({registered: firebase.database.ServerValue.TIMESTAMP});
         this._fire("system-message", "Welcome new user!");
       }
@@ -86,6 +85,6 @@
         this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: detail}));
       }
     }
-    customElements.define(DataFirebase.is, DataFirebase);
+    customElements.define(ControllerData.is, ControllerData);
   </script>
 </dom-module>

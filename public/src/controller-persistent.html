@@ -1,5 +1,5 @@
 <link rel="import" href="controller-transient.html">
-<link rel="import" href="data-firebase.html">
+<link rel="import" href="controller-data.html">
 
 <dom-module id="controller-persistent">
   <template>
@@ -9,13 +9,13 @@
       }
     </style>
 
-    <data-firebase id="firebase"
-                   server-user="{{serverUser}}"
-                   generic-state="{{persistedGenericState}}"
-                   user-state="{{serverUserState}}"
-                   server-books="{{serverBooks}}"
+    <controller-data id="data"
+                     server-user="{{serverUser}}"
+                     generic-state="{{persistedGenericState}}"
+                     user-state="{{serverUserState}}"
+                     server-books="{{serverBooks}}"
 
-                   on-system-error="_systemError"></data-firebase>
+                     on-system-error="_systemError"></controller-data>
 
     <controller-transient id="ui"
                           user="[[serverUser]]"
@@ -113,16 +113,16 @@
 
       _signIn(e) {
         this.fluidState = new State();
-        this.$.firebase.signIn();
+        this.$.data.signIn();
       }
 
       _signOut(e) {
-        this.$.firebase.signOut();
+        this.$.data.signOut();
       }
 
       _selectBook(e) {
         this.set("fluidState", State.newSetting(this.fluidState, "activeBook", e.detail));
-        this.$.firebase.getBook(e.detail);
+        this.$.data.getBook(e.detail);
       }
 
       _systemError(e) {
@@ -138,7 +138,7 @@
         State.removeIdenticalPropertiesFromA(this.fluidState, this.specificUserState);
         if (State.isEmpty(this.fluidState))
           return;
-        this.$.firebase.updateChanges(this.fluidState);
+        this.$.data.updateChanges(this.fluidState);
       }
     }
     customElements.define(ControllerPersistent.is, ControllerPersistent);
