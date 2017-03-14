@@ -31,11 +31,11 @@
     </style>
 
     <lynleser-auth id="login" user="[[user]]"></lynleser-auth>
-    <lynleser-booklist id="books" books="[[userData.books]]"></lynleser-booklist>
-    <lynleser-settings id="settings" settings="[[userData.settings]]"></lynleser-settings>
+    <lynleser-booklist id="books" books="[[state.books]]"></lynleser-booklist>
+    <lynleser-settings id="settings" settings="[[state.settings]]"></lynleser-settings>
 
     <lynleser-fulltext id="fullText"
-                       book="[[book]]"></lynleser-fulltext>
+                       book="[[state.settings.activeBook]]"></lynleser-fulltext>
 
     <lynleser-joystick id="joystick"
                        on-speed-change="_speedChange"
@@ -52,16 +52,8 @@
       static get properties() {
         return {
           user: Object,
-          userData: Object,
-          book: {
-            type: Object,
-            computed: "_getSelectedBook(userData)"
-          }
+          state: Object
         };
-      }
-
-      _getSelectedBook(userData){
-        return userData.settings.activeBook;
       }
 
       _startStop(e) {

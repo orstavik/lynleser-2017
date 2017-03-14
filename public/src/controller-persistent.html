@@ -19,7 +19,7 @@
 
     <controller-transient id="ui"
                           user="[[serverUser]]"
-                          user-data="[[state]]"
+                          state="[[state]]"
                           on-select-book="_selectBook"
                           on-settings-changed="_userSetNewSettings"
                           on-sign-in="_signIn"
@@ -72,13 +72,14 @@
 
       static get observers() {
         return [
-          "_debouncePersistChanges(fluidState)",
+          "_debouncePersistChanges(fluidState)",        //function object set in constructor
           "_stateChanged(state)"
         ];
       }
 
       constructor() {
         super();
+        this._debouncePersistChanges = _.debounce(this._updateDB.bind(this), 2000);
         this.setProperties({
           timeMachine: [],
           fluidState: new State(),
@@ -91,7 +92,6 @@
             theme: "day"
           })
         });
-        this._debouncePersistChanges = _.debounce(this._updateDB.bind(this), 2000);
       }
 
       _mergeStates(A, B) {
