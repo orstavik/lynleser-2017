@@ -91,7 +91,7 @@
             theme: "day"
           })
         });
-        this._debouncePersistChanges = _.debounce(this._updateDB.bind(this), 1000);
+        this._debouncePersistChanges = _.debounce(this._updateDB.bind(this), 2000);
       }
 
       _mergeStates(A, B) {

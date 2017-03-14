@@ -12,9 +12,11 @@
     <app-indexeddb-mirror key="genericState"
                           data="{{fbGenericState}}"
                           persisted-data="{{genericState}}"></app-indexeddb-mirror>
-    <firebase-on active="[[serverUser]]"
+    <firebase-on id="serverUserState"
+                 active="[[serverUser]]"
                  path="/users/[[serverUser.uid]]"
-                 result="{{userState}}"></firebase-on>
+                 result="{{userState}}"
+                 on-found-no-data="_newUser"></firebase-on>
     <firebase-on once
                  active
                  path="/system/books"
@@ -32,7 +34,6 @@
         return {
           serverUser: {
             type: Object,
-            observer: "_serverUserChanged",
             notify: true
           },
           systemBooks: Object,
@@ -44,6 +45,9 @@
           fireGenericState: Object,
           serverBooks: {
             type: Object,
+            value: function () {
+              return {};
+            },
             notify: true
           },
           userState: {
@@ -51,12 +55,6 @@
             notify: true
           }
         };
-      }
-
-      connectedCallback() {
-        super.connectedCallback();
-        this.set("serverBooks", {});
-        this._db = firebase.database();
       }
 
       getBook(book) {
@@ -73,54 +71,33 @@
           }.bind(this);
           xhr.open('GET', url);
           xhr.send();
-        }.bind(this)).catch(this._systemError.bind(this));
+        }.bind(this)).catch(this._fire.bind(this, "system-error"));
       }
 
       _makeGenericState(books) {
         return books ? {books: books} : undefined;
       }
 
-      _serverUserChanged(user){
-        if (user)
-          this.checkIfFirstTimeUser(user);
-      }
-
-      signIn(){
+      signIn() {
         this.$.auth.signIn();
       }
 
-      signOut(){
+      signOut() {
         this.$.auth.signOut();
       }
 
-      checkIfFirstTimeUser(user) {
-        const userDataInDB = this._db.ref("/users/" + user.uid);
-        userDataInDB.once("value").then(
-          function (success) {
-            if (!success.exists()) {                //user not registered before
-              userDataInDB.set({registered: firebase.database.ServerValue.TIMESTAMP});
-              this.systemMessage("Welcome new user!");
-            }
-          }.bind(this), this._systemError.bind(this));
+      _newUser(e) {
+        debugger;
+        this.$.serverUserState.updateOverwrite({registered: firebase.database.ServerValue.TIMESTAMP});
+        this._fire("system-message", "Welcome new user!");
       }
 
       updateChanges(changes) {
-        if (!this.serverUser || !this.serverUser.uid)
-          return;
-        const updates = {};
-        for (let s of Object.keys(changes.settings))
-          updates["/users/" + this.serverUser.uid + "/settings/" + s] = changes.settings[s];
-        this._db.ref().update(updates, function () {
-          this.systemMessage("updated changes: " + Object.keys(changes.settings));
-        }.bind(this));
+        this.$.serverUserState.updateMerge(changes);
       }
 
-      _systemError(error) {
-        this.dispatchEvent(new CustomEvent("system-error", {composed: true, bubbles: true, detail: error}));
-      }
-
-      systemMessage(str) {
-        this.dispatchEvent(new CustomEvent("system-message", {composed: true, bubbles: true, detail: str}));
+      _fire(name, detail){
+        this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: detail}));
       }
     }
     customElements.define(DataFirebase.is, DataFirebase);

@@ -37,9 +37,6 @@
 
       ready() {
         super.ready();
-        this._updateResult = function (snap) {
-          this.set("result", snap.val());
-        }.bind(this);
         this._activePathChanged(this.active, this.path);
       }
 
@@ -48,6 +45,7 @@
       }
 
       _disconnect() {
+        this._path = undefined;
         if (this._ref) {
           this._ref.off();
           this._ref = undefined;
@@ -57,22 +55,31 @@
       }
 
       _connect(path) {
+        this._path = path;
         this._ref = firebase.database().ref(path);
         if (this.once)
-          this._ref.once("value").then(this._updateResult);
+          this._ref.once("value").then(this._updateResult.bind(this));
         else
-          this._ref.on("value", this._updateResult);
+          this._ref.on("value", this._updateResult.bind(this));
+      }
+
+      _updateResult(snap) {
+        if (!snap.exists())
+          this._fire("found-no-data", this._path);
+        else
+          this.set("result", snap.val());
+      }
+
+      updateOverwrite(value) {
+        this._ref.set(value);
       }
 
       updateMerge(updates) {
-        if (!this._ref)
+        if (!this.active || !this._ref)
           return;
-        debugger;
-        let path = this._ref.path;
-        const updates2 = FirebaseOn.flattenObjectWithPaths({}, path, updates);
-        debugger;
-        this._db.ref().update(updates2, function () {
-          this.systemMessage("updated changes: " + Object.keys(changes.settings));
+        const flatUpdates = FirebaseOn.flattenObjectWithPaths({}, this._path, updates);
+        this._ref.root.update(flatUpdates, function () {
+          this._fire("system-message", "updated changes: " + Object.keys(flatUpdates));
         }.bind(this));
       }
 
@@ -86,8 +93,8 @@
         return result;
       }
 
-      systemMessage(str) {
-        this.dispatchEvent(new CustomEvent("system-message", {composed: true, bubbles: true, detail: str}));
+      _fire(name, detail) {
+        this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: detail}));
       }
     }
     customElements.define(FirebaseOn.is, FirebaseOn);
