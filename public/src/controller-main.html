@@ -137,10 +137,9 @@
       }
 
       _updateDB() {
-        State.removeIdenticalPropertiesFromA(this.fluidState, this.specificUserState);
-        if (this.fluidState.isEmpty())
-          return;
-        this.$.data.updateChanges(Tools.flatten(this.fluidState, "/"));
+        this.fluidState.filterUnionBranches(this.specificUserState); //todo this mutates this.fluidState but does not need to alert
+        if (!this.fluidState.isEmpty())
+          this.$.data.updateChanges(Tools.flatten(this.fluidState, "/"));
       }
     }
     customElements.define(ControllerMain.is, ControllerMain);

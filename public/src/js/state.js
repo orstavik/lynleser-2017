@@ -19,15 +19,8 @@ class State {
     return clone;
   }
 
-  static removeIdenticalPropertiesFromA(A, B) {
-    for (let s of Object.keys(A.settings)) {
-      if (JSON.stringify(B.settings[s]) == JSON.stringify(A.settings[s]))
-        delete A.settings[s];
-    }
-    for (let b of Object.keys(A.books)) {
-      if (JSON.stringify(B.books[b]) == JSON.stringify(A.books[b]))
-        delete A.books[b];
-    }
+  filterUnionBranches(B) {
+    return Tools.filter1Level(A,B);
   }
 
   getActiveBook() {

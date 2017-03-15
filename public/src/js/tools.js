@@ -1,7 +1,7 @@
 /**
  * Created by orstavik on 15.03.17.
  */
-class Tools{
+class Tools {
 
   static merge1(A, B) {
     if (!B) return A;
@@ -18,14 +18,19 @@ class Tools{
     return C;
   }
 
-  static removeIdenticalPropertiesFromA(A, B) {
-    for (let s of Object.keys(A.settings)) {
-      if (JSON.stringify(B.settings[s]) == JSON.stringify(A.settings[s]))
-        delete A.settings[s];
-    }
-    for (let b of Object.keys(A.books)) {
-      if (JSON.stringify(B.books[b]) == JSON.stringify(A.books[b]))
-        delete A.books[b];
+  //it should remove all branches from A that is already in B
+  //todo make it immutable
+  //todo make this general and multilevel
+  static filter1Level(A, B) {
+    for (let key of Object.keys(B)) {
+      let b = B[key];
+      let a = A[key];
+      if (!a)
+        continue;
+      for (let s of Object.keys(b)) {
+        if (JSON.stringify(b[s]) == JSON.stringify(a[s]))
+          delete a[s];
+      }
     }
   }
 
