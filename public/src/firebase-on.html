@@ -77,20 +77,10 @@
       updateMerge(updates) {
         if (!this.active || !this._ref)
           return;
-        const flatUpdates = FirebaseOn.flattenObjectWithPaths({}, this._path, updates);
-        this._ref.root.update(flatUpdates, function () {
-          this._fire("system-message", "updated changes: " + Object.keys(flatUpdates));
+        let fullPathUpdates = Tools.extendKeys(this._path + "/", updates);
+        this._ref.root.update(fullPathUpdates, function () {
+          this._fire("system-message", "updated changes: " + Object.keys(updates));
         }.bind(this));
-      }
-
-      static flattenObjectWithPaths(result, path, obj) {
-        if (obj instanceof Object) {
-          for (let childPath of Object.keys(obj))
-            FirebaseOn.flattenObjectWithPaths(result, path + "/" + childPath, obj[childPath]);
-        } else {
-          result[path] = obj;
-        }
-        return result;
       }
 
       _fire(name, detail) {

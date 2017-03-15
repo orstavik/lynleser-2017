@@ -8,24 +8,9 @@ class State {
     if (!B) return A;
     if (!A) return B;
     return {
-      settings: State.merge1(A.settings, B.settings),
-      books: State.merge2(A.books, B.books)
+      settings: Tools.merge1(A.settings, B.settings),
+      books: Tools.merge2(A.books, B.books)
     };
-  }
-
-  static merge1(A, B) {
-    if (!B) return A;
-    if (!A) return B;
-    return Object.assign({}, A, B);
-  }
-
-  static merge2(A, B) {
-    if (!B || Object.keys(B).length == 0) return A;
-    if (!A || Object.keys(A).length == 0) return B;
-    const C = Object.assign({}, A);
-    for (let key of Object.keys(B))
-      C[key] = State.merge1(A[key], B[key]);
-    return C;
   }
 
   static newSetting(A, key, value) {
@@ -45,7 +30,7 @@ class State {
     }
   }
 
-  static getActiveBook(state){
+  static getActiveBook(state) {
     return state && state.settings && state.settings.activeBook ? state.settings.activeBook : undefined;
   }
 

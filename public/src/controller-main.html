@@ -138,7 +138,7 @@
         State.removeIdenticalPropertiesFromA(this.fluidState, this.specificUserState);
         if (State.isEmpty(this.fluidState))
           return;
-        this.$.data.updateChanges(this.fluidState);
+        this.$.data.updateChanges(Tools.flatten(this.fluidState, "/"));
       }
     }
     customElements.define(ControllerMain.is, ControllerMain);
