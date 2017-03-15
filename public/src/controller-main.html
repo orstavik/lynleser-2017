@@ -34,12 +34,12 @@
       }
 
       //important.
-      //1. The structure of States must be overlapping, as similar as possible.
+      //1. The State objects are immutable.
+      //2. The structure of States should be overlapping, as similar as possible.
       //   This makes merging simpler and update calls to the DB simpler.
-      //3. The order of merging: least updated data source of a branch that are merging are put first.
-      //   Branches are merged as late as possible. This produces the fewest new Objects and thus updates.
-      //4. Immutable. States are immutable by default, only but we can use Mutable States and wildcard observers.
-
+      //3. The two rules of merging order:
+      //    A) Not intersecting branches are merged first.
+      //    B) Least updated data sources in a branch merge first.
       static get properties() {
         return {
           timeMachine: Array,
@@ -137,7 +137,8 @@
       }
 
       _updateDB() {
-        this.fluidState.filterUnionBranches(this.specificUserState); //todo this mutates this.fluidState but does not need to alert
+        //todo make this this.fluidState.filterUnionBranches immutable
+        this.fluidState.filterUnionBranches(this.specificUserState);
         if (!this.fluidState.isEmpty())
           this.$.data.updateChanges(Tools.flatten(this.fluidState, "/"));
       }

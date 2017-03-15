@@ -19,6 +19,7 @@ class State {
     return clone;
   }
 
+  //todo this should be made immutable.
   filterUnionBranches(B) {
     return Tools.filter1Level(A,B);
   }
