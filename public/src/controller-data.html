@@ -10,9 +10,9 @@
         display: none;
       }
     </style>
-    <app-indexeddb-mirror key="genericState"
-                          data="{{cloudGenericState}}"
-                          persisted-data="{{genericState}}"></app-indexeddb-mirror>
+    <app-indexeddb-mirror key="systemBooks"
+                          data="{{serverSystemBooks}}"
+                          persisted-data="{{systemBooks}}"></app-indexeddb-mirror>
     <firebase-on id="serverUserState"
                  active="[[serverUser]]"
                  path="/users/[[serverUser.uid]]"
@@ -21,9 +21,9 @@
     <firebase-on once
                  active
                  path="/system/books"
-                 result="{{systemBooks}}"></firebase-on>
+                 result="{{serverSystemBooks}}"></firebase-on>
     <firebase-loginout id="auth" user="{{serverUser}}"></firebase-loginout>
-    <firebase-bucket id="bucket" root-path="books/" result="{{serverBooks}}"></firebase-bucket>
+    <firebase-bucket id="bucket" root-path="books/" result="{{bookData}}"></firebase-bucket>
   </template>
   <script>
 
@@ -38,16 +38,17 @@
             type: Object,
             notify: true
           },
-          systemBooks: Object,
-          genericState: {
+          serverSystemBooks: Object,
+          systemBooks: {
             type: Object,
             notify: true
           },
-          cloudGenericState: {
+          books: {
             type: Object,
-            computed: "_makeGenericState(systemBooks)"
+            notify: true,
+            computed: "_makeStateWithSystemBookData(systemBooks, bookData)"
           },
-          serverBooks: {
+          bookData: {
             type: Object,
             notify: true
           },
@@ -62,8 +63,12 @@
         this.$.bucket.loadData(book.key, book.fileName);
       }
 
-      _makeGenericState(books) {
-        return books ? {books: books} : undefined;
+      _makeStateWithSystemBookData(systemBooks, bookData) {
+        if (!bookData) return new State(undefined, systemBooks);
+        if (!systemBooks) return new State(undefined, bookData);
+        const A = new State(undefined, systemBooks);
+        const B = new State(undefined, bookData);
+        return A.merge(B);
       }
 
       signIn() {
@@ -83,7 +88,7 @@
         this.$.serverUserState.updateMerge(changes);
       }
 
-      _fire(name, detail){
+      _fire(name, detail) {
         this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: detail}));
       }
     }

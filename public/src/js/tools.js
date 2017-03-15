@@ -4,12 +4,14 @@
 class Tools {
 
   static merge1(A, B) {
+    if (A == B) return A;
     if (!B) return A;
     if (!A) return B;
     return Object.assign({}, A, B);
   }
 
   static merge2(A, B) {
+    if (A == B) return A;
     if (!B || Object.keys(B).length == 0) return A;
     if (!A || Object.keys(A).length == 0) return B;
     const C = Object.assign({}, A);

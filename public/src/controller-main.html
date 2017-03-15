@@ -11,9 +11,8 @@
 
     <controller-data id="data"
                      server-user="{{serverUser}}"
-                     generic-state="{{persistedGenericState}}"
                      user-state="{{serverUserState}}"
-                     server-books="{{serverBooks}}"
+                     books="{{persistedGenericState}}"
 
                      on-system-error="_systemError"></controller-data>
 
@@ -46,9 +45,8 @@
           serverUser: Object,
 
           defaultState: State,                //a. DEFAULT
-          persistedGenericState: Object,      //b. DB firebase / local storage
+          persistedGenericState: Object,      //b. DB firebase / local storage + BUCKETS / cached
           serverUserState: Object,            //c. DB firebase
-          serverBooks: Object,                //e. BUCKETS firebase
           fluidState: State,                  //d. FLUID changes from the UI
 
           genericUserState: {
@@ -59,13 +57,9 @@
             type: State,
             computed: "_mergeStates(genericUserState, serverUserState)"
           },
-          mergedFluidState: {
-            type: State,
-            computed: "_mergeStates(specificUserState, fluidState)"
-          },
           state: {
             type: State,
-            computed: "_mergeBookData(mergedFluidState, serverBooks)"
+            computed: "_mergeFinal(specificUserState, fluidState)"
           },
         };
       }
@@ -73,7 +67,6 @@
       static get observers() {
         return [
           "_debouncePersistChanges(fluidState)",        //function object set in constructor
-          "_stateChanged(state)"
         ];
       }
 
@@ -98,19 +91,11 @@
         return A ? A.merge(B) : B;
       }
 
-      _stateChanged(A) {
-        this.push("timeMachine", A);
-      }
-
-      _mergeBookData(A, bookData) {
-        if (!A)
-          return A;
-        const active = A.getActiveBook();
-        if (!active || active.body)               //no book active or already have set the body of the book
-          return A;
-        if (!bookData || !bookData[active.key])   //no bookData for activeBook (yet..)
-          return A;
-        return A.merge({settings: {activeBook: bookData[active.key]}});
+      _mergeFinal(A, B){
+        const C = this._mergeStates(A, B);
+        C.prepare();
+        this.push("timeMachine", C);
+        return C;
       }
 
       _signIn(e) {
@@ -123,7 +108,7 @@
       }
 
       _selectBook(e) {
-        this.set("fluidState", this.fluidState.newSetting("activeBook", e.detail));
+        this.set("fluidState", this.fluidState.newSetting("activeBook", e.detail.key));
         this.$.data.getBook(e.detail);
       }
 

@@ -16,11 +16,11 @@
           },
           result: {
             type: Object,
-            notify:true,
-            value: function(){
+            notify: true,
+            value: function () {
               return {};
             }
-          },
+          }
         };
       }
 
@@ -32,20 +32,20 @@
           let xhr = new XMLHttpRequest();
           xhr.responseType = 'document';
           xhr.onload = function (event) {
-            this._addData(key, path, xhr.response);
+            this._addData(key, xhr.response);
           }.bind(this);
           xhr.open('GET', url);
           xhr.send();
         }.bind(this)).catch(this._fire.bind(this, "system-error"));
       }
 
-      _addData(key, path, data) {
+      _addData(key, data) {
         const res = Object.assign({}, this.result);
-        res[key] = {key: key, path: path, body: data};
+        res[key] = {body: data};
         this.set("result", res);
       }
 
-      _fire(name, detail){
+      _fire(name, detail) {
         this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: detail}));
       }
     }

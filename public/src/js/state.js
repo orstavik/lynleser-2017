@@ -21,11 +21,14 @@ class State {
 
   //todo this should be made immutable.
   filterUnionBranches(B) {
-    return Tools.filter1Level(this,B);
+    return Tools.filter1Level(this, B);
   }
 
-  getActiveBook() {
-    return this.settings.activeBook;
+  //ATT!! mutable
+  //this is like a custom post constructor
+  prepare() {
+    if (this.settings.activeBook)
+      this.activeBook = this.books[this.settings.activeBook];
   }
 
   isEmpty() {
