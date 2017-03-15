@@ -21,7 +21,7 @@ class State {
 
   //todo this should be made immutable.
   filterUnionBranches(B) {
-    return Tools.filter1Level(A,B);
+    return Tools.filter1Level(this,B);
   }
 
   getActiveBook() {
