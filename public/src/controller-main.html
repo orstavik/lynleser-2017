@@ -1,7 +1,7 @@
 <link rel="import" href="controller-transient.html">
 <link rel="import" href="controller-data.html">
 
-<dom-module id="controller-persistent">
+<dom-module id="controller-main">
   <template>
     <style>
       :host {
@@ -28,9 +28,9 @@
 
   <script>
 
-    class ControllerPersistent extends Polymer.Element {
+    class ControllerMain extends Polymer.Element {
       static get is() {
-        return "controller-persistent";
+        return "controller-main";
       }
 
       //important.
@@ -141,6 +141,6 @@
         this.$.data.updateChanges(this.fluidState);
       }
     }
-    customElements.define(ControllerPersistent.is, ControllerPersistent);
+    customElements.define(ControllerMain.is, ControllerMain);
   </script>
 </dom-module>
