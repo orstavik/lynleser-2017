@@ -95,7 +95,7 @@
       }
 
       _mergeStates(A, B) {
-        return State.merge(A, B);
+        return A ? A.merge(B) : B;
       }
 
       _stateChanged(A) {
@@ -103,12 +103,14 @@
       }
 
       _mergeBookData(A, bookData) {
-        const active = State.getActiveBook(A);
+        if (!A)
+          return A;
+        const active = A.getActiveBook();
         if (!active || active.body)               //no book active or already have set the body of the book
           return A;
         if (!bookData || !bookData[active.key])   //no bookData for activeBook (yet..)
           return A;
-        return State.merge(A, {settings: {activeBook: bookData[active.key]}});
+        return A.merge({settings: {activeBook: bookData[active.key]}});
       }
 
       _signIn(e) {
@@ -121,7 +123,7 @@
       }
 
       _selectBook(e) {
-        this.set("fluidState", State.newSetting(this.fluidState, "activeBook", e.detail));
+        this.set("fluidState", this.fluidState.newSetting("activeBook", e.detail));
         this.$.data.getBook(e.detail);
       }
 
@@ -131,12 +133,12 @@
       }
 
       _userSetNewSettings(e) {
-        this.set("fluidState", State.newSetting(this.fluidState, e.detail.key, e.detail.value));
+        this.set("fluidState", this.fluidState.newSetting(e.detail.key, e.detail.value));
       }
 
       _updateDB() {
         State.removeIdenticalPropertiesFromA(this.fluidState, this.specificUserState);
-        if (State.isEmpty(this.fluidState))
+        if (this.fluidState.isEmpty())
           return;
         this.$.data.updateChanges(Tools.flatten(this.fluidState, "/"));
       }

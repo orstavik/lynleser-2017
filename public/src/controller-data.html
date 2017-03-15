@@ -11,7 +11,7 @@
       }
     </style>
     <app-indexeddb-mirror key="genericState"
-                          data="{{fireGenericState}}"
+                          data="{{cloudGenericState}}"
                           persisted-data="{{genericState}}"></app-indexeddb-mirror>
     <firebase-on id="serverUserState"
                  active="[[serverUser]]"
@@ -43,7 +43,7 @@
             type: Object,
             notify: true
           },
-          fireGenericState: {
+          cloudGenericState: {
             type: Object,
             computed: "_makeGenericState(systemBooks)"
           },

@@ -4,17 +4,17 @@ class State {
     this.settings = settings || {};
   }
 
-  static merge(A, B) {
-    if (!B) return A;
-    if (!A) return B;
-    return {
-      settings: Tools.merge1(A.settings, B.settings),
-      books: Tools.merge2(A.books, B.books)
-    };
+  merge(B) {
+    if (!B)
+      return this;
+    return new State(
+      Tools.merge1(this.settings, B.settings),
+      Tools.merge2(this.books, B.books)
+    );
   }
 
-  static newSetting(A, key, value) {
-    const clone = new State(Object.assign({}, A.settings), A.books);
+  newSetting(key, value) {
+    const clone = new State(Object.assign({}, this.settings), this.books);
     clone.settings[key] = value;
     return clone;
   }
@@ -30,11 +30,11 @@ class State {
     }
   }
 
-  static getActiveBook(state) {
-    return state && state.settings && state.settings.activeBook ? state.settings.activeBook : undefined;
+  getActiveBook() {
+    return this.settings.activeBook;
   }
 
-  static isEmpty(A) {
-    return !A || (Object.keys(A.settings).length == 0 && Object.keys(A.books).length == 0);
+  isEmpty() {
+    return Object.keys(this.settings).length == 0 && Object.keys(this.books).length == 0;
   }
 }
