@@ -64,10 +64,10 @@
       }
 
       _makeStateWithSystemBookData(systemBooks, bookData) {
-        if (!bookData) return new State(undefined, systemBooks);
-        if (!systemBooks) return new State(undefined, bookData);
         const A = new State(undefined, systemBooks);
+        if (!bookData) return A;
         const B = new State(undefined, bookData);
+        if (!systemBooks) return B;
         return A.merge(B);
       }
 
