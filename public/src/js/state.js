@@ -2,6 +2,7 @@ class State {
   constructor(settings, books) {
     this.books = books || {};
     this.settings = settings || {};
+    this.activeBook = this.settings.activeBook ? this.books[this.settings.activeBook] : undefined;
   }
 
   merge(B) {
@@ -24,14 +25,22 @@ class State {
     return Tools.filter1Level(this, B);
   }
 
-  //ATT!! mutable
-  //this is like a custom post constructor
-  prepare() {
-    if (this.settings.activeBook)
-      this.activeBook = this.books[this.settings.activeBook];
+  isEmpty() {
+    return Object.keys(this.settings).length === 0 && Object.keys(this.books).length === 0;
   }
 
-  isEmpty() {
-    return Object.keys(this.settings).length == 0 && Object.keys(this.books).length == 0;
+  nextBookPosition() {
+    if (!this.activeBook)
+      return undefined;
+    const res = new State();
+    const activeInList = res.books[this.settings.activeBook] = {};
+    activeInList.position = (this.activeBook.position || 0) + 1;
+    return res;
+  }
+
+  newSettingRes(key, value) {
+    const res = new State();
+    res.settings[key] = value;
+    return res;
   }
 }

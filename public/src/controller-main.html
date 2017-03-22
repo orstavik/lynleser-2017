@@ -17,12 +17,12 @@
                      on-system-error="_systemError"></controller-data>
 
     <controller-ui id="ui"
-                          user="[[serverUser]]"
-                          state="[[state]]"
-                          on-select-book="_selectBook"
-                          on-settings-changed="_userSetNewSettings"
-                          on-sign-in="_signIn"
-                          on-sign-out="_signOut"></controller-ui>
+                   user="[[serverUser]]"
+                   state="[[state]]"
+                   on-settings-changed="_mergeIntoFluid"
+                   on-sign-in="_signIn"
+                   on-sign-out="_signOut"
+                   on-new-book-position="_mergeIntoFluid"></controller-ui>
   </template>
 
   <script>
@@ -59,7 +59,7 @@
           },
           state: {
             type: State,
-            computed: "_mergeFinal(specificUserState, fluidState)"
+            computed: "_mergeStates(specificUserState, fluidState)"
           },
         };
       }
@@ -67,6 +67,7 @@
       static get observers() {
         return [
           "_debouncePersistChanges(fluidState)",        //function object set in constructor
+          "_checkState(state)"
         ];
       }
 
@@ -91,11 +92,15 @@
         return A ? A.merge(B) : B;
       }
 
-      _mergeFinal(A, B){
-        const C = this._mergeStates(A, B);
-        C.prepare();
+      _checkState(C) {
         this.push("timeMachine", C);
-        return C;
+        console.log(C.activeBook);
+        if (C.activeBook && C.activeBook.filename && !C.activeBook.body)
+          this.$.data.getBook(C.activeBook);
+      }
+
+      _mergeIntoFluid(e) {
+        this.set("fluidState", this.fluidState.merge(e.detail));
       }
 
       _signIn(e) {
@@ -107,18 +112,9 @@
         this.$.data.signOut();
       }
 
-      _selectBook(e) {
-        this.set("fluidState", this.fluidState.newSetting("activeBook", e.detail.key));
-        this.$.data.getBook(e.detail);
-      }
-
       _systemError(e) {
         console.log("Error");
         console.log(e);
-      }
-
-      _userSetNewSettings(e) {
-        this.set("fluidState", this.fluidState.newSetting(e.detail.key, e.detail.value));
       }
 
       _updateDB() {

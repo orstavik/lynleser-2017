@@ -1,0 +1,35 @@
+<dom-module id="lynleser-controller">
+  <template>
+    <style>
+      :host { display: block; }
+    </style>
+
+  </template>
+  <script>
+    class LynleserController extends Polymer.Element {
+
+      static get is() {
+        return "lynleser-controller";
+      }
+
+      static get properties() {
+        return {
+          prop1: Number,
+          myProp: {
+            type: Array,
+            observer: "myObserver"
+          }
+        };
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        setInterval(function(){
+          this.dispatchEvent(new CustomEvent("tick", {composed: true, bubbles: true}));
+        }.bind(this), 3000);
+        //
+      }
+    }
+    customElements.define(LynleserController.is, LynleserController);
+  </script>
+</dom-module>

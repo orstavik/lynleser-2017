@@ -29,7 +29,7 @@
         };
       }
 
-      _makeBooksArray(books){
+      _makeBooksArray(books) {
         const res = [];
         for (let key of Object.keys(books)) {
           let book = books[key];
@@ -40,8 +40,7 @@
       }
 
       _clickBook(e) {
-        let detail = {key: e.target.dataset.key, fileName: e.target.dataset.filename};
-        this.dispatchEvent(new CustomEvent("select-book", {composed: true, bubbles: true, detail: detail}));
+        this.dispatchEvent(new CustomEvent("select-book", {composed: true, bubbles: true, detail: e.target.dataset.key}));
       }
     }
     customElements.define(LynleserBooklist.is, LynleserBooklist);

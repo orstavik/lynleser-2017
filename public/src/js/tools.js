@@ -12,8 +12,8 @@ class Tools {
 
   static merge2(A, B) {
     if (A == B) return A;
-    if (!B || Object.keys(B).length == 0) return A;
-    if (!A || Object.keys(A).length == 0) return B;
+    if (!B || Object.keys(B).length === 0) return A;
+    if (!A || Object.keys(A).length === 0) return B;
     const C = Object.assign({}, A);
     for (let key of Object.keys(B))
       C[key] = Tools.merge1(A[key], B[key]);
@@ -27,10 +27,10 @@ class Tools {
     for (let key of Object.keys(B)) {
       let b = B[key];
       let a = A[key];
-      if (!a)
+      if (!a || !b)
         continue;
       for (let s of Object.keys(b)) {
-        if (JSON.stringify(b[s]) == JSON.stringify(a[s]))
+        if (JSON.stringify(b[s]) === JSON.stringify(a[s]))
           delete a[s];
       }
     }

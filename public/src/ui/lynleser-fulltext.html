@@ -1,3 +1,5 @@
+<link rel="import" href="lynleser-paragraph.html">
+
 <dom-module id="lynleser-fulltext">
   <template>
     <style>
@@ -5,7 +7,7 @@
         display: block;
         background: white;
       }
-      #appendable {
+      #text {
         display: block;
         min-height: 60vh;
         overflow-y: scroll;
@@ -13,7 +15,7 @@
       }
     </style>
 
-    <div id="appendable"></div>
+    <lynleser-paragraph id="text" paragraph="[[currentParagraph]]"></lynleser-paragraph>
   </template>
   <script>
     class LynleserFulltext extends Polymer.Element {
@@ -23,28 +25,33 @@
 
       static get properties() {
         return {
-            book: {
-              type: Object,
-              observer: "loadContent"
-            }
+          book: Object,
+          paragraphs: {
+            type: Array,
+            computed: "_makeParagraphs(book)"
+          },
+          currentParagraph: {
+            type: Object,
+            computed: "_makeCurrentPaaragraph(paragraphs, book.position)"
+          }
         };
       }
 
-      //iterate to the position
-      //load the two nodes before that position,
-      //load the position
-      //load the two nodes after position
+      _makeParagraphs(book) {
+        if (!book || !book.body)
+          return undefined;
+        let ps = [];
+        for (let child of book.body.body.children)
+          ps.push(child)
+        return ps;
+      }
 
-      loadContent(doc) {
-        if(!doc)
-          return;
-        let start = new Date().getTime();
-        // for(let child og doc.body.children)
-        //   this.$.appendable.appendChild(child);
-        if (doc.body)
-          this.$.appendable.appendChild(doc.body.body);
-        let end = new Date().getTime();
-        console.log(end - start);
+      _makeCurrentPaaragraph(paragraphs, position) {
+        if (!paragraphs || paragraphs.length === 0)
+          return "No book or empty book...";
+        if (position >= paragraphs.length)
+          return "Finished!!";
+        return paragraphs[position||0];
       }
     }
     customElements.define(LynleserFulltext.is, LynleserFulltext);
