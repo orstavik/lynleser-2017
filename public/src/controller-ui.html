@@ -1,10 +1,10 @@
-<link rel="import" href="lynleser-booklist.html">
-<link rel="import" href="lynleser-fulltext.html">
-<link rel="import" href="lynleser-settings.html">
-<link rel="import" href="lynleser-joystick.html">
-<link rel="import" href="lynleser-auth.html">
+<link rel="import" href="ui/lynleser-booklist.html">
+<link rel="import" href="ui/lynleser-fulltext.html">
+<link rel="import" href="ui/lynleser-settings.html">
+<link rel="import" href="ui/lynleser-joystick.html">
+<link rel="import" href="ui/lynleser-auth.html">
 
-<dom-module id="controller-transient">
+<dom-module id="controller-ui">
   <template>
     <style>
       :host { display: block; }
@@ -40,10 +40,10 @@
                        on-start-stop="_startStop"></lynleser-joystick>
   </template>
   <script>
-    class ControllerTransient extends Polymer.Element {
+    class ControllerUI extends Polymer.Element {
 
       static get is() {
-        return "controller-transient";
+        return "controller-ui";
       }
 
       static get properties() {
@@ -71,6 +71,6 @@
         this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: detail}));
       }
     }
-    customElements.define(ControllerTransient.is, ControllerTransient);
+    customElements.define(ControllerUI.is, ControllerUI);
   </script>
 </dom-module>

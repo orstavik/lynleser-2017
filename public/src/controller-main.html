@@ -1,4 +1,4 @@
-<link rel="import" href="controller-transient.html">
+<link rel="import" href="controller-ui.html">
 <link rel="import" href="controller-data.html">
 
 <dom-module id="controller-main">
@@ -16,13 +16,13 @@
 
                      on-system-error="_systemError"></controller-data>
 
-    <controller-transient id="ui"
+    <controller-ui id="ui"
                           user="[[serverUser]]"
                           state="[[state]]"
                           on-select-book="_selectBook"
                           on-settings-changed="_userSetNewSettings"
                           on-sign-in="_signIn"
-                          on-sign-out="_signOut"></controller-transient>
+                          on-sign-out="_signOut"></controller-ui>
   </template>
 
   <script>
