@@ -92,17 +92,21 @@
       }
 
       _mergeStates(A, B) {
-        return Tools.merge(A, B);
+        const mergeDeep = Tools.mergeDeep(A, B);
+        console.log(mergeDeep);
+        return mergeDeep;
       }
 
       _checkState(C) {
-        this.push("timeMachine", C);
-        const activeBookKey = C.settings.activeBook;
+        //check and set activeBook
+        const activeBookKey = C.settings ? C.settings.activeBook : undefined;
         if (activeBookKey){
           C.activeBook = C.books[activeBookKey];
           if (C.activeBook.filename && !C.activeBook.body)
             this.$.data.getBook(C.activeBook);
         }
+        //timeMachine ... it
+        this.push("timeMachine", C);
       }
 
       _stateSet(e) {

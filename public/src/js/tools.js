@@ -3,52 +3,31 @@
  */
 class Tools {
 
-  static merge1(A, B) {
+  static mergeDeep(A, B) {
+    const noA = Tools.isNothing(A);
+    const noB = Tools.isNothing(B);
+    if (noA && noB) return undefined;
+    if (noB) return A;
+    if (noA) return B;
     if (A === B) return A;
-    if (!B) return A;
-    if (!A) return B;
-    return Object.assign({}, A, B);
-  }
-
-  static merge2(A, B) {
-    if (A === B) return A;
-    if (!B || Object.keys(B).length === 0) return A;
-    if (!A || Object.keys(A).length === 0) return B;
+    if (!(A instanceof Object && B instanceof Object)) return B;
     const C = Object.assign({}, A);
-    for (let key of Object.keys(B))
-      C[key] = Tools.merge1(A[key], B[key]);
+    let hasMerged = false;
+    for (let key of Object.keys(B)) {
+      const a = A[key];
+      const b = B[key];
+      let c = Tools.mergeDeep(a, b);
+      if (c !== a)
+        hasMerged = true;
+      if (c !== undefined)
+        C[key] = c;
+    }
+    if (!hasMerged)
+      return A;
+    if (Object.keys(C).length === 0)
+      return undefined;
     return C;
   }
-
-  static merge(A, B) {
-    if (!B) return A;
-    if (!A) return B;
-    return {
-      settings: Tools.merge1(A.settings, B.settings),
-      books: Tools.merge2(A.books, B.books)
-    };
-  }
-
-  // static isEmpty(A) {
-  //   return Object.keys(A.settings).length === 0 && Object.keys(A.books).length === 0;
-  // }
-
-
-  //it should remove all branches from A that is already in B
-  //todo make it immutable
-  //todo make this general and multilevel
-  // static filter1Level(A, B) {
-  //   for (let key of Object.keys(B)) {
-  //     let b = B[key];
-  //     let a = A[key];
-  //     if (!a || !b)
-  //       continue;
-  //     for (let s of Object.keys(b)) {
-  //       if (JSON.stringify(b[s]) === JSON.stringify(a[s]))
-  //         delete a[s];
-  //     }
-  //   }
-  // }
 
   /**
    * Flattens a normal object tree to an array of {path, value} objects
@@ -125,23 +104,26 @@ class Tools {
   /**
    * Immutable filter that strips out
    * 1) entries of A that are matching exactly entries in B
-   * 2) all empty entries (with undefined as value).
+   * 2) all empty entries (with undefined or null as value).
    *
-   * @param {object} A the thing to be filtered
+   * @param {object} A the object to be filtered
    * @param {object} B the filter
    * @returns A if nothing is filtered away,
    *          undefined if A is empty or the whole content of A is filtered out by B,
    *          a new object C which is an immuted version of the partially filtered A.
    */
   static filterDeep(A, B) {
-    if (A === B)
-      return undefined;
-    if (B === undefined /*|| B === null*/)
-      return A;
-    if (!(A instanceof Object) || !(B instanceof Object))
-      return A;
-    if (Object.keys(A).length === 0)
-      return undefined;
+    const noA = Tools.isNothing(A);
+    const noB = Tools.isNothing(B);
+    if (noA && noB) return undefined;
+    if (noB) return A;
+    if (noA) return undefined;
+    if (A === B) return undefined;
+    if (!(A instanceof Object && B instanceof Object)) return A;
+    // if (A === B) return undefined;
+    // if (B === undefined) return A;
+    // if (!(A instanceof Object) || !(B instanceof Object)) return A;
+    // if (Object.keys(A).length === 0) return undefined;
 
     const C = {};
     let hasFiltered = false;
@@ -151,7 +133,7 @@ class Tools {
       let c = Tools.filterDeep(a, b);
       if (c !== a)
         hasFiltered = true;
-      if (c !== undefined /*&& c !== null*/)
+      if (c !== undefined)
         C[key] = c;
     }
     if (!hasFiltered)
@@ -159,5 +141,9 @@ class Tools {
     if (Object.keys(C).length === 0)
       return undefined;
     return C;
+  }
+
+  static isNothing(A) {          //todo should I include null here??
+    return A === undefined || A === null || (A instanceof Object && Object.keys(A).length === 0);
   }
 }

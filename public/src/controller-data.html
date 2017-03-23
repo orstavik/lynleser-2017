@@ -68,7 +68,7 @@
         if (!bookData) return A;
         const B = {books: bookData};
         if (!systemBooks) return B;
-        return Tools.merge(A, B);
+        return Tools.mergeDeep(A, B);
       }
 
       signIn() {
