@@ -79,7 +79,9 @@
       updateMerge(updates) {
         if (!this.active || !this._ref)
           return;
-        let fullPathUpdates = Tools.extendKeys(this._path + "/", updates);
+        debugger;    //todo untested
+        let fullPathUpdates = Tools.flatToObject(updates, this._path + "/", "/");
+        debugger;
         this._ref.root.update(fullPathUpdates, function () {
           this._fire("system-message", "updated changes: " + Object.keys(updates));
         }.bind(this));

@@ -19,10 +19,11 @@
     <controller-ui id="ui"
                    user="[[serverUser]]"
                    state="[[state]]"
-                   on-settings-changed="_mergeIntoFluid"
+                   on-state-set="_stateSet"
+                   on-state-multiply="_stateMultiply"
+                   on-state-add="_stateAdd"
                    on-sign-in="_signIn"
-                   on-sign-out="_signOut"
-                   on-new-book-position="_mergeIntoFluid"></controller-ui>
+                   on-sign-out="_signOut"></controller-ui>
   </template>
 
   <script>
@@ -44,21 +45,21 @@
           timeMachine: Array,
           serverUser: Object,
 
-          defaultState: State,                //a. DEFAULT
+          defaultState: Object,                //a. DEFAULT
           persistedGenericState: Object,      //b. DB firebase / local storage + BUCKETS / cached
           serverUserState: Object,            //c. DB firebase
-          fluidState: State,                  //d. FLUID changes from the UI
+          fluidState: Object,                  //d. FLUID changes from the UI
 
           genericUserState: {
-            type: State,
+            type: Object,
             computed: "_mergeStates(defaultState, persistedGenericState)"
           },
           specificUserState: {
-            type: State,
+            type: Object,
             computed: "_mergeStates(genericUserState, serverUserState)"
           },
           state: {
-            type: State,
+            type: Object,
             computed: "_mergeStates(specificUserState, fluidState)"
           },
         };
@@ -76,35 +77,52 @@
         this._debouncePersistChanges = _.debounce(this._updateDB.bind(this), 2000);
         this.setProperties({
           timeMachine: [],
-          fluidState: new State(),
-          defaultState: new State({
-            speed: 200,
-            wordWidth: 14,
-            prefixes: ["the", "an", "a"],
-            fontSize: 14,
-            fontType: "serif",
-            theme: "day"
-          })
+          fluidState: {},
+          defaultState: {
+            settings: {
+              speed: 200,
+              wordWidth: 14,
+              prefixes: ["the", "an", "a"],
+              fontSize: 14,
+              fontType: "serif",
+              theme: "day"
+            }
+          }
         });
       }
 
       _mergeStates(A, B) {
-        return A ? A.merge(B) : B;
+        return Tools.merge(A, B);
       }
 
       _checkState(C) {
         this.push("timeMachine", C);
-        console.log(C.activeBook);
-        if (C.activeBook && C.activeBook.filename && !C.activeBook.body)
-          this.$.data.getBook(C.activeBook);
+        const activeBookKey = C.settings.activeBook;
+        if (activeBookKey){
+          C.activeBook = C.books[activeBookKey];
+          if (C.activeBook.filename && !C.activeBook.body)
+            this.$.data.getBook(C.activeBook);
+        }
       }
 
-      _mergeIntoFluid(e) {
-        this.set("fluidState", this.fluidState.merge(e.detail));
+      _stateSet(e) {
+        this.set("fluidState", Tools.setIn(this.fluidState, e.detail.path, e.detail.value));
+      }
+
+      _stateAdd(e) {
+        const before = Tools.getIn(this.state, e.detail.path) || 0;
+        if (before !== undefined)
+          this.set("fluidState", Tools.setIn(this.fluidState, e.detail.path, before + e.detail.value));
+      }
+
+      _stateMultiply(e) {
+        const before = Tools.getIn(this.state, e.detail.path) || 1;
+        if (before !== undefined)
+          this.set("fluidState", Tools.setIn(this.fluidState, e.detail.path, before * e.detail.value));
       }
 
       _signIn(e) {
-        this.fluidState = new State();
+        this.fluidState = {};
         this.$.data.signIn();
       }
 
@@ -118,10 +136,11 @@
       }
 
       _updateDB() {
-        //todo make this this.fluidState.filterUnionBranches immutable
-        this.fluidState.filterUnionBranches(this.specificUserState);
-        if (!this.fluidState.isEmpty())
-          this.$.data.updateChanges(Tools.flatten(this.fluidState, "/"));
+        let filtered = Tools.filterDeep(this.fluidState, this.specificUserState);
+        if (filtered) {
+          this.fluidState = filtered;
+          this.$.data.updateChanges(Tools.flatten(this.fluidState));
+        }
       }
     }
     customElements.define(ControllerMain.is, ControllerMain);

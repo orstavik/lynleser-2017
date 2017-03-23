@@ -35,8 +35,9 @@
     <lynleser-auth id="login" user="[[user]]"></lynleser-auth>
     <lynleser-booklist id="books"
                        books="[[state.books]]"
-    on-select-book="_selectBook"></lynleser-booklist>
-    <lynleser-settings id="settings" settings="[[state.settings]]"></lynleser-settings>
+                       on-select-book="_selectBook"></lynleser-booklist>
+    <lynleser-settings id="settings" settings="[[state.settings]]"
+                       on-settings-changed="_settingsChanged"></lynleser-settings>
     <lynleser-fulltext id="fullText" book="[[state.activeBook]]"></lynleser-fulltext>
     <lynleser-joystick id="joystick"
                        on-speed-change="_speedChange"
@@ -53,31 +54,39 @@
       static get properties() {
         return {
           user: Object,
-          state: State
+          state: Object
         };
       }
 
       _tick(e) {
         e.stopPropagation();
-        this._fire("new-book-position", this.state.nextBookPosition());
+        if (!this.state.settings.activeBook)
+          return;
+        this._fire("state-add", {path: ["books", this.state.settings.activeBook, "position"], value: 1});
       }
 
       _startStop(e) {
         console.log(e);
       }
 
-      _selectBook(e){
-        this._fire("settings-changed", this.state.newSettingRes("activeBook", e.detail));
+      _settingsChanged(e) {
+        e.stopPropagation();
+        this._fire("state-set", {path: ["settings", e.detail.key], value: e.detail.value});
+      }
+
+      _selectBook(e) {
+        e.stopPropagation();
+        this._fire("state-set", {path: ["settings", "activeBook"], value: e.detail});
       }
 
       _wordWider(e) {
-        const newWidth = this.state.settings.wordWidth + e.detail;
-        this._fire("settings-changed", this.state.newSettingRes("wordWidth", newWidth));
+        e.stopPropagation();
+        this._fire("state-add", {path: ["settings", "wordWidth"], value: e.detail});
       }
 
       _speedChange(e) {
-        const newSpeed = this.state.settings.wordWidth * (1 + (e.detail / 100));
-        this._fire("settings-changed", this.state.newSettingRes("speed", newSpeed));
+        e.stopPropagation();
+        this._fire("state-multiply", {path: ["settings", "speed"], value: 1 + (e.detail / 100)});
       }
 
       _fire(name, detail) {
