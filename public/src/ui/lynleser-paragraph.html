@@ -16,7 +16,10 @@
 
       static get properties() {
         return {
-          paragraph: Object,
+          paragraph: {
+            type: Object,
+            observer: "_paragraphChanged"
+          },
         };
       }
 

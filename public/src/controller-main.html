@@ -18,7 +18,7 @@
 
     <controller-ui id="ui"
                    user="[[serverUser]]"
-                   state="[[state]]"
+                   state="[[finishedState]]"
                    on-state-set="_stateSet"
                    on-state-multiply="_stateMultiply"
                    on-state-add="_stateAdd"
@@ -62,13 +62,17 @@
             type: Object,
             computed: "_mergeStates(specificUserState, fluidState)"
           },
+          finishedState: {
+            type: Object,
+            computed: "_postProcess(state)"
+          }
         };
       }
 
       static get observers() {
         return [
           "_debouncePersistChanges(fluidState)",        //function object set in constructor
-          "_checkState(state)"
+          "_toTheTimeMachine(finishedState)"
         ];
       }
 
@@ -97,16 +101,20 @@
         return mergeDeep;
       }
 
-      _checkState(C) {
-        //check and set activeBook
-        const activeBookKey = C.settings ? C.settings.activeBook : undefined;
-        if (activeBookKey){
-          C.activeBook = C.books[activeBookKey];
-          if (C.activeBook.filename && !C.activeBook.body)
-            this.$.data.getBook(C.activeBook);
-        }
-        //timeMachine ... it
-        this.push("timeMachine", C);
+      _postProcess(A) {
+        const activeBookKey = A.settings ? A.settings.activeBook : undefined;
+        if (!activeBookKey)
+          return A;
+        const C = Object.assign({}, A);
+        C.activeBook = C.books[activeBookKey];
+        if (C.activeBook.filename && !C.activeBook.body)
+          this.$.data.getBook(C.activeBook);
+        C.activeBook.position = C.activeBook.position || 0;
+        return C;
+      }
+
+      _toTheTimeMachine(A) {
+        this.push("timeMachine", A);
       }
 
       _stateSet(e) {
@@ -114,13 +122,13 @@
       }
 
       _stateAdd(e) {
-        const before = Tools.getIn(this.state, e.detail.path) || 0;
+        const before = Tools.getIn(this.state, e.detail.path);
         if (before !== undefined)
           this.set("fluidState", Tools.setIn(this.fluidState, e.detail.path, before + e.detail.value));
       }
 
       _stateMultiply(e) {
-        const before = Tools.getIn(this.state, e.detail.path) || 1;
+        const before = Tools.getIn(this.state, e.detail.path);
         if (before !== undefined)
           this.set("fluidState", Tools.setIn(this.fluidState, e.detail.path, before * e.detail.value));
       }
