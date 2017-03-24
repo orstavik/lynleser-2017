@@ -2,6 +2,50 @@
   <template>
     <style>
       :host { display: block; }
+
+      .Verb { border-bottom: blue 2px solid; }
+      .PastTense { border-bottom: lightblue 2px dotted; }
+      .PresentTense { border-bottom: lightblue 2px dotted; }
+      .Participle { border-bottom: darkblue 2px dotted; }
+      .Copula { border-bottom: lightblue 2px solid; }
+      .Modal { border-bottom: blue 2px dotted; }
+      .Infinitive { border-bottom: blue 2px dashed; }
+      .Gerund { border-bottom: lightblue 2px dashed; }
+      .PhrasalVerb { border-bottom: darkblue 2px dashed; }
+
+      .Noun { border-bottom: red 2px solid; }
+      .Plural { border-bottom: red 2px dotted; }
+      .Singular { border-bottom: red 2px dashed; }
+      .Pronoun { border-bottom: pink 2px solid; }
+      .Actor { border-bottom: pink 2px dashed; }
+      .Person { border-bottom: pink 2px dashed; }
+      .Duration { border-bottom: pink 2px dotted; }
+      .MaleName { border-bottom: orange 2px solid; }
+      .List { border-bottom: orange 2px dotted; }
+      .Comma { border-bottom: orange 2px dotted; }
+      .ConditionPhrase { border-bottom: orange 2px dashed; }
+      .Date { border-bottom: black 2px dashed; }
+
+      .Adjective { border-bottom: purple 2px solid; }
+      .Adverb { border-bottom: orange 2px solid; }
+      .Negative { border-bottom: orange 2px dotted; }
+      .Comparative { border-bottom: yellow 2px solid; }
+
+      .Determiner { border-bottom: green 2px solid; }
+      .Cardinal { border-bottom: lightgreen 2px solid; }
+      .TextValue { border-bottom: lightgreen 2px dotted; }
+
+      .Preposition { border-bottom: grey 2px solid; }
+      .Conjunction { border-bottom: grey 2px dotted; }
+      .Condition { border-bottom: grey 2px dashed; }
+
+
+      .QuestionWord { border-bottom: brown 2px solid; }
+      .Quotation { border-bottom: brown 2px dotted; }
+
+      .ClauseEnd { border-bottom: black 2px dotted; }
+      .TitleCase { border-bottom: black 2px solid; }
+
     </style>
 
     <div id="text"></div>
@@ -24,7 +68,29 @@
       }
 
       _paragraphChanged(p) {
-        this.$.text.innerHTML = p instanceof Node ? p.innerHTML : p || "";
+        this.$.text.innerHTML = this.parseText(p);
+      }
+
+      parseText(p) {
+        const text = p instanceof Node ? p.innerHTML : p || "";
+        const terms = nlp(text).terms().data();
+        let res = "";
+        for (let i = 0; i < terms.length; i++){
+          console.log(terms[i]);
+          res += this._wrapWithLexiconStyle(terms[i]);
+        }
+        return res;
+      }
+
+      _wrapWithLexiconStyle(term) {
+        const termToText = LynleserParagraph._termToText(term);
+//        if (term.tags.indexOf("Verb") >= 0)
+          return "<span class='"+term.bestTag+"'>" + termToText + "</span>";
+//        return termToText
+      }
+
+      static _termToText(term) {
+        return term.spaceBefore + term.text + term.spaceAfter;
       }
     }
     customElements.define(LynleserParagraph.is, LynleserParagraph);
