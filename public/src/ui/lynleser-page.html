@@ -1,0 +1,38 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="lynleser-page">
+  <template>
+    <style>
+      :host { display: block; background-color: lightblue; }
+    </style>
+
+    <div id="text"></div>
+
+  </template>
+  <script>
+    class LynleserPage extends Polymer.Element {
+
+      static get is() {
+        return "lynleser-page";
+      }
+
+      static get properties() {
+        return {
+          page: {
+            type: Array,
+            observer: "_pageChanged"
+          }
+        };
+      }
+
+      _pageChanged(page) {
+        this.$.text.innerHTML = '';
+        if (!page)
+          return;
+        for (let c of page)
+          this.$.text.appendChild(c);
+      }
+    }
+    customElements.define(LynleserPage.is, LynleserPage);
+  </script>
+</dom-module>

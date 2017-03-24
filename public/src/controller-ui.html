@@ -3,7 +3,7 @@
 <link rel="import" href="ui/lynleser-settings.html">
 <link rel="import" href="ui/lynleser-joystick.html">
 <link rel="import" href="ui/lynleser-auth.html">
-<link rel="import" href="ui/lynleser-controller.html">
+<!--<link rel="import" href="ui/lynleser-timer.html">-->
 
 <dom-module id="controller-ui">
   <template>
@@ -30,7 +30,7 @@
         height: 100vh;
       }
     </style>
-    <lynleser-controller on-tick="_tick"></lynleser-controller>
+    <!--<lynleser-timer></lynleser-timer>-->
 
     <lynleser-auth id="login" user="[[user]]"></lynleser-auth>
     <lynleser-booklist id="books"
@@ -56,6 +56,11 @@
           user: Object,
           state: Object
         };
+      }
+
+      connectedCallback(){
+        super.connectedCallback();
+        this.addEventListener("tick", this._tick.bind(this));    //tick from a) lynleser-fulltext b) lynleser-timer or other??
       }
 
       _tick(e) {

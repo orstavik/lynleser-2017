@@ -1,4 +1,5 @@
 <link rel="import" href="lynleser-paragraph.html">
+<link rel="import" href="lynleser-page.html">
 
 <dom-module id="lynleser-fulltext">
   <template>
@@ -15,7 +16,8 @@
       }
     </style>
 
-    <lynleser-paragraph id="text" paragraph="[[currentParagraph]]"></lynleser-paragraph>
+    <lynleser-page page="[[page]]"></lynleser-page>
+    <lynleser-paragraph id="text" paragraph="[[p]]"></lynleser-paragraph>
   </template>
   <script>
     class LynleserFulltext extends Polymer.Element {
@@ -30,28 +32,67 @@
             type: Array,
             computed: "_makeParagraphs(book)"
           },
-          currentParagraph: {
+          p: {
             type: Object,
-            computed: "_makeCurrentPaaragraph(paragraphs, book.position)"
+            computed: "_makeP(paragraphs, book.position)"
+          },
+          page: {
+            type: Object,
+            computed: "_makePage(paragraphs, book.position)"
           }
         };
+      }
+
+      connectedCallback(){
+        super.connectedCallback();
+        this.addEventListener("click", this._textClick.bind(this));
+      }
+
+      _textClick() {
+        this.dispatchEvent(new CustomEvent("tick", {composed: true, bubbles: true}));
       }
 
       _makeParagraphs(book) {
         if (!book || !book.body)
           return undefined;
         let ps = [];
-        for (let child of book.body.body.children)
-          ps.push(child)
+        let tmp = [];
+        for (let child of book.body.body.children) {
+          if (!(child instanceof Node && child.nodeName === "P")) {
+            tmp.push(child);
+            continue;
+          }
+          if (tmp.length > 0) {
+            ps.push(tmp);
+            tmp = [];
+          }
+          ps.push(child);
+        }
         return ps;
       }
 
-      _makeCurrentPaaragraph(paragraphs, position) {
-        if (!paragraphs || paragraphs.length === 0)
-          return "No book or empty book...";
+      _makeP(paragraphs, position) {
+        let p = LynleserFulltext.getP(paragraphs, position);
+        if ((p instanceof Node && p.nodeName === "P")|| typeof p === "string")
+          return p;
+        return null;
+      }
+
+      _makePage(paragraphs, position) {
+        let p = LynleserFulltext.getP(paragraphs, position);
+        if (p instanceof Node && p.nodeName === "P" || typeof p === "string")
+          return null;
+        return p;
+      }
+
+      static getP(paragraphs, position) {
+        if (!paragraphs)
+          return "No book...";
+        if (paragraphs.length === 0)
+          return "Book is empty...";
         if (position >= paragraphs.length)
           return "Finished!!";
-        return paragraphs[position||0];
+        return paragraphs[position];
       }
     }
     customElements.define(LynleserFulltext.is, LynleserFulltext);

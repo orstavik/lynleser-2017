@@ -24,12 +24,7 @@
       }
 
       _paragraphChanged(p) {
-        if (p instanceof Node)
-          this.$.text.appendChild(p);
-        else if (typeof p === 'string' || p instanceof String)
-          this.$.text.innerHtml = p;
-        else
-          console.log(p);
+        this.$.text.innerHTML = p instanceof Node ? p.innerHTML : p || "";
       }
     }
     customElements.define(LynleserParagraph.is, LynleserParagraph);

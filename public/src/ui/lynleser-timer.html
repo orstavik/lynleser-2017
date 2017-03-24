@@ -1,4 +1,4 @@
-<dom-module id="lynleser-controller">
+<dom-module id="lynleser-timer">
   <template>
     <style>
       :host { display: block; }
@@ -6,10 +6,10 @@
 
   </template>
   <script>
-    class LynleserController extends Polymer.Element {
+    class LynleserTimer extends Polymer.Element {
 
       static get is() {
-        return "lynleser-controller";
+        return "lynleser-timer";
       }
 
       static get properties() {
@@ -30,6 +30,6 @@
         //
       }
     }
-    customElements.define(LynleserController.is, LynleserController);
+    customElements.define(LynleserTimer.is, LynleserTimer);
   </script>
 </dom-module>
