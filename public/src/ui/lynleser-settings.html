@@ -14,8 +14,8 @@
     <h4>Word width</h4>
     <input id="wordwidth" type="range" min="0" max="200" value="[[settings.wordWidth]]" on-input="_wordWidthChange">
 
-    <h4>Prefixes</h4>
-    <input id="prefixes" type="text" value="[[settings.prefixes]]" on-input="_prefixChange">
+    <!--<h4>Prefixes</h4>-->
+    <!--<input id="prefixes" type="text" value="[[settings.prefixes]]" on-input="_prefixChange">-->
 
     <h4>Font size</h4>
     <input id="fontsize" type="range" min="8" max="80" value="[[settings.fontSize]]" on-input="_fontSizeChange">
@@ -66,11 +66,11 @@
         this._changeSettings("wordWidth", Number(e.target.value));
       }
 
-      _prefixChange(e) {
-        let prefixes = e.target.value.split(",").map(str => str.trim());
-        this._changeSettings("prefixes", prefixes);
-      }
-
+//      _prefixChange(e) {
+//        let prefixes = e.target.value.split(",").map(str => str.trim());
+//        this._changeSettings("prefixes", prefixes);
+//      }
+//
       _changeSettings(key, value) {
         const res = {key: key, value: value};
         this.dispatchEvent(new CustomEvent("settings-changed", {composed: true, bubbles: true, detail: res}));

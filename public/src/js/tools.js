@@ -60,7 +60,7 @@ class Tools {
    * adds a startPath to all keys
    *
    * let flat = {"a/b": 1, c: 2, "xyz/12": 3};
-   * let extendedFlat = State.flatToObject("new/root/", flat);
+   * let extendedFlat = State.pathsToObject("new/root/", flat);
    * extendedFlat == {"new/root/a/b": 1, "new/root/c": 2, "new/root/xyz/12": 3}; //true
    *
    * @param flat an array of a flattened object
@@ -68,7 +68,7 @@ class Tools {
    * @param {string} separator used between the elements of the path, such as "." or "/"
    * @returns a new object with extended key names.
    */
-  static flatToObject(flat, startPath, separator) {
+  static pathsToObject(flat, startPath, separator) {
     let result = {};
     for (let pathValue of flat)
       result[startPath + pathValue.path.join(separator)] = pathValue.value;
@@ -84,8 +84,7 @@ class Tools {
     let res = rootRes;
     for (let i = 0; i < path.length - 1; i++) {
       let key = path[i];
-      obj = Object.assign({}, obj[key]);
-      res[key] = obj;
+      res[key] = Object.assign({}, res[key]);
       res = res[key];
     }
     res[path[path.length - 1]] = value;
@@ -93,11 +92,11 @@ class Tools {
   }
 
   static getIn(obj, path) {
+    if (!(obj instanceof Object)) return undefined;
     for (let i = 0; i < path.length - 1; i++) {
       const key = path[i];
       obj = obj[key];
-      if (!(obj instanceof Object))
-        return undefined;
+      if (!(obj instanceof Object)) return undefined;
     }
     return obj[path[path.length - 1]];
   }
