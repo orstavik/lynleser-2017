@@ -11,6 +11,7 @@ class Tools {
     if (noA) return B;
     if (A === B) return A;
     if (!(A instanceof Object && B instanceof Object)) return B;
+
     const C = Object.assign({}, A);
     let hasMerged = false;
     for (let key of Object.keys(B)) {
@@ -64,6 +65,7 @@ class Tools {
    *
    * @param flat an array of a flattened object
    * @param {string} startPath
+   * @param {string} separator used between the elements of the path, such as "." or "/"
    * @returns a new object with extended key names.
    */
   static flatToObject(flat, startPath, separator) {
@@ -74,31 +76,30 @@ class Tools {
   }
 
   static setIn(obj, path, value) {
-    return Tools._getInImpl(obj, path, 0) === value ? obj : Tools._setInImpl(obj, path, value, 0);
+    return Tools.getIn(obj, path) === value ? obj : Tools.setInNoCheck(obj, path, value);
   }
 
-  static _setInImpl(obj, path, value, pos) {
-    if (path.length <= pos)
-      return value;
-    if (!(obj instanceof Object))
-      obj = {}; //we overwrite all none object values by default
-    const key = path[pos];
-    const clone = Object.assign({}, obj);
-    clone[key] = Tools._setInImpl(obj[key], path, value, ++pos);
-    return clone;
+  static setInNoCheck(obj, path, value) {
+    let rootRes = Object.assign({}, obj);
+    let res = rootRes;
+    for (let i = 0; i < path.length - 1; i++) {
+      let key = path[i];
+      obj = Object.assign({}, obj[key]);
+      res[key] = obj;
+      res = res[key];
+    }
+    res[path[path.length - 1]] = value;
+    return rootRes;
   }
 
   static getIn(obj, path) {
-    return Tools._getInImpl(obj, path, 0);
-  }
-
-  static _getInImpl(obj, path, pos) {
-    if (path.length <= pos)
-      return obj;
-    if (!obj)
-      return undefined;
-    const key = path[pos];
-    return Tools._getInImpl(obj[key], path, ++pos);
+    for (let i = 0; i < path.length - 1; i++) {
+      const key = path[i];
+      obj = obj[key];
+      if (!(obj instanceof Object))
+        return undefined;
+    }
+    return obj[path[path.length - 1]];
   }
 
   /**
@@ -143,7 +144,7 @@ class Tools {
     return C;
   }
 
-  static isNothing(A) {          //todo should I include null here??
+  static isNothing(A) {
     return A === undefined || A === null || (A instanceof Object && Object.keys(A).length === 0);
   }
 }

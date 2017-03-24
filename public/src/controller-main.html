@@ -96,9 +96,7 @@
       }
 
       _mergeStates(A, B) {
-        const mergeDeep = Tools.mergeDeep(A, B);
-        console.log(mergeDeep);
-        return mergeDeep;
+        return Tools.mergeDeep(A, B);
       }
 
       _postProcess(A) {
@@ -124,13 +122,13 @@
       _stateAdd(e) {
         const before = Tools.getIn(this.state, e.detail.path);
         if (before !== undefined)
-          this.set("fluidState", Tools.setIn(this.fluidState, e.detail.path, before + e.detail.value));
+          this.set("fluidState", Tools.setIn(this.fluidState, e.detail.path, before + e.detail.value)); //setInNoCheck
       }
 
       _stateMultiply(e) {
         const before = Tools.getIn(this.state, e.detail.path);
         if (before !== undefined)
-          this.set("fluidState", Tools.setIn(this.fluidState, e.detail.path, before * e.detail.value));
+          this.set("fluidState", Tools.setIn(this.fluidState, e.detail.path, before * e.detail.value)); //setInNoCheck
       }
 
       _signIn(e) {
@@ -148,11 +146,9 @@
       }
 
       _updateDB() {
-        let filtered = Tools.filterDeep(this.fluidState, this.specificUserState);
-        if (filtered) {
-          this.fluidState = filtered;
+        this.fluidState = Tools.filterDeep(this.fluidState, this.specificUserState);
+        if (this.fluidState)
           this.$.data.updateChanges(Tools.flatten(this.fluidState));
-        }
       }
     }
     customElements.define(ControllerMain.is, ControllerMain);
