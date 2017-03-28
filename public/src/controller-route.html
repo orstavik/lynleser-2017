@@ -1,0 +1,43 @@
+<dom-module id="controller-route">
+  <script>
+    class ControllerRoute extends Polymer.Element {
+
+      static get is() {
+        return "controller-route";
+      }
+
+      static get properties() {
+        return {
+          _hashOut: Object,
+          route: {
+            type: Object,
+            computed: "_makeRouteState(_hashOut)"
+          }
+        };
+      }
+
+      connectedCallback(){
+        super.connectedCallback();
+        this.set("_hashOut", location.hash.substr(2));
+
+        debugger;
+        window.addEventListener("hashchange", this._locationBarChanged.bind(this), false);
+      }
+
+      openPage(hash){
+        if (hash !== this._hashOut)
+          window.history.pushState({}, null, '/#/' + hash);
+      }
+
+      _locationBarChanged(e){
+        this.set("_hashOut", location.hash);
+      }
+
+      _makeRouteState(hash) {
+        console.log(hash);
+        return {route: hash};
+      }
+    }
+    customElements.define(ControllerRoute.is, ControllerRoute);
+  </script>
+</dom-module>

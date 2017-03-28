@@ -1,5 +1,5 @@
 /**
- * Created by orstavik on 15.03.17.
+ * Created by ivar.orstavik and tom.phales 2017.
  */
 class Tools {
 

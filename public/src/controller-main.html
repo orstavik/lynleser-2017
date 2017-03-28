@@ -1,5 +1,8 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
 <link rel="import" href="controller-ui.html">
 <link rel="import" href="controller-data.html">
+<link rel="import" href="controller-route.html">
 
 <dom-module id="controller-main">
   <template>
@@ -8,6 +11,8 @@
         display: block;
       }
     </style>
+
+    <controller-route id="router" route-state="{{routeState}}"></controller-route>
 
     <controller-data id="data"
                      server-user="{{serverUser}}"
@@ -46,9 +51,10 @@
           serverUser: Object,
 
           defaultState: Object,                //a. DEFAULT
-          persistedGenericState: Object,      //b. DB firebase / local storage + BUCKETS / cached
-          serverUserState: Object,            //c. DB firebase
+          persistedGenericState: Object,       //b. DB firebase / local storage + BUCKETS / cached
+          serverUserState: Object,             //c. DB firebase
           fluidState: Object,                  //d. FLUID changes from the UI
+          routeState: Object,                  //e. the state of the router
 
           genericUserState: {
             type: Object,
@@ -58,9 +64,13 @@
             type: Object,
             computed: "_mergeStates(genericUserState, serverUserState)"
           },
+          routedFluidState: {
+            type: Object,
+            computed: "_mergeStates(fluidState, routeState)"
+          },
           state: {
             type: Object,
-            computed: "_mergeStates(specificUserState, fluidState)"
+            computed: "_mergeStates(specificUserState, routedFluidState)"
           },
           finishedState: {
             type: Object,
@@ -90,7 +100,8 @@
               fontSize: 14,
               fontType: "serif",
               theme: "day"
-            }
+            },
+            route: "library"
           }
         });
       }
@@ -100,6 +111,7 @@
       }
 
       _postProcess(A) {
+        this.$.router.openPage(A.route);
         const activeBookKey = A.settings ? A.settings.activeBook : undefined;
         if (!activeBookKey)
           return A;
