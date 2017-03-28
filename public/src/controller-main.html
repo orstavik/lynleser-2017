@@ -101,7 +101,11 @@
               fontType: "serif",
               theme: "day"
             },
-            route: "library"
+            route: {
+              path: {
+                segment0: "library"
+              }
+            }
           }
         });
       }
@@ -111,7 +115,9 @@
       }
 
       _postProcess(A) {
-        this.$.router.openPage(A.route);
+        if (!location.hash) // todo: make this check inside controller-route
+          this.$.router.openPage(A.route);
+        
         const activeBookKey = A.settings ? A.settings.activeBook : undefined;
         if (!activeBookKey)
           return A;

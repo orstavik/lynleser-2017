@@ -16,11 +16,9 @@
         };
       }
 
-      connectedCallback(){
-        super.connectedCallback();
+      constructor(){
+        super();
         this.set("_hashOut", location.hash.substr(2));
-
-        debugger;
         window.addEventListener("hashchange", this._locationBarChanged.bind(this), false);
       }
 
@@ -30,12 +28,32 @@
       }
 
       _locationBarChanged(e){
-        this.set("_hashOut", location.hash);
+        this.set("_hashOut", location.hash.substr(2));
       }
 
       _makeRouteState(hash) {
-        console.log(hash);
-        return {route: hash};
+        return {route: this._parseHash(hash)};
+      }
+
+      _parseHash(hash) {
+        let Arr = hash.split("?");
+        let path = {};
+        Arr[0].split("/").forEach(function(each, index) {
+          path["segment"+index] = each;
+        });
+        let query = {};
+        Arr[1].split("&").forEach(function(each) {
+          let arr = each.split("=");
+          query[arr[0]] = arr[1];
+        });
+        console.log({
+          path: path,
+          query: query
+        });
+        return {
+          path: path,
+          query: query
+        }
       }
     }
     customElements.define(ControllerRoute.is, ControllerRoute);
