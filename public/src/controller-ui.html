@@ -8,7 +8,7 @@
 
 <link rel="import" href="ui/lynleser-drawer.html">
 <link rel="import" href="ui/lynleser-library.html">
-<link rel="import" href="ui/book-page.html">
+<link rel="import" href="ui/lynleser-book.html">
 <link rel="import" href="ui/lynleser-reader.html">
 <link rel="import" href="ui/lynleser-settings.html">
 
@@ -36,28 +36,6 @@
       app-toolbar {
         background-color: grey;
       }
-
-      /*:host { display: block; }
-      #settings, #login, #books {
-        position: absolute;
-        overflow: hidden;
-        background: grey;
-        left: 0;
-        width: 100px;
-        height: 60px;
-      }
-      #settings:hover, #login:hover, #books:hover {
-        width: auto;
-        height: auto;
-        z-index: 2;
-      }
-      #login { top: 0; }
-      #books { top: 60px; }
-      #settings { top: 120px; }
-      #fullText {
-        margin-left: 100px;
-        height: 100vh;
-      }*/
     </style>
 
     <app-drawer-layout id="drawerLayout" on-drawer-toogle="drawerToggle">
@@ -75,11 +53,11 @@
 					<paper-icon-button id="menuIcon" icon="menu" on-tap="drawerToggle"></paper-icon-button>
         </lynleser-library>
 
-        <book-page page="book" book="[[state.route.path.segment1]]">
+        <lynleser-book page="book" book="[[state.route.path.segment1]]">
           <a href="#/library">
 					  <paper-icon-button icon="arrow-back"></paper-icon-button>
           </a>
-        </book-page>
+        </lynleser-book>
 
         <lynleser-reader page="reader"
                          id="books"
