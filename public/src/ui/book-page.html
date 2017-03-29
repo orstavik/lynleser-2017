@@ -1,0 +1,43 @@
+<dom-module id="book-page">
+  <template>
+    <style>
+			app-toolbar {
+				background-color: var(--paper-green-500);
+        user-select: none;
+			}
+			[main-title] {
+				margin: 8px;
+				font-size: 20px;
+				font-weight: 500;
+				color: rgba(255,255,255,1);
+			}
+    </style>
+
+		<app-header-layout id="headerLayout">
+
+			<app-header slot="header" condenses reveals shadow effects="resize-title">
+
+				<app-toolbar class="top-toolbar">
+					<slot></slot>
+					<div main-title>[[book]]</div>
+				</app-toolbar>
+
+			</app-header>
+
+    </app-header-layout>
+
+  </template>
+
+  <script>
+    class BookPage extends Polymer.Element {
+      static get is() { return 'book-page'; }
+      static get properties() {
+        return {
+					book: Array,
+					active: Boolean
+				}
+      }
+    }
+    window.customElements.define(BookPage.is, BookPage);
+  </script>
+</dom-module>

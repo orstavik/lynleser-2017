@@ -1,0 +1,91 @@
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/av-icons.html">
+
+<link rel="import" href="lynleser-account.html">
+
+<dom-module id="lynleser-drawer">
+  <template>
+    <style>
+      :host {
+        display: flex;
+				flex-direction: column;
+			}
+			#pages {
+        display: flex;
+				flex-direction: column;
+				margin: 14px 0;
+			}
+			a {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				position: relative;
+				text-decoration: none;
+				color: rgba(0,0,0,0.87);
+				font-size: 16px;
+				line-height: 2.6;
+      }
+			a:hover {
+				background-color: var(--paper-indigo-50);
+			}
+			a.iron-selected {
+				font-weight: 500;
+				color: var(--paper-indigo-a700);
+			}
+			a iron-icon {
+				margin-left: 16px;
+				--iron-icon-width: 30px;
+				--iron-icon-height: 30px;
+				--iron-icon-fill-color: rgba(0,0,0,0.87);
+			}
+			a.iron-selected iron-icon {
+				--iron-icon-fill-color: var(--paper-indigo-a700);
+			}
+			a span {
+				margin-left: 24px;
+			}
+    </style>
+
+		<lynleser-account id="login" user="[[user]]"></lynleser-account>
+		
+		<div id="pages">
+			<iron-selector selected="[[selected]]" attr-for-selected="page">
+				<a on-tap="_drawerClose" href="#/library" page="library">
+					<iron-icon icon="av:library-books"></iron-icon>
+					<span>Library</span>
+				</a>
+				<a on-tap="_drawerClose" href="#/reader" page="reader">
+					<iron-icon icon="av:playlist-play"></iron-icon>
+					<span>Reader</span>
+				</a>
+				<a on-tap="_drawerClose" href="#/settings" page="settings">
+					<iron-icon icon="settings"></iron-icon>
+					<span>Settings</span>
+				</a>
+			</iron-selector>
+		</div>
+
+  </template>
+
+  <script>
+    class LynleserDrawer extends Polymer.GestureEventListeners(Polymer.Element) {
+      static get is() { return 'lynleser-drawer'; }
+      static get properties() {
+        return {
+					selected: String,
+					user: Object
+				}
+      }
+
+			_drawerClose(e) {
+				this._fire("drawer-close");
+			}
+
+      _fire(name, detail) {
+        this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: detail}));
+      }
+    }
+    window.customElements.define(LynleserDrawer.is, LynleserDrawer);
+  </script>
+</dom-module>

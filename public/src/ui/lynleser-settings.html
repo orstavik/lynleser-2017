@@ -1,34 +1,59 @@
+<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+
 <dom-module id="lynleser-settings">
   <template>
     <style>
-      :host {
-        display: block;
-        background: lightgrey;
-      }
+			app-toolbar {
+				background-color: var(--paper-cyan-500);
+        user-select: none;
+			}
+			[main-title] {
+				margin: 8px;
+				font-size: 20px;
+				font-weight: 500;
+				color: rgba(255,255,255,1);
+			}
     </style>
 
-    <h2>Settings</h2>
-    <h4>Speed</h4>
-    <input id="speed" type="range" min="0" max="2000" value="[[settings.speed]]" on-input="_speedChange">
+    <app-header-layout id="headerLayout">
 
-    <h4>Word width</h4>
-    <input id="wordwidth" type="range" min="0" max="200" value="[[settings.wordWidth]]" on-input="_wordWidthChange">
+			<app-header slot="header" reveals shadow>
 
-    <h4>Font size</h4>
-    <input id="fontsize" type="range" min="8" max="80" value="[[settings.fontSize]]" on-input="_fontSizeChange">
+				<app-toolbar class="top-toolbar">
+					<slot></slot>
+					<div main-title>Settings</div>
+				</app-toolbar>
 
-    <h4>Font type</h4>
-    <select name="fonttype" id="fonttype" value="[[settings.fontType]]" on-change="_fontTypeChange">
-      <option value="serif">Serif</option>
-      <option value="sans-serif">Sans serif</option>
-      <option value="comic">Comic</option>
-    </select>
+			</app-header>
 
-    <h4>Theme</h4>
-    <select name="theme" id="theme" value="[[settings.theme]]" on-change="_themeChange">
-      <option value="day">Day</option>
-      <option value="night">Night</option>
-    </select>
+      <div>
+        <h4>Speed</h4>
+        <input id="speed" type="range" min="0" max="2000" value="[[settings.speed]]" on-input="_speedChange">
+
+        <h4>Word width</h4>
+        <input id="wordwidth" type="range" min="0" max="200" value="[[settings.wordWidth]]" on-input="_wordWidthChange">
+
+        <h4>Font size</h4>
+        <input id="fontsize" type="range" min="8" max="80" value="[[settings.fontSize]]" on-input="_fontSizeChange">
+
+        <h4>Font type</h4>
+        <select name="fonttype" id="fonttype" value="[[settings.fontType]]" on-change="_fontTypeChange">
+          <option value="serif">Serif</option>
+          <option value="sans-serif">Sans serif</option>
+          <option value="comic">Comic</option>
+        </select>
+
+        <h4>Theme</h4>
+        <select name="theme" id="theme" value="[[settings.theme]]" on-change="_themeChange">
+          <option value="day">Day</option>
+          <option value="night">Night</option>
+        </select>
+      </div>
+
+    </app-header-layout>
+
 
   </template>
   <script>
@@ -39,9 +64,25 @@
 
       static get properties() {
         return {
-          settings: Object
+          settings: Object,
+					active: Boolean
         };
       }
+			static get observers() {
+				return [
+					"_updateView(active)"
+				]
+			}
+
+			connectedCallback() {
+				super.connectedCallback();
+				this.$.headerLayout.resetLayout();
+				window.addEventListener("resize", () => this.$.headerLayout.resetLayout() );
+			}
+
+			_updateView(a) {
+				if (a) this.$.headerLayout.resetLayout();
+			}
 
       _themeChange(e) {
         this._changeSettings("theme", e.target.value);

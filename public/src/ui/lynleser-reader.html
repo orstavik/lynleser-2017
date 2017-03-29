@@ -1,0 +1,62 @@
+<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+
+<dom-module id="lynleser-reader">
+  <template>
+    <style>
+			app-toolbar {
+				background-color: var(--paper-deep-orange-500);
+        user-select: none;
+			}
+			[main-title] {
+				margin: 8px;
+				font-size: 20px;
+				font-weight: 500;
+				color: rgba(255,255,255,1);
+			}
+    </style>
+
+    <app-header-layout id="headerLayout">
+
+			<app-header slot="header" reveals shadow>
+
+				<app-toolbar class="top-toolbar">
+					<slot></slot>
+					<div main-title>Reader</div>
+				</app-toolbar>
+
+			</app-header>
+
+    </app-header-layout>
+
+  </template>
+
+  <script>
+    class LynleserReader extends Polymer.Element {
+      static get is() { return 'lynleser-reader'; }
+      static get properties() {
+        return {
+					book: Array,
+					active: Boolean
+				}
+      }
+			static get observers() {
+				return [
+					"_updateView(active)"
+				]
+			}
+
+			connectedCallback() {
+				super.connectedCallback();
+				this.$.headerLayout.resetLayout();
+				window.addEventListener("resize", () => this.$.headerLayout.resetLayout() );
+			}
+
+			_updateView(a) {
+				if (a) this.$.headerLayout.resetLayout();
+			}
+    }
+    window.customElements.define(LynleserReader.is, LynleserReader);
+  </script>
+</dom-module>

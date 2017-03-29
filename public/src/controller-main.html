@@ -15,14 +15,12 @@
     <controller-route id="router" route-state="{{routeState}}"></controller-route>
 
     <controller-data id="data"
-                     server-user="{{serverUser}}"
-                     user-state="{{serverUserState}}"
+                     merged-user-state="{{serverUserState}}"
                      books="{{persistedGenericState}}"
-
                      on-system-error="_systemError"></controller-data>
 
     <controller-ui id="ui"
-                   user="[[serverUser]]"
+                   user="[[serverUserState.user]]"
                    state="[[finishedState]]"
                    on-state-set="_stateSet"
                    on-state-multiply="_stateMultiply"

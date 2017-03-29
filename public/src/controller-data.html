@@ -55,6 +55,11 @@
           userState: {
             type: Object,
             notify: true
+          },
+          mergedUserState: {
+            type: Object,
+            computed: "_makeMergedUserState(userState, serverUser)",
+            notify: true
           }
         };
       }
@@ -69,6 +74,10 @@
         const B = {books: bookData};
         if (!systemBooks) return B;
         return Tools.mergeDeep(A, B);
+      }
+
+      _makeMergedUserState(userState, serverUser) {
+        return serverUser ? Object.assign({}, userState, {user: serverUser}) : undefined;
       }
 
       signIn() {

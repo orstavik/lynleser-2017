@@ -9,9 +9,10 @@
       static get properties() {
         return {
           _hashOut: Object,
-          route: {
+          routeState: {
             type: Object,
-            computed: "_makeRouteState(_hashOut)"
+            computed: "_makeRouteState(_hashOut)",
+            notify: true
           }
         };
       }
@@ -23,8 +24,9 @@
       }
 
       openPage(hash){
-        if (hash !== this._hashOut)
-          window.history.pushState({}, null, '/#/' + hash);
+        let url = this._concatHash(hash)
+        if (url !== this._hashOut)
+          window.history.pushState({}, null, '/#/' + url);
       }
 
       _locationBarChanged(e){
@@ -35,6 +37,20 @@
         return {route: this._parseHash(hash)};
       }
 
+      _concatHash(hash) {
+        let str = "";
+        for (let key in hash.path)
+          str += hash.path[key];
+        if (hash.query) {
+          srt += "?";
+          for (let key in hash.query) {
+            str += (key + "=" + hash.query[key] + "&");
+          }
+          str = str.slice(-1);
+        }
+        return str;
+      }
+
       _parseHash(hash) {
         let Arr = hash.split("?");
         let path = {};
@@ -42,14 +58,11 @@
           path["segment"+index] = each;
         });
         let query = {};
-        Arr[1].split("&").forEach(function(each) {
-          let arr = each.split("=");
-          query[arr[0]] = arr[1];
-        });
-        console.log({
-          path: path,
-          query: query
-        });
+        if (Arr[1])
+          Arr[1].split("&").forEach(function(each) {
+            let arr = each.split("=");
+            query[arr[0]] = arr[1];
+          });
         return {
           path: path,
           query: query

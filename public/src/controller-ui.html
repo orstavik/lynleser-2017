@@ -1,14 +1,43 @@
-<link rel="import" href="ui/lynleser-booklist.html">
-<link rel="import" href="ui/lynleser-fulltext.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="ui/lynleser-drawer.html">
+<link rel="import" href="ui/lynleser-library.html">
+<link rel="import" href="ui/book-page.html">
+<link rel="import" href="ui/lynleser-reader.html">
 <link rel="import" href="ui/lynleser-settings.html">
+
+<link rel="import" href="ui/lynleser-fulltext.html">
 <link rel="import" href="ui/lynleser-joystick.html">
-<link rel="import" href="ui/lynleser-auth.html">
-<!--<link rel="import" href="ui/lynleser-timer.html">-->
 
 <dom-module id="controller-ui">
   <template>
     <style>
-      :host { display: block; }
+			paper-icon-button {
+				color: rgba(255,255,255,1);
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /*IMPORTANT PEACE OF CSS*/
+			}
+
+      app-drawer-layout:not([narrow]) iron-pages #menuIcon { display: none; }
+
+      app-drawer:not([narrow]) {
+        @apply(--shadow-elevation-2dp);
+      }
+
+      iron-pages > * {
+        display: block;
+        width: 100%;
+      }
+      app-toolbar {
+        background-color: grey;
+      }
+
+      /*:host { display: block; }
       #settings, #login, #books {
         position: absolute;
         overflow: hidden;
@@ -28,24 +57,64 @@
       #fullText {
         margin-left: 100px;
         height: 100vh;
-      }
+      }*/
     </style>
-    <!--<lynleser-timer></lynleser-timer>-->
 
-    <lynleser-auth id="login" user="[[user]]"></lynleser-auth>
-    <lynleser-booklist id="books"
-                       books="[[state.books]]"
-                       on-select-book="_selectBook"></lynleser-booklist>
-    <lynleser-settings id="settings" settings="[[state.settings]]"
-                       on-settings-changed="_settingsChanged"></lynleser-settings>
-    <lynleser-fulltext id="fullText" book="[[state.activeBook]]"></lynleser-fulltext>
-    <lynleser-joystick id="joystick"
-                       on-speed-change="_speedChange"
-                       on-word-wider="_wordWider"
-                       on-start-stop="_startStop"></lynleser-joystick>
+    <app-drawer-layout id="drawerLayout" on-drawer-toogle="drawerToggle">
+
+      <app-drawer id="drawer" slot="drawer" swipe-open opened="{{drawerOpen}}">
+        <lynleser-drawer selected="[[state.route.path.segment0]]"
+                         user="[[user]]"
+                         on-drawer-close="drawerClose">
+        </lynleser-drawer>
+      </app-drawer>
+
+      <iron-pages selected="[[state.route.path.segment0]]" attr-for-selected="page" selected-attribute="active">
+
+        <lynleser-library page="library" books="[[state.books]]" on-select-book="_selectBook">
+					<paper-icon-button id="menuIcon" icon="menu" on-tap="drawerToggle"></paper-icon-button>
+        </lynleser-library>
+
+        <book-page page="book" book="[[state.route.path.segment1]]">
+          <a href="#/library">
+					  <paper-icon-button icon="arrow-back"></paper-icon-button>
+          </a>
+        </book-page>
+
+        <lynleser-reader page="reader"
+                         id="books"
+                         books="[[state.books]]"
+                         on-select-book="_selectBook">
+					<paper-icon-button id="menuIcon" icon="menu" on-tap="drawerToggle"></paper-icon-button>
+        </lynleser-reader>
+        
+        <lynleser-settings page="settings"
+                           id="settings"
+                           settings="[[state.settings]]"
+                           on-settings-changed="_settingsChanged">
+					<paper-icon-button id="menuIcon" icon="menu" on-tap="drawerToggle"></paper-icon-button>
+        </lynleser-settings>
+
+      </iron-pages>
+
+    </app-drawer-layout>
+
+    <div style="display: none">
+      <!--<lynleser-auth id="login" user="[[user]]"></lynleser-auth>-->
+      <!--<lynleser-booklist id="books"
+                        books="[[state.books]]"
+                        on-select-book="_selectBook"></lynleser-booklist>-->
+      <!--<lynleser-settings id="settings" settings="[[state.settings]]"
+                        on-settings-changed="_settingsChanged"></lynleser-settings>-->
+      <lynleser-fulltext id="fullText" book="[[state.activeBook]]"></lynleser-fulltext>
+      <lynleser-joystick id="joystick"
+                        on-speed-change="_speedChange"
+                        on-word-wider="_wordWider"
+                        on-start-stop="_startStop"></lynleser-joystick>
+    </div>
   </template>
   <script>
-    class ControllerUI extends Polymer.Element {
+    class ControllerUI extends  Polymer.GestureEventListeners(Polymer.Element) {
 
       static get is() {
         return "controller-ui";
@@ -54,13 +123,36 @@
       static get properties() {
         return {
           user: Object,
-          state: Object
+          state: Object,
+          // books: {
+          //   type: Array,
+          //   value: function() {
+          //     let arr = [];
+          //     for (let i = 0; i<10; i++)
+          //       arr.push({
+          //         title: "Book Number "+i,
+          //         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+          //         year: 1000+10*i,
+          //         author: "Author"+i
+          //       })
+          //     return arr;
+          //   }
+          // }
         };
       }
 
       connectedCallback(){
         super.connectedCallback();
         this.addEventListener("tick", this._tick.bind(this));    //tick from a) lynleser-fulltext b) lynleser-timer or other??
+      }
+
+      drawerToggle(e) {
+        this.$.drawer.toggle();
+      }
+
+      drawerClose(e) {
+        if (this.$.drawerLayout.narrow)
+          this.$.drawer.toggle();
       }
 
       _tick(e) {

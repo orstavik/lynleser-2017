@@ -1,0 +1,114 @@
+<link rel="import" href="../bower_components/paper-ripple/paper-ripple.html">
+
+<dom-module id="lynleser-account">
+  <template>
+    <style>
+      :host {
+        display: block;
+        padding: 16px;
+        background-color: var(--paper-indigo-50);
+        color: rgba(0,0,0,0.9);
+      }
+      :host [hidden] { display: none !important; }
+      #userOutBox {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      #signIn {
+        display: flex;
+        position: relative;
+        flex-direction: row;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 2px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      #signIn iron-icon {
+        --iron-icon-width: 30px;
+        --iron-icon-height: 30px;
+        margin-right: 6px;
+      }
+      #userInBox {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .avatar {
+        display: block;
+        width: 80px;
+        height: 80px;
+        margin: 0 0 12px;
+        border-radius: 50%;
+        background-size: cover;
+      }
+      .email {
+        font-size: 12px;
+      }
+      #signOut {
+        position: relative;
+        margin-top: 12px;
+        padding: 6px 12px;
+        border-radius: 2px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+    </style>
+
+    <div id="userOutBox" hidden="[[user]]">
+      <div id="signIn" on-click="_signin">
+        <paper-ripple></paper-ripple>
+        <iron-icon icon="perm-identity"></iron-icon>
+        <span>Sign In</span>
+      </div>
+    </div>
+
+    <div id="userInBox" hidden="[[!user]]">
+      <div class="avatar" style="background-image: url('[[user.photoURL]]')"></div>
+      <span class="name">[[user.displayName]]</span>
+      <span class="email">[[user.email]]</span>
+      <div id="signOut" on-click="_signout">
+        <paper-ripple></paper-ripple>
+        Sign Out
+      </div>
+    </div>
+
+    <!--<h2>Welcome: [[user.displayName]]</h2>
+    <button id="signin" hidden="[[_toBool(user)]]" on-click="_signin">Sign In</button>
+    <button id="signout" hidden="[[!_toBool(user)]]" on-click="_signout">Sign Out</button>-->
+
+  </template>
+  <script>
+    class LynleserAccount extends Polymer.Element {
+      static get is() {
+        return "lynleser-account";
+      }
+
+      static get properties() {
+        return {
+          user: Object,
+        };
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        if (!this.user)
+          this.set("user", null);
+      }
+
+      _signin(e){
+        this.dispatchEvent(new CustomEvent("sign-in", {composed: true, bubbles: true, detail: null}));
+      }
+
+      _signout(e){
+        this.dispatchEvent(new CustomEvent("sign-out", {composed: true, bubbles: true, detail: null}));
+      }
+      
+      _toBool(obj){
+        return !!obj;
+      }
+    }
+    customElements.define(LynleserAccount.is, LynleserAccount);
+  </script>
+</dom-module>
