@@ -39,7 +39,7 @@
 
       _addData(key, data) {
         const res = Object.assign({}, this.result);
-        res[key] = {body: data};
+        res[key] = {document: data};
         this.set("result", res);
       }
 

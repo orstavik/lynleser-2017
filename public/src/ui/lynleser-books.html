@@ -1,20 +1,13 @@
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
-<link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
 
-<dom-module id="lynleser-library">
+<dom-module id="lynleser-books">
   <template>
     <style>
-      /*:host {
-        display: block;
-				height: 100%;
-				background-color: var(--paper-indigo-50);
-      }*/
 			app-header {
 				background-color: var(--paper-indigo-500);
         user-select: none;
@@ -71,11 +64,11 @@
 			<iron-list id="grid" items="[[booksArray]]" as="book" grid>
 
 				<template>
-					<a href="#/book/[[book.name]]" on-tap="_clickBook">
-						<paper-material elevation=1 class="book-card">
+					<a href="#/books/[[book.key]]">
+						<paper-material elevation=1 class="book-card" data-key$="[[book.key]]">
 							<!--<iron-image src="[[imgResp.img]]" preload fade sizing="cover" class="book-image" placeholder="[[imgResp.img-preview]]"></iron-image>-->
 							<div class="book-content">
-								<h3>[[book.name]]</h3>
+								<h3>[[book.title]]</h3>
 								<span>[[book.key]]</span>
 							</div>
 						</paper-material>
@@ -86,18 +79,11 @@
 
 		</app-header-layout>
 
-		<!--<iron-ajax auto
-							 url="../data/book.json"
-							 handle-as="json"
-							 loading="{{loading}}"
-							 last-response="{{imgResp}}">
-		</iron-ajax>-->
-
   </template>
 
   <script>
-    class LynleserLibrary extends  Polymer.GestureEventListeners(Polymer.Element) {
-      static get is() { return 'lynleser-library'; }
+    class LynleserBooks extends  Polymer.GestureEventListeners(Polymer.Element) {
+      static get is() { return 'lynleser-books'; }
       static get properties() {
         return {
 					books: Array,
@@ -130,14 +116,10 @@
         return res;
       }
 
-      _clickBook(e) {
-        this.dispatchEvent(new CustomEvent("select-book", {composed: true, bubbles: true, detail: e.target.dataset.key}));
-      }
-
 			_updateView(a) {
 				if (a) this.$.headerLayout.resetLayout();
 			}
     }
-    window.customElements.define(LynleserLibrary.is, LynleserLibrary);
+    window.customElements.define(LynleserBooks.is, LynleserBooks);
   </script>
 </dom-module>

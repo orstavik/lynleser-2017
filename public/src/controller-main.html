@@ -21,7 +21,7 @@
 
     <controller-ui id="ui"
                    user="[[serverUserState.user]]"
-                   state="[[finishedState]]"
+                   state="[[state]]"
                    on-state-set="_stateSet"
                    on-state-multiply="_stateMultiply"
                    on-state-add="_stateAdd"
@@ -66,13 +66,13 @@
             type: Object,
             computed: "_mergeStates(fluidState, routeState)"
           },
-          state: {
+          unprocessedState: {
             type: Object,
             computed: "_mergeStates(specificUserState, routedFluidState)"
           },
-          finishedState: {
+          state: {
             type: Object,
-            computed: "_postProcess(state)"
+            computed: "_postProcess(unprocessedState)"
           }
         };
       }
@@ -80,7 +80,7 @@
       static get observers() {
         return [
           "_debouncePersistChanges(fluidState)",        //function object set in constructor
-          "_toTheTimeMachine(finishedState)"
+          "_toTheTimeMachine(state)"
         ];
       }
 
@@ -101,11 +101,12 @@
             },
             route: {
               path: {
-                segment0: "library"
+                segment0: "books"
               }
             }
           }
         });
+        // this.$.route.setPath("books");
       }
 
       _mergeStates(A, B) {
@@ -115,14 +116,12 @@
       _postProcess(A) {
         if (!location.hash) // todo: make this check inside controller-route
           this.$.router.openPage(A.route);
-        
-        const activeBookKey = A.settings ? A.settings.activeBook : undefined;
-        if (!activeBookKey)
+        if (A.route.path.segment0 !== "books" || !A.route.path.segment1 || !A.books)
           return A;
         const C = Object.assign({}, A);
-        C.activeBook = C.books[activeBookKey];
-        if (C.activeBook.filename && !C.activeBook.body)
-          this.$.data.getBook(C.activeBook);
+        C.activeBook = C.books[A.route.path.segment1];
+        if (C.activeBook.fileName && !C.activeBook.document)
+          setTimeout(() => this.$.data.getBook(C.activeBook), 0); // Bad Timeout
         C.activeBook.position = C.activeBook.position || 0;
         return C;
       }

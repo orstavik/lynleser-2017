@@ -8,10 +8,14 @@
 
       static get properties() {
         return {
-          _hashOut: Object,
+          _hash: String,
+          parsedHash: {
+            type: Object,
+            computed: "_parseHash(_hash)"
+          },
           routeState: {
             type: Object,
-            computed: "_makeRouteState(_hashOut)",
+            computed: "_makeRouteState(parsedHash)",
             notify: true
           }
         };
@@ -19,36 +23,37 @@
 
       constructor(){
         super();
-        this.set("_hashOut", location.hash.substr(2));
+        this.set("_hash", location.hash.substr(2));
         window.addEventListener("hashchange", this._locationBarChanged.bind(this), false);
       }
 
       openPage(hash){
         let url = this._concatHash(hash)
-        if (url !== this._hashOut) {
+        if (url !== this._hash) {
           window.history.pushState({}, null, '/#/' + url);
           this._locationBarChanged();
         }
       }
 
       _locationBarChanged(e){
-        this.set("_hashOut", location.hash.substr(2));
+        this.set("_hash", location.hash.substr(2));
       }
 
       _makeRouteState(hash) {
-        return {route: this._parseHash(hash)};
+        return {route: hash};
       }
 
       _concatHash(hash) {
         let str = "";
         for (let key in hash.path)
-          str += hash.path[key];
+          str += hash.path[key] + "/";
+        str = str.substr(0,str.length-1);
         if (hash.query) {
-          srt += "?";
+          str += "?";
           for (let key in hash.query) {
             str += (key + "=" + hash.query[key] + "&");
           }
-          str = str.slice(-1);
+          str = str.substr(0,str.length-1);
         }
         return str;
       }

@@ -1,13 +1,25 @@
 <link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
 
 <dom-module id="lynleser-book">
   <template>
     <style>
-			app-toolbar {
-				background-color: var(--paper-brown-500);
+			app-header-layout {
+				display: block;
+				box-sizing: border-box;
+				position: relative;
+				padding: 20vh 0 10vh;
+				background-color: var(--paper-brown-100);
+				z-index: 0;
+			}
+			app-header {
         user-select: none;
+				/*--app-header-background-rear-layer: {*/
+					background-color: var(--paper-brown-500);
+				/*};*/
 			}
 			[main-title] {
 				margin: 8px;
@@ -15,30 +27,36 @@
 				font-weight: 500;
 				color: rgba(255,255,255,1);
 			}
-			#bookBack {
+			#bookBox {
 				display: flex;
-				height: 200vh;
-				background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEBLAEsAAD/4QFgRXhpZgAATU0AKgAAAAgACgEOAAIAAABXAAAAhgEPAAIAAAASAAAA3gEQAAIAAAAMAAAA8AEaAAUAAAABAAAA/AEbAAUAAAABAAABBAEoAAMAAAABAAIAAAExAAIAAAARAAABDAITAAMAAAABAAEAAIKYAAIAAAAJAAABHodpAAQAAAABAAABKAAAAABzdGFjayBvZiBib29rcyBvbiB0aGUgZGFyayB3b29kIGJhY2tncm91bmQuIHRvbmluZy4gc2VsZWN0aXZlIGZvY3VzIG9uIHRoZSBtaWRkbGUgYm9vawAATklLT04gQ09SUE9SQVRJT04ATklLT04gRDcwMDAAAAABLAAAAAEAAAEsAAAAAXBhaW50Lm5ldCA0LjAuMTMAAEJpZ3N0b2NrAAAAAZKGAAcAAAAeAAABOgAAAABVTklDT0RFAABJAEQAOgA3ADAAMAAzADMAMgA0ADD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAVACADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+UX4d6f5ut2V3NDDNBbTxu6XDOLdsNnbOYv3gTO3cF5wfTr+yn7PGiadDc2cmq+JvDVpZzCOWOCy1BUkG0M7xuIl80rApRTE20tsyPmJNfj74N+H/AIv12YJocujJIwgbF1rVjbsFmyd2PN8xTEoJnTAdORsbBr6P8P8Awj+Omk+ZPa+IPBttbabJcrPNJ4u8y1QW9v5skzJbiaeSN7ceYkkETFlXb8km1T+accYPB55Rng/9YMBgKvsnFRquEpJWTjy3k+SfM0uZRbldJK6R+7+HGbYjhynGpLhzM8VTnUVSeIpwahf4ZP4FzQUI3UJytHlvfc/sO/ZH8C6p4s0LUpNL/ZJ/Zb+OGk+JvFeuXWm/Ev43fEGO08b3FrpP2DwnD4d0XwnP8E/iLe6doumWuhJJo01v4mjs9TRrvVJdLs729mM3e+PP2RvFHgP4kWXizwx/wS4/ZC8d/wDCXeH7y38Ux+FfiZaeFm09rq6jGzz9U+Aul2Q1MpC2bz+z7lZbS4mWQJI6MPkT9kH4CeGviV+y1/wqv9vP9p79lX4SeO9E8Qtpfg3w7a6l+zkPFx+HdtpGhXWi6nrWqXtzpGtf2vc663iC2uTqgvNZcWBfU703rzww9DrH/BO/9hzwzoWq6Zon7bn7I3iaW6LzrP8AESL4ReMNSi+QhYra6s/ixo9xaW6g/wCqsxCrYUsrFQa/jvPaOJy5Y7B4vMKlbC0qkcPRqZZgM6zjLMdl0YpRrVJ4aeClX/dOEo06EIUY1aaVL92lE/V6cMBj8T/bKzOhRzCvUrV5ZXmWUZ/hp4eeI96nSWY4F4zDxqx5+acqLoKM/hq32/mk/ZZ/Zt8P+P71rzVPFvjGzitWs1e20zUI7cTpJHFvjMhicJGftZTb5TfuxIucyho/6WPgv/wR7/Zr+J3hC0k8Q6x45W7v7O2uJ7+z1m7gukiuYprKS3t8Xf2aJFTeYme2lKBhGQ6KQxRX61xzxBnMM8qQp5hiKUacpKCpONNpRjRaXNTjGTV5N+83d73srfn2XYahhMmpOhSjD2ipuad6ible7tVc0r+SWmmx2/xZ8JH9gv4yfBW08aXtp+1b4D8aDxFo+laH8S/DuheH/FehnRvDV/dxXGpeK9Js9T0DX1E1rA0Mdp4A8OXCsskl5e6hNK0tfP8A+07/AMFKvgN4f0HVYrD/AIJ4/BC5vVt4y13q+r6FfxSNcCUhmto/hVZzZjZCeb0lt2MrjJKK+Jy3gDhDNsflyxuS0XHGxbr08NiMbl9K8c0xNFexo5ficLSwt4QjzrCwoqpO9WfNVlKb9GnxLn2LlOtic0xdarg8NGnQqzmvacsaNOrH281FSxUoyqSSqYp1qihyUub2VOnCP//Z');
-				background-size: cover;
-				background-position: 60% 50%;
-				background-attachment: fixed;
+				box-sizing: border-box;
+				width: 100%;
+				max-width: 750px;
+				min-height: 100vh;
+				position: relative;
+				margin: auto;
+				padding: 16px;
+				border-radius: 2px;
+				background-color: white;
+				text-align: justify;
+			}
+			#bookBody body {
+				width: 100%;
 			}
     </style>
 
 		<app-header-layout id="headerLayout">
 
-			<app-header slot="header" condenses reveals shadow effects="resize-title">
+			<app-header slot="header" reveals effects="waterfall fade-background">
 
 				<app-toolbar class="top-toolbar">
 					<slot></slot>
-					<div main-title>[[book]]</div>
+					<div main-title>[[book.title]]</div>
 				</app-toolbar>
 
 			</app-header>
 
-			<div id="bookBack">
-
-			</div>
+			<paper-material id="bookBox" elevation=1></paper-material>
 
     </app-header-layout>
 
@@ -49,10 +67,22 @@
       static get is() { return 'lynleser-book'; }
       static get properties() {
         return {
-					book: Array,
+					book: {
+						type: Object,
+						observer: "_pasteText"
+					},
 					active: Boolean
 				}
       }
+
+			_pasteText(book) {
+				if (book && book.document) {
+					if (this.$.bookBox.querySelector("body"))
+						this.$.bookBox.removeChild(this.$.bookBox.querySelector("body"));
+					var body = book.document.body.cloneNode(true);
+					this.$.bookBox.appendChild(body);
+				}
+			}
     }
     window.customElements.define(LynleserBook.is, LynleserBook);
   </script>

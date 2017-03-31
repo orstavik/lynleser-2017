@@ -7,7 +7,7 @@
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="ui/lynleser-drawer.html">
-<link rel="import" href="ui/lynleser-library.html">
+<link rel="import" href="ui/lynleser-books.html">
 <link rel="import" href="ui/lynleser-book.html">
 <link rel="import" href="ui/lynleser-reader.html">
 <link rel="import" href="ui/lynleser-settings.html">
@@ -47,14 +47,16 @@
         </lynleser-drawer>
       </app-drawer>
 
-      <iron-pages selected="[[state.route.path.segment0]]" attr-for-selected="page" selected-attribute="active">
+      <iron-pages selected="[[_concatSelected(state.route.path.segment0, state.route.path.segment1)]]"
+                  attr-for-selected="page"
+                  selected-attribute="active">
 
-        <lynleser-library page="library" books="[[state.books]]" on-select-book="_selectBook">
+        <lynleser-books page="books" books="[[state.books]]" on-select-book="_selectBook">
 					<paper-icon-button id="menuIcon" icon="menu" on-tap="drawerToggle"></paper-icon-button>
-        </lynleser-library>
+        </lynleser-books>
 
-        <lynleser-book page="book" book="[[state.route.path.segment1]]">
-          <a href="#/library">
+        <lynleser-book page="books/*" book="[[state.activeBook]]">
+          <a href="#/books">
 					  <paper-icon-button icon="arrow-back"></paper-icon-button>
           </a>
         </lynleser-book>
@@ -84,7 +86,7 @@
                         on-select-book="_selectBook"></lynleser-booklist>-->
       <!--<lynleser-settings id="settings" settings="[[state.settings]]"
                         on-settings-changed="_settingsChanged"></lynleser-settings>-->
-      <lynleser-fulltext id="fullText" book="[[state.activeBook]]"></lynleser-fulltext>
+      <!--<lynleser-fulltext id="fullText" book="[[state.activeBook]]"></lynleser-fulltext>-->
       <lynleser-joystick id="joystick"
                         on-speed-change="_speedChange"
                         on-word-wider="_wordWider"
@@ -121,7 +123,7 @@
 
       connectedCallback(){
         super.connectedCallback();
-        this.addEventListener("tick", this._tick.bind(this));    //tick from a) lynleser-fulltext b) lynleser-timer or other??
+        // this.addEventListener("tick", this._tick.bind(this));    //tick from a) lynleser-fulltext b) lynleser-timer or other??
       }
 
       drawerToggle(e) {
@@ -133,12 +135,16 @@
           this.$.drawer.toggle();
       }
 
-      _tick(e) {
-        e.stopPropagation();
-        if (!this.state.settings.activeBook)
-          return;
-        this._fire("state-add", {path: ["books", this.state.settings.activeBook, "position"], value: 1});
+      _concatSelected(page, book) {
+        return book ? (page+"/*") : page;
       }
+
+      // _tick(e) {
+      //   e.stopPropagation();
+      //   if (!this.state.settings.activeBook)
+      //     return;
+      //   this._fire("state-add", {path: ["books", this.state.settings.activeBook, "position"], value: 1});
+      // }
 
       _startStop(e) {
         console.log(e);
@@ -147,11 +153,6 @@
       _settingsChanged(e) {
         e.stopPropagation();
         this._fire("state-set", {path: ["settings", e.detail.key], value: e.detail.value});
-      }
-
-      _selectBook(e) {
-        e.stopPropagation();
-        this._fire("state-set", {path: ["settings", "activeBook"], value: e.detail});
       }
 
       _wordWider(e) {

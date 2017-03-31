@@ -10,7 +10,8 @@
         display: none;
       }
     </style>
-    <app-indexeddb-mirror key="systemBooks"
+    <app-indexeddb-mirror id="indexDB"
+                          key="systemBooks"
                           data="{{serverSystemBooks}}"
                           persisted-data="{{systemBooks}}"></app-indexeddb-mirror>
     <firebase-on id="serverUserState"
@@ -18,8 +19,7 @@
                  path="/users/[[serverUser.uid]]"
                  result="{{userState}}"
                  on-found-no-data="_newUser"></firebase-on>
-    <firebase-on once
-                 active
+    <firebase-on active
                  path="/system/books"
                  result="{{serverSystemBooks}}"></firebase-on>
     <firebase-loginout id="auth" user="{{serverUser}}"></firebase-loginout>
@@ -64,8 +64,13 @@
         };
       }
 
+      connectedCallback() {
+        super.connectedCallback();
+        this.$.indexDB.getStoredValue().then((books) => this.set("systemBooks", books));
+      }
+
       getBook(book) {
-        this.$.bucket.loadData(book.key, book.filename);
+        this.$.bucket.loadData(book.key, book.fileName);
       }
 
       _makeStateWithSystemBookData(systemBooks, bookData) {

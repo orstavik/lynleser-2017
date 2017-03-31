@@ -53,11 +53,11 @@
       }
 
       _makeParagraphs(book) {
-        if (!book || !book.body)
+        if (!book || !book.document)
           return undefined;
         let ps = [];
         let tmp = [];
-        for (let child of book.body.body.children) {
+        for (let child of book.document.body.children) {
           if (!(child instanceof Node && child.nodeName === "P")) {
             tmp.push(child);
             continue;
