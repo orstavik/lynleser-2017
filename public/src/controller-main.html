@@ -12,7 +12,7 @@
       }
     </style>
 
-    <controller-route id="router" route-state="{{routeState}}"></controller-route>
+    <controller-route id="router" route-in="[[state.route.url]]" on-route-changed="_routeChanged"></controller-route>
 
     <controller-data id="data"
                      merged-user-state="{{serverUserState}}"
@@ -62,17 +62,17 @@
             type: Object,
             computed: "_mergeStates(genericUserState, serverUserState)"
           },
-          routedFluidState: {
+          userState: {
             type: Object,
-            computed: "_mergeStates(fluidState, routeState)"
+            computed: "_mergeStates(specificUserState, fluidState)"
           },
-          unprocessedState: {
+          routedUserState: {
             type: Object,
-            computed: "_mergeStates(specificUserState, routedFluidState)"
+            computed: "_mergeStates(userState, routeState)"
           },
           state: {
             type: Object,
-            computed: "_postProcess(unprocessedState)"
+            computed: "_postProcess(routedUserState)"
           }
         };
       }
@@ -100,13 +100,10 @@
               theme: "day"
             },
             route: {
-              path: {
-                segment0: "books"
-              }
+              url: "books"
             }
           }
         });
-        // this.$.route.setPath("books");
       }
 
       _mergeStates(A, B) {
@@ -114,16 +111,22 @@
       }
 
       _postProcess(A) {
-        if (!location.hash) // todo: make this check inside controller-route
-          this.$.router.openPage(A.route);
-        if (A.route.path.segment0 !== "books" || !A.route.path.segment1 || !A.books)
-          return A;
         const C = Object.assign({}, A);
-        C.activeBook = C.books[A.route.path.segment1];
+        C.route = ControllerRoute.parseUrl(C.route.url);
+        if (C.route.path.s0 !== "books" || !C.route.path.s1 || !C.books)
+          return C;
+        C.activeBook = C.books[C.route.path.s1];
         if (C.activeBook.fileName && !C.activeBook.document)
           setTimeout(() => this.$.data.getBook(C.activeBook), 0); // Bad Timeout
         C.activeBook.position = C.activeBook.position || 0;
         return C;
+      }
+
+      _routeChanged(e) {
+        let route = undefined;
+        if (e.detail !== "")
+          route = {route: {url: e.detail}};
+        this.set("routeState", route);
       }
 
       _toTheTimeMachine(A) {

@@ -41,13 +41,13 @@
     <app-drawer-layout id="drawerLayout" on-drawer-toogle="drawerToggle">
 
       <app-drawer id="drawer" slot="drawer" swipe-open opened="{{drawerOpen}}">
-        <lynleser-drawer selected="[[state.route.path.segment0]]"
+        <lynleser-drawer selected="[[state.route.path.s0]]"
                          user="[[user]]"
                          on-drawer-close="drawerClose">
         </lynleser-drawer>
       </app-drawer>
 
-      <iron-pages selected="[[_concatSelected(state.route.path.segment0, state.route.path.segment1)]]"
+      <iron-pages selected="[[_concatSelected(state.route.path.s0, state.route.path.s1)]]"
                   attr-for-selected="page"
                   selected-attribute="active">
 
