@@ -30,10 +30,10 @@
 
       constructor() {
         super();
-        window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-        window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
-        window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
-        if (window.indexedDB) {
+        this._indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+        this._IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
+        this._IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
+        if (this._indexedDB) {
           this._connectDB();
         } else {
           console.warn("Your browser doesn't support a stable version of IndexedDB.");
