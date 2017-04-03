@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
 
 <link rel="import" href="indexed-mirror.html">
+<link rel="import" href="local-storage.html">
 <link rel="import" href="firebase-on.html">
 <link rel="import" href="firebase-loginout.html">
 <link rel="import" href="firebase-bucket.html">
@@ -33,7 +34,12 @@
                     data="[[serverSystemBooks]]"
                     stored-data="{{systemBooks}}">
     </indexed-mirror>
-
+    
+    <local-storage key="books" object="true"
+                   data="[[serverSystemBooks]]"
+                   stored-data="{{localBooks}}">
+    </local-storage>
+    
   </template>
   <script>
 

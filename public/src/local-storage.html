@@ -1,0 +1,53 @@
+<dom-module id="local-storage">
+  <script>
+    class LocalStorage extends Polymer.Element {
+      static get is() { return 'local-storage'; }
+      static get properties() {
+        return {
+          key: {
+            type: String,
+            value: "storedData"
+          },
+          data: {
+            type: Object,
+            observer: "_write"
+          },
+          storedData: {
+            type: Object,
+            notify: true
+          },
+          object: {
+            type: Boolean,
+            value: false
+          },
+					_localStorage: Object
+				}
+      }
+
+			constructor() {
+				super();
+				this._localStorage = window.localStorage;
+				this._updateStoredData();
+			}
+
+			_write(data) {
+				if (this.object)
+					data = JSON.stringify(data);
+				this._localStorage.setItem(this.key, data);
+				this._updateStoredData();
+			}
+
+			_updateStoredData() {
+				this.set("storedData", this._read(this.key));
+			}
+
+			_read(key) {
+				var data = this._localStorage.getItem(this.key);
+				if (this.object)
+					data = JSON.parse(data);
+				return data;
+			}
+    }
+    window.customElements.define(LocalStorage.is, LocalStorage);
+  </script>
+</dom-module>
