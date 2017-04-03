@@ -1,0 +1,110 @@
+<dom-module id="indexed-mirror">
+  <script>
+    class IndexedMirror extends  Polymer.GestureEventListeners(Polymer.Element) {
+      static get is() { return 'indexed-mirror'; }
+      static get properties() {
+        return {
+          key: {
+            type: String,
+            value: "storedData"
+          },
+          _dbName: {
+            type: String,
+            value: "app-mirror"
+          },
+          data: {
+            type: Object,
+            observer: "_write"
+          },
+          storedData: {
+            type: Object,
+            notify: true
+          },
+          log: {
+            type: Boolean,
+            value: false
+          },
+          _indexedDB: Object,
+          _IDBTransaction: Object,
+          _IDBKeyRange: Object,
+          _db: Object
+				}
+      }
+
+      constructor() {
+        super();
+        this._indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+        this._IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
+        this._IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
+        if (this._indexedDB) {
+          this._connectDB();
+        } else {
+          console.warn("Your browser doesn't support a stable version of IndexedDB.");
+        }
+      }
+
+      _connectDB() {
+        const request = indexedDB.open(this._dbName, 1);
+         
+        request.onupgradeneeded = function(event) {
+          let db = event.target.result;
+          let objectStore = db.createObjectStore(this.key);
+          this.logInfo("'"+this.key+"' objectStore is created.");
+        }.bind(this);
+
+        request.onsuccess = function(event) {
+          this._db = request.result;
+          this.logInfo("'"+this._dbName+"' indexedDB is connected.");
+          this._read(this.key);
+        }.bind(this);
+
+        request.onerror = (err) => this.logErr(err);
+      }
+
+      _write(data) {
+        if (!data)
+          return;
+
+        const transaction = this._db.transaction([this.key], "readwrite");
+        const store = transaction.objectStore(this.key);
+        const request = store.put(data, 1);
+        
+        request.onsuccess = function(event) {
+          this.logInfo("data stored in '"+this.key+"' objectStore.");
+          this._read();
+        }.bind(this);
+
+        request.onerror = (err) => this.logErr(err);
+      }
+
+      _read(key) {
+        const transaction = this._db.transaction([this.key], "readonly");
+        const store = transaction.objectStore(this.key);
+        const request = store.get(1);
+        
+        request.onsuccess = function(event) {
+          if (request.result) {
+            this.logInfo("storedData updated with data from '"+this.key+"' objectStore.");
+            this._updateStoredData(request.result);
+          }
+        }.bind(this);
+        
+        request.onerror = (err) => this.logErr(err);
+      }
+
+      _updateStoredData(data) {
+        this.set("storedData", data);
+      }
+
+      logErr(err){
+        console.log(err);
+      }
+
+      logInfo(info) {
+        if (this.log)
+          console.log(info);
+      }
+    }
+    window.customElements.define(IndexedMirror.is, IndexedMirror);
+  </script>
+</dom-module>

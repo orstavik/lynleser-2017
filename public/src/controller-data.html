@@ -1,4 +1,6 @@
 <link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
+
+<link rel="import" href="indexed-mirror.html">
 <link rel="import" href="firebase-on.html">
 <link rel="import" href="firebase-loginout.html">
 <link rel="import" href="firebase-bucket.html">
@@ -10,10 +12,12 @@
         display: none;
       }
     </style>
-    <app-indexeddb-mirror id="indexDB"
+
+
+    <!--<app-indexeddb-mirror id="indexDB"
                           key="systemBooks"
                           data="{{serverSystemBooks}}"
-                          persisted-data="{{systemBooks}}"></app-indexeddb-mirror>
+                          persisted-data="{{systemBooks}}"></app-indexeddb-mirror>-->
     <firebase-on id="serverUserState"
                  active="[[serverUser]]"
                  path="/users/[[serverUser.uid]]"
@@ -24,6 +28,12 @@
                  result="{{serverSystemBooks}}"></firebase-on>
     <firebase-loginout id="auth" user="{{serverUser}}"></firebase-loginout>
     <firebase-bucket id="bucket" root-path="books/" result="{{bookData}}"></firebase-bucket>
+    
+    <indexed-mirror key="books" log="true"
+                    data="[[serverSystemBooks]]"
+                    stored-data="{{systemBooks}}">
+    </indexed-mirror>
+
   </template>
   <script>
 
@@ -64,10 +74,10 @@
         };
       }
 
-      connectedCallback() {
-        super.connectedCallback();
-        this.$.indexDB.getStoredValue().then((books) => this.set("systemBooks", books));
-      }
+      // connectedCallback() {
+      //   super.connectedCallback();
+      //   this.$.indexDB.getStoredValue().then((books) => this.set("systemBooks", books));
+      // }
 
       getBook(book) {
         this.$.bucket.loadData(book.key, book.fileName);
