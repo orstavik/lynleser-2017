@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
@@ -66,10 +67,11 @@
 				<template>
 					<a href="#/books/[[book.key]]">
 						<paper-material elevation=1 class="book-card" data-key$="[[book.key]]">
-							<!--<iron-image src="[[imgResp.img]]" preload fade sizing="cover" class="book-image" placeholder="[[imgResp.img-preview]]"></iron-image>-->
+							<iron-image src="../../[[book.imagePath]]" preload fade sizing="cover" class="book-image" placeholder="[[book.imageBase64]]"></iron-image>
 							<div class="book-content">
-								<h3>[[book.title]]</h3>
-								<span>[[book.key]]</span>
+								<span style="font-weight: bold">[[book.title]]</span><br>
+								<span>[[book.author]]</span><br>
+								<span>[[book.published]]</span><br>
 							</div>
 						</paper-material>
 					</a>

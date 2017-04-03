@@ -117,7 +117,7 @@
         if (C.route.path.s0 !== "books" || !C.route.path.s1 || !C.books)
           return C;
         C.activeBook = C.books[C.route.path.s1];
-        if (C.activeBook.fileName && !C.activeBook.document)
+        if (C.activeBook.filePath && !C.activeBook.document)
           setTimeout(() => this.$.data.getBook(C.activeBook), 0); // Bad Timeout
         C.activeBook.position = C.activeBook.position || 0;
         return C;

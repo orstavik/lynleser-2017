@@ -7,8 +7,8 @@
 
     <h2>Books</h2>
     <template is="dom-repeat" items="[[booksArray]]">
-      <div class="systemBook" data-filename$="[[item.fileName]]" data-key$="[[item.key]]" on-click="_clickBook">
-        [[item.title]] (([[item.position]])) => [[item.fileName]]
+      <div class="systemBook" data-filepath$="[[item.filePath]]" data-key$="[[item.key]]" on-click="_clickBook">
+        [[item.title]] (([[item.position]])) => [[item.filePath]]
       </div>
     </template>
 

@@ -28,7 +28,7 @@
                  path="/system/books"
                  result="{{serverSystemBooks}}"></firebase-on>
     <firebase-loginout id="auth" user="{{serverUser}}"></firebase-loginout>
-    <firebase-bucket id="bucket" root-path="books/" result="{{bookData}}"></firebase-bucket>
+    <firebase-bucket id="bucket" result="{{bookData}}"></firebase-bucket>
     
     <indexed-mirror key="books" log="true"
                     data="[[serverSystemBooks]]"
@@ -86,7 +86,7 @@
       // }
 
       getBook(book) {
-        this.$.bucket.loadData(book.key, book.fileName);
+        this.$.bucket.loadData(book.key, book.filePath);
       }
 
       _makeStateWithSystemBookData(systemBooks, bookData) {
