@@ -1,0 +1,51 @@
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+
+<dom-module id="lynleser-readingbar">
+  <template>
+    <style>
+			:host {
+				display: block;
+			}
+			#bar {
+				display: flex;
+				width: 100%;
+				height: 64px;
+				align-items: center;
+				position: fixed;
+				bottom: 0;
+				padding: 0 24px;
+				background-color: var(--paper-pink-a400);
+			}
+			#bar a {
+				display: block;
+				width: 100%;
+				height: 100%;
+				position: absolute;
+			}
+			#bar > span {
+				color: white;
+    		font-size: 18px;
+				margin-right: 16px;
+			}
+    </style>
+
+		<paper-material id="bar" elevation=1>
+			<span>[[session.book.title]]</span>
+			<span>[[session.position]]</span>
+			<a href="#/reader"></a>
+		</paper-material>
+
+  </template>
+
+  <script>
+    class LynleserReadingbar extends Polymer.Element {
+      static get is() { return 'lynleser-readingbar'; }
+      static get properties() {
+        return {
+					session: Object
+				}
+      }
+    }
+    window.customElements.define(LynleserReadingbar.is, LynleserReadingbar);
+  </script>
+</dom-module>

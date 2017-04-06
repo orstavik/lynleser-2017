@@ -1,5 +1,3 @@
-<link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
-
 <link rel="import" href="indexed-mirror.html">
 <link rel="import" href="local-storage.html">
 <link rel="import" href="firebase-on.html">
@@ -13,16 +11,21 @@
         display: none;
       }
     </style>
-
-
-    <!--<app-indexeddb-mirror id="indexDB"
-                          key="systemBooks"
-                          data="{{serverSystemBooks}}"
-                          persisted-data="{{systemBooks}}"></app-indexeddb-mirror>-->
+    
+    <indexed-mirror key="books"
+                    data="[[serverSystemBooks]]"
+                    stored-data="{{systemBooks}}">
+    </indexed-mirror>
+        
+    <indexed-mirror key="user"
+                    data="[[serverUserState]]"
+                    stored-data="{{userState}}">
+    </indexed-mirror>
+ 
     <firebase-on id="serverUserState"
                  active="[[serverUser]]"
                  path="/users/[[serverUser.uid]]"
-                 result="{{userState}}"
+                 result="{{serverUserState}}"
                  on-found-no-data="_newUser"></firebase-on>
     <firebase-on active
                  path="/system/books"
@@ -30,14 +33,14 @@
     <firebase-loginout id="auth" user="{{serverUser}}"></firebase-loginout>
     <firebase-bucket id="bucket" result="{{bookData}}"></firebase-bucket>
     
-    <indexed-mirror key="books" log="true"
-                    data="[[serverSystemBooks]]"
-                    stored-data="{{systemBooks}}">
-    </indexed-mirror>
-    
     <local-storage key="books" object="true"
                    data="[[serverSystemBooks]]"
                    stored-data="{{localBooks}}">
+    </local-storage>
+        
+    <local-storage key="user" object="true"
+                   data="[[serverUserState]]"
+                   stored-data="{{localUser}}">
     </local-storage>
     
   </template>

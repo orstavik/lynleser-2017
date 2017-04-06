@@ -2,37 +2,51 @@
 <link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
 <link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../../bower_components/iron-icons/av-icons.html">
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+
+<link rel="import" href="../css/css-reset.html">
 
 <dom-module id="lynleser-book">
   <template>
-    <style>
+    <style include="css-reset">
 			app-header-layout {
 				display: block;
 				box-sizing: border-box;
 				position: relative;
 				padding: 20vh 0 10vh;
-				background-color: var(--paper-brown-100);
 				z-index: 0;
 			}
 			app-header {
         user-select: none;
-				/*--app-header-background-rear-layer: {*/
-					background-color: var(--paper-brown-500);
-				/*};*/
+				--app-header-background-rear-layer: {
+					background: gray;
+				};
 			}
+			/*linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0))*/
 			[main-title] {
 				margin: 8px;
 				font-size: 20px;
 				font-weight: 500;
 				color: rgba(255,255,255,1);
 			}
+			#backDiv {
+				display: block;
+				width: 100vw;
+				height: 100vh;
+				position: fixed;
+				top: 0;
+				left: 0;
+				background-position: center center;
+				background-size: cover;
+			}
 			#bookBox {
 				display: flex;
+				flex-direction: column;
 				box-sizing: border-box;
 				width: 100%;
-				max-width: 750px;
-				min-height: 100vh;
+				max-width: 640px;
 				position: relative;
 				margin: auto;
 				padding: 16px;
@@ -40,14 +54,58 @@
 				background-color: white;
 				text-align: justify;
 			}
-			#bookBody body {
-				width: 100%;
+			a {
+				position: absolute;
+				top: 0;
+				right: 50px;
+				transform: translateY(-50%);
 			}
+			paper-fab {
+				--paper-fab-background: var(--paper-pink-a400);
+			}
+			#firstPage {
+				display: flex;
+    		margin: 30px 0 60px;
+			}
+			#firstPage > div {
+				display: flex;
+				flex-direction: column;
+				margin: 0 16px;
+			}
+			#firstPage iron-image {
+				width: 200px;
+				max-width: 40vw;
+				height: 300px;
+				max-height: 60vw;
+			}
+			#bookBody .chapter, #bookBody .chapter-descr, #bookBody .under-chapter {
+				text-align: center;
+			}
+			#bookBody p {
+				text-indent: 30px;
+				text-align: justify;
+			}
+			@media (max-width: 640px) {
+				app-toolbar {
+					height: 56px;
+				}
+				#bookBox {
+					border-radius: 0;
+				}
+      }
+			@media (min-width: 900px) {
+				#bookBox {
+					width: 64vw;
+					max-width: 64vw;
+				}
+      }
     </style>
+
+		<div id="backDiv" style$="background-image: url([[book.imageBase64]])"></div>
 
 		<app-header-layout id="headerLayout">
 
-			<app-header slot="header" reveals effects="waterfall fade-background">
+			<app-header slot="header" reveals effects="fade-background waterfall">
 
 				<app-toolbar class="top-toolbar">
 					<slot></slot>
@@ -55,9 +113,28 @@
 				</app-toolbar>
 
 			</app-header>
-
+			
 			<paper-material id="bookBox" elevation=1>
-				
+				<a href="#/reader">
+					<paper-fab icon="av:play-arrow" on-tap="_startReading" disabled="[[!book.document]]"></paper-fab>
+				</a>
+				<div id="firstPage">
+					<div>
+						<iron-image src="../../[[book.imagePath]]"
+												preload
+												fade
+												sizing="cover"
+												class="book-image"
+												placeholder="[[book.imageBase64]]">
+						</iron-image>
+					</div>
+					<div>
+						<h1>[[book.title]]</h1>
+						<h3>by</h3>
+						<h2>[[book.author]]</h2>
+					</div>
+				</div>
+				<div id="bookBody"></div>
 			</paper-material>
 
     </app-header-layout>
@@ -65,7 +142,7 @@
   </template>
 
   <script>
-    class LynleserBook extends Polymer.Element {
+    class LynleserBook extends Polymer.GestureEventListeners(Polymer.Element) {
       static get is() { return 'lynleser-book'; }
       static get properties() {
         return {
@@ -78,13 +155,40 @@
       }
 
 			_pasteText(book) {
+				this._clearSpace();
 				if (book && book.document) {
-					if (this.$.bookBox.querySelector("body"))
-						this.$.bookBox.removeChild(this.$.bookBox.querySelector("body"));
-					var body = book.document.body.cloneNode(true);
-					this.$.bookBox.appendChild(body);
+					var children = book.document.body.children;
+					for (let i = 0; i < children.length; i++) {
+						let child = children[i];
+						// if (child.nodeName === "H3" && child.classList.contains("chapter")) {
+						// 	let childCopy = child.cloneNode(true);
+						// 	this.$.bookBody.appendChild(childCopy);
+						// }
+						// if (child.nodeName === "P") {
+							let childCopy = child.cloneNode(true);
+							this.$.bookBody.appendChild(childCopy);
+						// }
+						if (children[i+1].nodeName === "H3" && children[i+1].classList.contains("chapter")) {
+							break;
+						}
+					}
 				}
 			}
+
+			_clearSpace() {
+				var children = this.$.bookBody.children;
+				for (let i = 0; i < children.length;) {
+					this.$.bookBody.removeChild(children[i]);
+				}
+			}
+
+			_startReading() {
+				this.fire("start-reading", this.book);
+			}
+
+			fire(name, detail) {
+        this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: detail}));
+      }
     }
     window.customElements.define(LynleserBook.is, LynleserBook);
   </script>

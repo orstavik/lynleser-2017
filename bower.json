@@ -1,12 +1,11 @@
 {
-  "name": "lynleser 2017",
+  "name": "lynleser-2017",
   "authors": [
     "ivar and tom"
   ],
   "private": true,
   "dependencies": {
     "polymer": "polymer/Polymer#2.0.0-rc.2",
-    "app-storage": "PolymerElements/app-storage#^0.9.8",
     "app-layout": "PolymerElements/app-layout#2.0-preview",
     "iron-ajax": "PolymerElements/iron-ajax#2.0-preview",
     "iron-image": "PolymerElements/iron-image#2.0-preview",
@@ -18,10 +17,10 @@
     "paper-material": "PolymerElements/paper-material#2.0-preview",
     "paper-ripple": "PolymerElements/paper-ripple#2.0-preview",
     "paper-icon-button": "PolymerElements/paper-icon-button#2.0-preview",
+    "paper-fab": "PolymerElements/paper-fab#2.0-preview",
     "polymerfire": "firebase/polymerfire#^0.10.3"
   },
   "resolutions": {
-    "polymer": "2.0.0-rc.2",
-    "webcomponentsjs": "v1.0.0-rc.5"
+    "polymer": "2.0.0-rc.2"
   }
 }

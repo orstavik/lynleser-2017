@@ -11,13 +11,14 @@
 <link rel="import" href="ui/lynleser-book.html">
 <link rel="import" href="ui/lynleser-reader.html">
 <link rel="import" href="ui/lynleser-settings.html">
+<link rel="import" href="ui/lynleser-readingbar.html">
+<link rel="import" href="lynleser-timing.html">
 
-<link rel="import" href="ui/lynleser-fulltext.html">
-<link rel="import" href="ui/lynleser-joystick.html">
+<link rel="import" href="css/css-reset.html">
 
 <dom-module id="controller-ui">
   <template>
-    <style>
+    <style include="css-reset">
 			paper-icon-button {
 				color: rgba(255,255,255,1);
         -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /*IMPORTANT PEACE OF CSS*/
@@ -38,7 +39,7 @@
       }
     </style>
 
-    <app-drawer-layout id="drawerLayout" on-drawer-toogle="drawerToggle">
+    <app-drawer-layout id="drawerLayout" on-drawer-toogle="drawerToggle" responsive-width="900px">
 
       <app-drawer id="drawer" slot="drawer" swipe-open opened="{{drawerOpen}}">
         <lynleser-drawer selected="[[state.route.path.s0]]"
@@ -51,20 +52,21 @@
                   attr-for-selected="page"
                   selected-attribute="active">
 
-        <lynleser-books page="books" books="[[state.books]]" on-select-book="_selectBook">
+        <lynleser-books page="books"
+                        books="[[state.books]]"
+                        on-select-book="_selectBook">
 					<paper-icon-button id="menuIcon" icon="menu" on-tap="drawerToggle"></paper-icon-button>
         </lynleser-books>
 
-        <lynleser-book page="books/*" book="[[state.activeBook]]">
+        <lynleser-book page="books/*"
+                       book="[[state.activeBook]]"
+                       on-start-reading="_startReading">
           <a href="#/books">
 					  <paper-icon-button icon="arrow-back"></paper-icon-button>
           </a>
         </lynleser-book>
 
-        <lynleser-reader page="reader"
-                         id="books"
-                         books="[[state.books]]"
-                         on-select-book="_selectBook">
+        <lynleser-reader page="reader" session="[[readSession]]">
 					<paper-icon-button id="menuIcon" icon="menu" on-tap="drawerToggle"></paper-icon-button>
         </lynleser-reader>
         
@@ -77,21 +79,17 @@
 
       </iron-pages>
 
+      <lynleser-readingbar hidden$="[[_hideReadingBar(state.route.path.s0, readSession.active)]]"
+                           session="[[readSession]]"></lynleser-readingbar>
+
     </app-drawer-layout>
 
-    <div style="display: none">
-      <!--<lynleser-auth id="login" user="[[user]]"></lynleser-auth>-->
-      <!--<lynleser-booklist id="books"
-                        books="[[state.books]]"
-                        on-select-book="_selectBook"></lynleser-booklist>-->
-      <!--<lynleser-settings id="settings" settings="[[state.settings]]"
-                        on-settings-changed="_settingsChanged"></lynleser-settings>-->
-      <!--<lynleser-fulltext id="fullText" book="[[state.activeBook]]"></lynleser-fulltext>-->
-      <lynleser-joystick id="joystick"
-                        on-speed-change="_speedChange"
-                        on-word-wider="_wordWider"
-                        on-start-stop="_startStop"></lynleser-joystick>
-    </div>
+    <lynleser-timing playing="[[readSession.playing]]" speed="[[state.settings.speed]]" on-tick="_tick"></lynleser-timing>
+
+    <!--<lynleser-joystick id="joystick"
+                      on-speed-change="_speedChange"
+                      on-word-wider="_wordWider"
+                      on-start-stop="_startStop"></lynleser-joystick>-->
   </template>
   <script>
     class ControllerUI extends  Polymer.GestureEventListeners(Polymer.Element) {
@@ -104,26 +102,22 @@
         return {
           user: Object,
           state: Object,
-          // books: {
-          //   type: Array,
-          //   value: function() {
-          //     let arr = [];
-          //     for (let i = 0; i<10; i++)
-          //       arr.push({
-          //         title: "Book Number "+i,
-          //         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-          //         year: 1000+10*i,
-          //         author: "Author"+i
-          //       })
-          //     return arr;
-          //   }
-          // }
+          readSession: {
+            type: Object,
+            value: function() {
+              return {
+                book: {},
+                active: false,
+                playing: false,
+                position: 0
+              };
+            }
+          }
         };
       }
 
       connectedCallback(){
         super.connectedCallback();
-        // this.addEventListener("tick", this._tick.bind(this));    //tick from a) lynleser-fulltext b) lynleser-timer or other??
       }
 
       drawerToggle(e) {
@@ -135,35 +129,46 @@
           this.$.drawer.toggle();
       }
 
+      _startReading(e) {
+        this.set("readSession", {
+          book: e.detail,
+          active: true,
+          playing: true,
+          position: 0
+        });
+      }
+
+      _tick(e) {
+        this.readSession.position++;
+        this.notifyPath("readSession.position");
+      }
+
       _concatSelected(page, book) {
         return book ? (page+"/*") : page;
       }
 
-      // _tick(e) {
-      //   e.stopPropagation();
-      //   if (!this.state.settings.activeBook)
-      //     return;
-      //   this._fire("state-add", {path: ["books", this.state.settings.activeBook, "position"], value: 1});
-      // }
-
-      _startStop(e) {
-        console.log(e);
+      _hideReadingBar(page, reading) {
+        return (page === "reader" || !reading);
       }
+
+      // _startStop(e) {
+      //   console.log(e);
+      // }
 
       _settingsChanged(e) {
         e.stopPropagation();
         this._fire("state-set", {path: ["settings", e.detail.key], value: e.detail.value});
       }
 
-      _wordWider(e) {
-        e.stopPropagation();
-        this._fire("state-add", {path: ["settings", "wordWidth"], value: e.detail});
-      }
+      // _wordWider(e) {
+      //   e.stopPropagation();
+      //   this._fire("state-add", {path: ["settings", "wordWidth"], value: e.detail});
+      // }
 
-      _speedChange(e) {
-        e.stopPropagation();
-        this._fire("state-multiply", {path: ["settings", "speed"], value: 1 + (e.detail / 100)});
-      }
+      // _speedChange(e) {
+      //   e.stopPropagation();
+      //   this._fire("state-multiply", {path: ["settings", "speed"], value: 1 + (e.detail / 100)});
+      // }
 
       _fire(name, detail) {
         this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: detail}));

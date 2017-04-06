@@ -5,8 +5,11 @@
 <dom-module id="lynleser-reader">
   <template>
     <style>
+			app-header-layout {
+				background-color: var(--paper-pink-500);
+			}
 			app-toolbar {
-				background-color: var(--paper-deep-orange-500);
+				background-color: var(--paper-pink-500);
         user-select: none;
 			}
 			[main-title] {
@@ -15,11 +18,34 @@
 				font-weight: 500;
 				color: rgba(255,255,255,1);
 			}
+			#readingBox {
+				display: flex;
+				height: calc(100vh - 64px);
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+			}
+			#readingBox span {
+				color: white;
+				font-weight: 100;
+    		font-size: 7vw;
+			}
+			@media (max-width: 640px) {
+				app-toolbar {
+					height: 56px;
+				}
+				#readingBox {
+					height: calc(100vh - 56px);
+				}
+				#readingBox span {
+					font-size: 9vw;
+				}
+			}
     </style>
 
     <app-header-layout id="headerLayout">
 
-			<app-header slot="header" reveals shadow>
+			<app-header slot="header">
 
 				<app-toolbar class="top-toolbar">
 					<slot></slot>
@@ -27,6 +53,10 @@
 				</app-toolbar>
 
 			</app-header>
+
+			<div id="readingBox">
+				<span>[[_makePhrase(phraseArray, session.position)]]</span>
+			</div>
 
     </app-header-layout>
 
@@ -37,13 +67,24 @@
       static get is() { return 'lynleser-reader'; }
       static get properties() {
         return {
-					book: Array,
-					active: Boolean
+					session: Object,
+					active: Boolean,
+					_pI: {
+						type: Number,
+						value: 0
+					},
+					phraseArray: {
+						type: Array,
+						value: function() {
+							return [];
+						}
+					}
 				}
       }
 			static get observers() {
 				return [
-					"_updateView(active)"
+					"_updateView(active)",
+					"_parseText(session.book)"
 				]
 			}
 
@@ -55,6 +96,39 @@
 
 			_updateView(a) {
 				if (a) this.$.headerLayout.resetLayout();
+			}
+
+			_parseText(book) {
+				if (book && book.document) {
+					var ps = book.document.body.querySelectorAll("p:not(.under-chapter)");
+					var pT = ps[this._pI].textContent.replace(/\n/ig, " ").trim();
+					for (let i = 0; i < pT.length; ) {
+						let index = pT.indexOf(" ", i);
+						if (index >= 10) {
+							let pf = pT.slice(0, index);
+							this.phraseArray.push(pf);
+							pT = pT.slice(index+1);
+							i = 0;
+							if (pT.lastIndexOf(" ") < 10) {
+								this.phraseArray.push(pT);
+								pT = "";
+								break;
+							}
+						} else {
+							i = index+1;
+						}
+					}
+				}
+			}
+
+			_makePhrase(arr, pos) {
+				if (arr && arr.length > 0) {
+					if (pos >= arr.length) {
+						this._pI++;
+						this._parseText(this.session.book);
+					}
+					return arr[pos]
+				}
 			}
     }
     window.customElements.define(LynleserReader.is, LynleserReader);

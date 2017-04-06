@@ -45,6 +45,11 @@
 			.book-image {
 				height: 120px;
 			}
+			@media (max-width: 640px) {
+				app-toolbar {
+					height: 56px;
+				}
+      }
     </style>
 
 		<app-header-layout id="headerLayout">
@@ -67,8 +72,13 @@
 				<template>
 					<a href="#/books/[[book.key]]">
 						<paper-material elevation=1 class="book-card" data-key$="[[book.key]]">
-							<iron-image src="../../[[book.imagePath]]" preload fade sizing="cover" class="book-image" placeholder="[[book.imageBase64]]"></iron-image>
-							<div class="book-content">
+								<iron-image src="../../[[book.imagePath]]"
+														preload
+														fade
+														sizing="cover"
+														class="book-image"
+														placeholder="[[book.imageBase64]]">
+								</iron-image><div class="book-content">
 								<span style="font-weight: bold">[[book.title]]</span><br>
 								<span>[[book.author]]</span><br>
 								<span>[[book.published]]</span><br>

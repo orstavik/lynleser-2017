@@ -1,0 +1,50 @@
+<dom-module id="lynleser-timing">
+  <script>
+    class LynleserTiming extends Polymer.Element {
+      static get is() { return 'lynleser-timing'; }
+      static get properties() {
+        return {
+					playing: {
+						type: Boolean,
+						observer: "_setTicking"
+					},
+					speed: Number
+				}
+      }
+
+			_setTicking(playing) {
+				if (playing === true) {
+					this._startTicking();
+				} else if (playing === false) {
+					this._stopTicking();
+				}
+			}
+
+			_startTicking() {
+				this._lastTick = new Date().getTime();
+				this._timeFrame = setTimeout(this._tick.bind(this), 20);
+			}
+
+			_stopTicking() {
+				if (this._timeFrame)
+					clearTimeout(this._timeFrame);
+			}
+
+			_tick() {
+				let interval = new Date().getTime() - this._lastTick;
+				let mist = interval - this.speed;
+				if (mist >= 0) {
+					this._lastTick = new Date().getTime() - mist;
+					this.fire("tick");
+					// console.log(this._lastTick, new Date().getTime(), mist);
+				}
+				this._timeFrame = setTimeout(this._tick.bind(this), 20);
+			}
+
+			fire(name, detail) {
+        this.dispatchEvent(new CustomEvent(name, {composed: true, bubbles: true, detail: detail}));
+      }
+    }
+    window.customElements.define(LynleserTiming.is, LynleserTiming);
+  </script>
+</dom-module>
