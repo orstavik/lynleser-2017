@@ -1,84 +1,87 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-  <title>Lynleser 2017</title>
-  <meta name="description" content="Read with speed!">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-  <!--<link rel="icon" href="/images/favicon.ico">-->
+    <title>Lynleser 2017</title>
+    <meta name="description" content="Read with speed!">
 
-  <!-- See https://goo.gl/OOhYW5 -->
-  <link rel="manifest" href="/manifest.json">
+    <!--<link rel="icon" href="/images/favicon.ico">-->
 
-  <!-- See https://goo.gl/qRE0vM -->
-  <meta name="theme-color" content="#3f51b5">
+    <!-- See https://goo.gl/OOhYW5 -->
+    <link rel="manifest" href="/manifest.json">
 
-  <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="application-name" content="Lynleser">
+    <!-- See https://goo.gl/qRE0vM -->
+    <meta name="theme-color" content="#3f51b5">
 
-  <!-- Add to homescreen for Safari on iOS -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Lynleser">
+    <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Lynleser">
 
-  <!-- Homescreen icons -->
-  <link rel="apple-touch-icon" href="/images/manifest/icon-48x48.png">
-  <link rel="apple-touch-icon" sizes="72x72" href="/images/manifest/icon-72x72.png">
-  <link rel="apple-touch-icon" sizes="96x96" href="/images/manifest/icon-96x96.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="/images/manifest/icon-144x144.png">
-  <link rel="apple-touch-icon" sizes="192x192" href="/images/manifest/icon-192x192.png">
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Lynleser">
 
-  <!-- Tile icon for Windows 8 (144x144 + tile color) -->
-  <meta name="msapplication-TileImage" content="/images/manifest/icon-144x144.png">
-  <meta name="msapplication-TileColor" content="#3f51b5">
-  <meta name="msapplication-tap-highlight" content="no">
+    <!-- Homescreen icons -->
+    <link rel="apple-touch-icon" href="/images/manifest/icon-48x48.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/images/manifest/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="/images/manifest/icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/images/manifest/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/images/manifest/icon-192x192.png">
 
-  <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
+    <!-- Tile icon for Windows 8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="/images/manifest/icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#3f51b5">
+    <meta name="msapplication-tap-highlight" content="no">
 
-  <script src="https://unpkg.com/compromise@latest/builds/compromise.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
-  <script src="src/js/tools.js"></script>
-  <!--<script src="https://code.jquery.com/pep/0.4.1/pep.js"></script>              &lt;!&ndash; polyfill: Pointer event ! &ndash;&gt;-->
-  <script src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
-  <script>
-    // Initialize Firebase
-    firebase.initializeApp({
-      apiKey: "AIzaSyCsaCy5xQKr7-H23fvHZX9vbZklxo4mKks",
-      authDomain: "lynleser-2017.firebaseapp.com",
-      databaseURL: "https://lynleser-2017.firebaseio.com",
-      storageBucket: "lynleser-2017.appspot.com",
-      messagingSenderId: "740631213903"
-    });
+    <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
 
-    //load serviceWorker
-    // if ('serviceWorker' in navigator) {
-    //   window.addEventListener('load', function() {
-    //     navigator.serviceWorker.register('/sw.js').then(function(registration) {
-    //       console.log('ServiceWorker registration successful with scope: ', registration.scope);
-    //     }).catch(function(err) {
-    //       console.log('ServiceWorker registration failed: ', err);
-    //     });
-    //   });
-    // }
-  </script>
+    <script src="https://unpkg.com/compromise@latest/builds/compromise.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
+    <script src="src/js/tools.js"></script>
+    <!--<script src="https://code.jquery.com/pep/0.4.1/pep.js"></script>              &lt;!&ndash; polyfill: Pointer event ! &ndash;&gt;-->
+    <script src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
+    <script>
+      // Initialize Firebase
+      firebase.initializeApp({
+        apiKey: "AIzaSyCsaCy5xQKr7-H23fvHZX9vbZklxo4mKks",
+        authDomain: "lynleser-2017.firebaseapp.com",
+        databaseURL: "https://lynleser-2017.firebaseio.com",
+        storageBucket: "lynleser-2017.appspot.com",
+        messagingSenderId: "740631213903"
+      });
 
-  <script src="src/js/state.js"></script>
-  <link rel="import" href="/src/controller-main.html">
+      //load serviceWorker
+      // if ('serviceWorker' in navigator) {
+      //   window.addEventListener('load', function() {
+      //     navigator.serviceWorker.register('/sw.js').then(function(registration) {
+      //       console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      //     }).catch(function(err) {
+      //       console.log('ServiceWorker registration failed: ', err);
+      //     });
+      //   });
+      // }
+    </script>
 
-  <style>
-    body {
-      display: block;
-      height: 100vh;
-      margin: 0;
-      font-family: 'Roboto', 'Noto', sans-serif;
-      line-height: 1.5;
-    }
-  </style>
-</head>
-<body>
-<controller-main></controller-main>
-</body>
+    <script src="src/js/state.js"></script>
+    <link rel="import" href="/src/controller-main.html">
+
+    <style>
+      body {
+        display: block;
+        height: 100vh;
+        margin: 0;
+        font-family: 'Roboto', 'Noto', sans-serif;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+
+  <body>
+    <controller-main></controller-main>
+  </body>
+
 </html>
